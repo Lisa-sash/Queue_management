@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { ArrowRight, MapPin, Star, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
+import { ValueProposition } from "@/components/home/ValueProposition";
+import { Testimonials } from "@/components/home/Testimonials";
 import { MOCK_BARBERS } from "@/lib/mock-data";
 import generatedImage from '@assets/generated_images/modern_dark_industrial_barbershop_interior.png';
 
@@ -56,13 +58,19 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Value Proposition */}
+      <ValueProposition />
+
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* Featured Shops */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="text-3xl font-heading font-bold mb-2">Top Rated Shops</h2>
-              <p className="text-muted-foreground">The best cuts in your city, ranked by queue efficiency.</p>
+              <h2 className="text-3xl font-heading font-bold mb-2">Shops Near You</h2>
+              <p className="text-muted-foreground">The best cuts in your city, ranked by client satisfaction.</p>
             </div>
             <Button variant="link" className="text-primary hidden md:flex">View all shops</Button>
           </div>
@@ -151,6 +159,32 @@ export default function Home() {
                <div className="aspect-video relative flex items-center justify-center bg-white/5">
                   <span className="font-heading text-2xl text-muted-foreground">Coming Soon</span>
                </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Footer */}
+      <section className="py-20 bg-card border-t border-white/5">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h2 className="text-4xl font-heading font-bold">
+              Ready to Skip the Line?
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Join hundreds of barbers and clients in your city who are already saving time and money.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Link href="/shops">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
+                  Book a Cut Now
+                </Button>
+              </Link>
+              <Link href="/barber-signup">
+                <Button size="lg" variant="outline" className="border-primary/20 hover:bg-white/5 px-8">
+                  Register Your Shop
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
