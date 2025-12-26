@@ -28,9 +28,12 @@ export function Navbar() {
           <Link href="/appointments" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             My Bookings
           </Link>
-          <Button variant="outline" className="border-primary/20 hover:bg-primary/10 text-primary hover:text-primary">
-            For Barbers
-          </Button>
+          <div className="h-6 w-px bg-white/10" />
+          <Link href="/barber/login">
+            <Button variant="outline" className="border-primary/20 hover:bg-primary/10 text-primary hover:text-primary">
+              For Barbers
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Nav */}
@@ -49,9 +52,11 @@ export function Navbar() {
                 My Bookings
               </Link>
               <div className="h-px bg-white/10 my-2" />
-              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                Barber Login
-              </Button>
+              <Link href="/barber/login" className="w-full">
+                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Barber Portal
+                </Button>
+              </Link>
             </div>
           </SheetContent>
         </Sheet>

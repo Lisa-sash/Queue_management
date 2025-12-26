@@ -1,4 +1,3 @@
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { LogOut, BarChart3, Clock, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,9 +6,10 @@ interface BarberSidebarProps {
   barberName: string;
   barberAvatar: string;
   activePage: string;
+  onLogout?: () => void;
 }
 
-export function BarberSidebar({ barberName, barberAvatar, activePage }: BarberSidebarProps) {
+export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout }: BarberSidebarProps) {
   const menuItems = [
     { id: 'queue', label: 'Queue', icon: Clock },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -50,6 +50,7 @@ export function BarberSidebar({ barberName, barberAvatar, activePage }: BarberSi
 
       {/* Logout */}
       <Button
+        onClick={onLogout}
         variant="ghost"
         className="w-full justify-start text-red-500 hover:text-red-400 hover:bg-red-500/10"
       >

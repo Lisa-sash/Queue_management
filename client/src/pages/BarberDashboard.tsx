@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarberSidebar } from "@/components/barber/BarberSidebar";
 import { QueueCard } from "@/components/barber/QueueCard";
@@ -7,6 +8,7 @@ import { NotificationPanel } from "@/components/barber/NotificationPanel";
 import { Button } from "@/components/ui/button";
 import { Bell, Settings, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface QueueItem {
   id: string;
@@ -25,7 +27,22 @@ interface Notification {
 }
 
 export default function BarberDashboard() {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [barberName, setBarberName] = useState("Jax");
+
+  // Check if logged in
+  useEffect(() => {
+    const auth = localStorage.getItem("barberAuth");
+    if (!auth) {
+      setLocation("/barber/login");
+      return;
+    }
+    const parsed = JSON.parse(auth);
+    setBarberName(parsed.name || "Barber");
+  }, [setLocation]);
+
   const [queue, setQueue] = useState<QueueItem[]>([
     { id: '1', time: '14:00', clientName: 'Mike R.', type: 'app', status: 'completed' },
     { id: '2', time: '14:30', clientName: 'Sarah J.', type: 'walk-in', status: 'in-progress' },
@@ -105,8 +122,13 @@ export default function BarberDashboard() {
     ]);
   };
 
-  const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const handleLogout = () => {
+    localStorage.removeItem("barberAuth");
+    toast({
+      title: "Logged Out",
+      description: "See you next time!",
+    });
+    setLocation("/");
   };
 
   const completedCount = queue.filter(q => q.status === 'completed').length;
@@ -118,9 +140,10 @@ export default function BarberDashboard() {
       {/* Sidebar */}
       <div className="hidden md:flex md:flex-col">
         <BarberSidebar
-          barberName='Jax "The Blade"'
+          barberName={`${barberName} "The Blade"`}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage="queue"
+          onLogout={handleLogout}
         />
       </div>
 
@@ -155,9 +178,10 @@ export default function BarberDashboard() {
           </Button>
         </div>
         <BarberSidebar
-          barberName='Jax "The Blade"'
+          barberName={`${barberName} "The Blade"`}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage="queue"
+          onLogout={handleLogout}
         />
       </motion.div>
 
@@ -251,7 +275,7 @@ export default function BarberDashboard() {
                 <div className="border-t border-white/5 pt-4">
                   <NotificationPanel
                     notifications={notifications}
-                    onDismiss={dismissNotification}
+                    onDismiss={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
                   />
                 </div>
               </div>
