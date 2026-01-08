@@ -14,6 +14,7 @@ export interface Barber {
   isAvailable: boolean;
   currentWaitTime: number; // in minutes
   slots: Slot[];
+  shop: string;
 }
 
 export interface Booking {
@@ -36,6 +37,7 @@ export const MOCK_BARBERS: Barber[] = [
     avatar: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
     isAvailable: true,
     currentWaitTime: 15,
+    shop: "The Gentleman's Den",
     slots: [
       { id: 's1', time: '8:30', status: 'completed', clientName: 'Mike R.', type: 'app' },
       { id: 's2', time: '9:00', status: 'completed', clientName: 'Sarah J.', type: 'walk-in' },
@@ -70,6 +72,7 @@ export const MOCK_BARBERS: Barber[] = [
     avatar: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
     isAvailable: true,
     currentWaitTime: 45,
+    shop: "Urban Cuts",
     slots: [
       { id: 'e1', time: '8:30', status: 'completed', clientName: 'Tom', type: 'walk-in' },
       { id: 'e2', time: '9:00', status: 'completed', clientName: 'Jerry', type: 'app' },
@@ -99,3 +102,18 @@ export const MOCK_BARBERS: Barber[] = [
     ]
   }
 ];
+
+export function generateTomorrowSlots(prefix: string): Slot[] {
+  const times = [
+    "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
+    "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+    "19:00", "19:30", "20:00", "20:30"
+  ];
+  return times.map((time, i) => ({
+    id: `${prefix}-tmrw-s${i + 1}`,
+    time,
+    status: 'available' as const,
+    type: 'app' as const,
+  }));
+}

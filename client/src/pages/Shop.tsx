@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { QueueStatus } from "@/components/queue/QueueStatus";
 import { SlotList } from "@/components/queue/SlotList";
 import { BookingModal } from "@/components/queue/BookingModal";
-import { MOCK_BARBERS, Barber } from "@/lib/mock-data";
+import { MOCK_BARBERS, Barber, Slot, generateTomorrowSlots } from "@/lib/mock-data";
 import { bookingStore } from "@/lib/booking-store";
 import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import { useToast } from "@/hooks/use-toast";
@@ -111,9 +111,9 @@ export default function Shop() {
     setIsModalOpen(true);
   };
 
-  const handleLoggedBarberBookClick = (loggedBarber: LoggedInBarber, day: 'today' | 'tomorrow', slotId: string) => {
+  const handleLoggedBarberBookClick = (unifiedBarber: UnifiedBarber, day: 'today' | 'tomorrow', slotId: string) => {
     setSelectedSlotId(slotId);
-    setBookingForLoggedBarber({ barber: loggedBarber, day });
+    setBookingForLoggedBarber({ barber: unifiedBarber as any, day });
     setIsModalOpen(true);
   };
 
@@ -190,13 +190,40 @@ export default function Shop() {
   const shopName = id === '2' ? "Urban Cuts" : "The Gentleman's Den";
   const location = id === '2' ? "45 West End Ave" : "128 High Street, Downtown";
 
-  const [loggedInBarbers, setLoggedInBarbers] = useState<LoggedInBarber[]>([]);
-  const [selectedLoggedBarber, setSelectedLoggedBarber] = useState<LoggedInBarber | null>(null);
+  interface UnifiedBarber {
+    id: string;
+    name: string;
+    avatar: string;
+    slots: { today: Slot[]; tomorrow: Slot[] };
+    isMock: boolean;
+  }
+
+  const [allBarbers, setAllBarbers] = useState<UnifiedBarber[]>([]);
+  const [selectedLoggedBarber, setSelectedLoggedBarber] = useState<UnifiedBarber | null>(null);
   const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('today');
 
   useEffect(() => {
     const updateBarbers = () => {
-      setLoggedInBarbers(barberStore.getBarbersByShop(shopName));
+      const mockBarbersForShop = MOCK_BARBERS.filter(b => b.shop === shopName).map(b => ({
+        id: b.id,
+        name: b.name,
+        avatar: b.avatar,
+        slots: {
+          today: b.slots,
+          tomorrow: generateTomorrowSlots(b.id),
+        },
+        isMock: true,
+      }));
+
+      const loggedInBarbers = barberStore.getBarbersByShop(shopName).map(b => ({
+        id: b.id,
+        name: b.name,
+        avatar: b.avatar,
+        slots: b.slots,
+        isMock: false,
+      }));
+
+      setAllBarbers([...mockBarbersForShop, ...loggedInBarbers]);
     };
     updateBarbers();
     return barberStore.subscribe(updateBarbers);
@@ -237,7 +264,7 @@ export default function Shop() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-8">
-          {loggedInBarbers.length > 0 && (
+          {allBarbers.length > 0 && (
             <div className="bg-card border border-white/5 rounded-lg p-6">
               <h2 className="text-2xl font-heading font-bold mb-4 flex items-center gap-2">
                 <User className="w-5 h-5 text-primary" />
@@ -247,7 +274,7 @@ export default function Shop() {
                 Select a barber to view their available slots for today and tomorrow (8:30am - 8:30pm)
               </p>
               <div className="flex flex-wrap gap-3 mb-6">
-                {loggedInBarbers.map((b) => (
+                {allBarbers.map((b) => (
                   <button
                     key={b.id}
                     onClick={() => setSelectedLoggedBarber(selectedLoggedBarber?.id === b.id ? null : b)}
