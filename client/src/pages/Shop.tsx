@@ -226,12 +226,8 @@ export default function Shop() {
                 <div className="border-t border-white/5 pt-6">
                   <Tabs value={selectedDay} onValueChange={(v) => setSelectedDay(v as 'today' | 'tomorrow')}>
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <img src={selectedLoggedBarber.avatar} alt={selectedLoggedBarber.name} className="w-12 h-12 rounded-full object-cover" />
-                        <div>
-                          <h3 className="font-heading font-bold">{selectedLoggedBarber.name}</h3>
-                          <p className="text-xs text-muted-foreground">{selectedLoggedBarber.email}</p>
-                        </div>
+                      <div>
+                        <h3 className="font-heading font-bold">{selectedLoggedBarber.name}</h3>
                       </div>
                       <TabsList>
                         <TabsTrigger value="today" className="flex items-center gap-1">
