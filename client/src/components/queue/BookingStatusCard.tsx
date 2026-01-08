@@ -150,8 +150,10 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
               onClick={() => onCancel(booking.id)}
               variant="outline"
               className="text-red-500 hover:bg-red-500/10 border-red-500/20 hover:border-red-500/30"
+              data-testid="button-cancel-booking"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 mr-1" />
+              Cancel Booking
             </Button>
           </div>
         )}
