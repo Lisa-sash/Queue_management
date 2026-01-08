@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     const updateBarbers = () => {
       setGentlemansBarbers(barberStore.getBarbersByShop("The Gentleman's Den"));
-      setUrbanBarbers(barberStore.getBarbersByShop("Urban Cut"));
+      setUrbanBarbers(barberStore.getBarbersByShop("Urban Cuts"));
     };
     updateBarbers();
     return barberStore.subscribe(updateBarbers);

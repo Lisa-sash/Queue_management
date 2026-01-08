@@ -6,9 +6,11 @@ import { SlotList } from "@/components/queue/SlotList";
 import { BookingModal } from "@/components/queue/BookingModal";
 import { MOCK_BARBERS, Barber } from "@/lib/mock-data";
 import { bookingStore } from "@/lib/booking-store";
+import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Phone, Instagram, ArrowLeft } from "lucide-react";
+import { MapPin, Phone, Instagram, ArrowLeft, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Shop() {
   const { id } = useParams();
@@ -143,6 +145,18 @@ export default function Shop() {
   const shopName = id === '2' ? "Urban Cuts" : "The Gentleman's Den";
   const location = id === '2' ? "45 West End Ave" : "128 High Street, Downtown";
 
+  const [loggedInBarbers, setLoggedInBarbers] = useState<LoggedInBarber[]>([]);
+  const [selectedLoggedBarber, setSelectedLoggedBarber] = useState<LoggedInBarber | null>(null);
+  const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('today');
+
+  useEffect(() => {
+    const updateBarbers = () => {
+      setLoggedInBarbers(barberStore.getBarbersByShop(shopName));
+    };
+    updateBarbers();
+    return barberStore.subscribe(updateBarbers);
+  }, [shopName]);
+
   return (
     <div className="min-h-screen bg-background font-sans pb-20">
       <Navbar />
@@ -178,6 +192,102 @@ export default function Shop() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-8">
+          {loggedInBarbers.length > 0 && (
+            <div className="bg-card border border-white/5 rounded-lg p-6">
+              <h2 className="text-2xl font-heading font-bold mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-primary" />
+                Find Barbers
+              </h2>
+              <p className="text-muted-foreground text-sm mb-4">
+                Select a barber to view their available slots for today and tomorrow (8:30am - 8:30pm)
+              </p>
+              <div className="flex flex-wrap gap-3 mb-6">
+                {loggedInBarbers.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setSelectedLoggedBarber(selectedLoggedBarber?.id === b.id ? null : b)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${
+                      selectedLoggedBarber?.id === b.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-white/10 hover:border-primary/50 bg-background'
+                    }`}
+                    data-testid={`select-barber-${b.id}`}
+                  >
+                    <img src={b.avatar} alt={b.name} className="w-10 h-10 rounded-full object-cover" />
+                    <div className="text-left">
+                      <div className="font-semibold text-sm" data-testid={`barber-name-${b.id}`}>{b.name}</div>
+                      <div className="text-xs text-muted-foreground">{b.slots.today.filter(s => s.status === 'available').length} slots today</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {selectedLoggedBarber && (
+                <div className="border-t border-white/5 pt-6">
+                  <Tabs value={selectedDay} onValueChange={(v) => setSelectedDay(v as 'today' | 'tomorrow')}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <img src={selectedLoggedBarber.avatar} alt={selectedLoggedBarber.name} className="w-12 h-12 rounded-full object-cover" />
+                        <div>
+                          <h3 className="font-heading font-bold">{selectedLoggedBarber.name}</h3>
+                          <p className="text-xs text-muted-foreground">{selectedLoggedBarber.email}</p>
+                        </div>
+                      </div>
+                      <TabsList>
+                        <TabsTrigger value="today" className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          Today
+                        </TabsTrigger>
+                        <TabsTrigger value="tomorrow" className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          Tomorrow
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+                    <TabsContent value="today">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                        {selectedLoggedBarber.slots.today.map((slot) => (
+                          <button
+                            key={slot.id}
+                            disabled={slot.status !== 'available'}
+                            onClick={() => handleBookClick(slot.id)}
+                            className={`p-2 rounded text-xs font-medium transition-all ${
+                              slot.status === 'available'
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
+                                : 'bg-muted/50 text-muted-foreground cursor-not-allowed'
+                            }`}
+                            data-testid={`slot-today-${slot.id}`}
+                          >
+                            {slot.time}
+                          </button>
+                        ))}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="tomorrow">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                        {selectedLoggedBarber.slots.tomorrow.map((slot) => (
+                          <button
+                            key={slot.id}
+                            disabled={slot.status !== 'available'}
+                            onClick={() => handleBookClick(slot.id)}
+                            className={`p-2 rounded text-xs font-medium transition-all ${
+                              slot.status === 'available'
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
+                                : 'bg-muted/50 text-muted-foreground cursor-not-allowed'
+                            }`}
+                            data-testid={`slot-tomorrow-${slot.id}`}
+                          >
+                            {slot.time}
+                          </button>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              )}
+            </div>
+          )}
+
           <QueueStatus barber={barber} />
           
           <div className="flex items-center justify-between">
