@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, BarChart3, Clock, Settings } from "lucide-react";
+import { LogOut, BarChart3, Clock, Settings, Scissors } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BarberSidebarProps {
@@ -20,11 +20,9 @@ export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout }
     <div className="w-full md:w-64 bg-card border-r border-white/5 p-6 flex flex-col h-full">
       {/* Profile */}
       <div className="flex items-center gap-3 mb-8 pb-6 border-b border-white/5">
-        <img
-          src={barberAvatar}
-          alt={barberName}
-          className="w-10 h-10 rounded-full object-cover border-2 border-primary/50"
-        />
+        <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
+          <Scissors className="w-5 h-5 text-primary" />
+        </div>
         <div>
           <p className="font-bold text-sm text-foreground">{barberName}</p>
           <p className="text-xs text-muted-foreground">Barber Dashboard</p>
