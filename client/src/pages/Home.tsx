@@ -118,10 +118,6 @@ export default function Home() {
                     alt="Urban Cuts Shop"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-xs font-bold flex items-center gap-1 text-primary">
-                    <Star className="w-3 h-3 fill-primary" />
-                    4.7
-                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-heading font-bold mb-2 group-hover:text-primary transition-colors">Urban Cuts</h3>
