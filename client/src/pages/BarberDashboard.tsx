@@ -31,6 +31,7 @@ export default function BarberDashboard() {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [barberName, setBarberName] = useState("Jax");
+  const [shopName, setShopName] = useState("");
 
   // Check if logged in
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function BarberDashboard() {
     }
     const parsed = JSON.parse(auth);
     setBarberName(parsed.name || "Barber");
+    setShopName(parsed.shop || "");
   }, [setLocation]);
 
   const [queue, setQueue] = useState<QueueItem[]>([
@@ -200,9 +202,11 @@ export default function BarberDashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-heading font-bold">Queue Manager</h1>
-                <p className="text-xs text-muted-foreground">
-                  {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                <h1 className="text-2xl font-heading font-bold" data-testid="text-barber-welcome">
+                  Welcome, {barberName}
+                </h1>
+                <p className="text-xs text-muted-foreground" data-testid="text-barber-shop">
+                  {shopName} • {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
             </div>

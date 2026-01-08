@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scissors, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Scissors, Eye, EyeOff, Loader2, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function BarberLogin() {
@@ -11,16 +11,18 @@ export default function BarberLogin() {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [shop, setShop] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email || !password || !name || !shop) {
       toast({
         title: "Missing Information",
-        description: "Please enter both email and password.",
+        description: "Please fill in all fields including your name and shop.",
         variant: "destructive",
       });
       return;
@@ -31,11 +33,11 @@ export default function BarberLogin() {
     // Simulate API call
     setTimeout(() => {
       // Mock auth - accept any email/password combo
-      localStorage.setItem("barberAuth", JSON.stringify({ email, name: email.split("@")[0] }));
+      localStorage.setItem("barberAuth", JSON.stringify({ email, name, shop }));
       
       toast({
         title: "Welcome Back!",
-        description: `Logged in as ${email}`,
+        description: `Logged in as ${name} at ${shop}`,
         className: "bg-primary text-primary-foreground border-none",
       });
 
@@ -64,6 +66,54 @@ export default function BarberLogin() {
         {/* Login Card */}
         <div className="bg-card border border-white/5 rounded-lg p-8 space-y-6">
           <form onSubmit={handleLogin} className="space-y-5">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="e.g. Jax"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                data-testid="input-barber-name"
+                className="bg-background border-white/10 focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+
+            {/* Shop Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Store className="w-4 h-4" />
+                Which shop do you work at?
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShop("The Gentleman's Den")}
+                  data-testid="button-shop-gentlemans"
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    shop === "The Gentleman's Den"
+                      ? "bg-primary/10 border-primary text-foreground"
+                      : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
+                  }`}
+                >
+                  <span className="font-heading font-bold text-sm">The Gentleman's Den</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShop("Urban Cut")}
+                  data-testid="button-shop-urban"
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    shop === "Urban Cut"
+                      ? "bg-primary/10 border-primary text-foreground"
+                      : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
+                  }`}
+                >
+                  <span className="font-heading font-bold text-sm">Urban Cut</span>
+                </button>
+              </div>
+            </div>
+
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
@@ -73,6 +123,7 @@ export default function BarberLogin() {
                 placeholder="your@barbershop.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                data-testid="input-barber-email"
                 className="bg-background border-white/10 focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
               />
               <p className="text-xs text-muted-foreground">Try any email for demo</p>
@@ -88,6 +139,7 @@ export default function BarberLogin() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  data-testid="input-barber-password"
                   className="bg-background border-white/10 focus:border-primary/50 text-foreground placeholder:text-muted-foreground pr-10"
                 />
                 <button
@@ -104,7 +156,8 @@ export default function BarberLogin() {
             {/* Login Button */}
             <Button
               type="submit"
-              disabled={isLoading || !email || !password}
+              disabled={isLoading || !email || !password || !name || !shop}
+              data-testid="button-barber-login"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 font-semibold"
             >
               {isLoading ? (
