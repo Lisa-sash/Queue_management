@@ -4,10 +4,23 @@ import { ArrowRight, MapPin, Star, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { MOCK_BARBERS } from "@/lib/mock-data";
+import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import generatedImage from '@assets/generated_images/modern_dark_industrial_barbershop_interior.png';
 import urbanCutsImage from '@assets/image_1767897075901.png';
 
 export default function Home() {
+  const [gentlemansBarbers, setGentlemansBarbers] = useState<LoggedInBarber[]>([]);
+  const [urbanBarbers, setUrbanBarbers] = useState<LoggedInBarber[]>([]);
+
+  useEffect(() => {
+    const updateBarbers = () => {
+      setGentlemansBarbers(barberStore.getBarbersByShop("The Gentleman's Den"));
+      setUrbanBarbers(barberStore.getBarbersByShop("Urban Cut"));
+    };
+    updateBarbers();
+    return barberStore.subscribe(updateBarbers);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background font-sans">
       <Navbar />
@@ -97,14 +110,29 @@ export default function Home() {
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div className="flex -space-x-2">
-                      {MOCK_BARBERS.map(b => (
+                      {MOCK_BARBERS.slice(0, 1).map(b => (
                         <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} />
+                      ))}
+                      {gentlemansBarbers.map(b => (
+                        <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} title={b.name} />
                       ))}
                     </div>
                     <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded">
-                      Short Wait
+                      {gentlemansBarbers.length > 0 ? `${gentlemansBarbers.length + 1} Barbers` : "Short Wait"}
                     </span>
                   </div>
+                  {gentlemansBarbers.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-white/5">
+                      <p className="text-xs text-muted-foreground mb-2">Available barbers:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {gentlemansBarbers.map(b => (
+                          <span key={b.id} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded" data-testid={`barber-name-${b.id}`}>
+                            {b.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>
@@ -134,11 +162,26 @@ export default function Home() {
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div className="flex -space-x-2">
                        <img src={MOCK_BARBERS[1].avatar} className="w-8 h-8 rounded-full border-2 border-card" alt="Barber" />
+                       {urbanBarbers.map(b => (
+                         <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} title={b.name} />
+                       ))}
                     </div>
                     <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-2 py-1 rounded">
-                      Busy
+                      {urbanBarbers.length > 0 ? `${urbanBarbers.length + 1} Barbers` : "Busy"}
                     </span>
                   </div>
+                  {urbanBarbers.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-white/5">
+                      <p className="text-xs text-muted-foreground mb-2">Available barbers:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {urbanBarbers.map(b => (
+                          <span key={b.id} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded" data-testid={`barber-name-${b.id}`}>
+                            {b.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>

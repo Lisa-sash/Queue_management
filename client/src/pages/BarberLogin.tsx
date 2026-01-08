@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scissors, Eye, EyeOff, Loader2, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { barberStore } from "@/lib/barber-store";
 
 export default function BarberLogin() {
   const [, setLocation] = useLocation();
@@ -32,8 +33,11 @@ export default function BarberLogin() {
     
     // Simulate API call
     setTimeout(() => {
+      // Add barber to the store so they appear in shop listings
+      const barber = barberStore.addBarber(name, email, shop);
+      
       // Mock auth - accept any email/password combo
-      localStorage.setItem("barberAuth", JSON.stringify({ email, name, shop }));
+      localStorage.setItem("barberAuth", JSON.stringify({ email, name, shop, barberId: barber.id }));
       
       toast({
         title: "Welcome Back!",
