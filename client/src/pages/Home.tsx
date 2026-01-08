@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { MOCK_BARBERS } from "@/lib/mock-data";
 import generatedImage from '@assets/generated_images/modern_dark_industrial_barbershop_interior.png';
+import urbanCutsImage from '@assets/image_1767897075901.png';
 
 export default function Home() {
   return (
@@ -113,8 +114,8 @@ export default function Home() {
               <div className="group cursor-pointer bg-card border border-white/5 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,0,0,0.3)]">
                 <div className="aspect-video relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1503951914875-befbb6491842?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" 
-                    alt="Shop Interior"
+                    src={urbanCutsImage} 
+                    alt="Urban Cuts Shop"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-xs font-bold flex items-center gap-1 text-primary">
