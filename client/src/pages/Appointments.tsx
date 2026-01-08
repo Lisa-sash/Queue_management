@@ -43,7 +43,7 @@ export default function Appointments() {
     }
   };
 
-  const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled') => {
+  const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived') => {
     bookingStore.updateBooking(bookingId, { userStatus: status });
 
     const messages = {
@@ -62,6 +62,10 @@ export default function Appointments() {
       'cancelled': {
         title: 'Booking Cancelled',
         description: 'Your slot has been released and is now available for others.'
+      },
+      'arrived': {
+        title: 'You\'ve Arrived!',
+        description: 'The barber has been notified of your arrival.'
       }
     };
 

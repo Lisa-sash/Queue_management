@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface BookingStatusCardProps {
   booking: Booking;
-  onStatusChange: (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled') => void;
+  onStatusChange: (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived') => void;
   onCancel: (bookingId: string) => void;
 }
 
@@ -14,19 +14,23 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
   const isLate = booking.userStatus === 'will-be-late';
   const isOnTheWay = booking.userStatus === 'on-the-way';
   const isCancelled = booking.userStatus === 'cancelled';
+  const isArrived = booking.userStatus === 'arrived';
+  const showArrivedButton = isOnTheWay || isLate;
 
   const statusColor = {
     'pending': 'text-muted-foreground',
     'on-the-way': 'text-green-500',
     'will-be-late': 'text-orange-500',
-    'cancelled': 'text-red-500'
+    'cancelled': 'text-red-500',
+    'arrived': 'text-primary'
   };
 
   const statusLabel = {
     'pending': 'Pending',
     'on-the-way': 'On the Way',
     'will-be-late': 'Will Be Late',
-    'cancelled': 'Cancelled'
+    'cancelled': 'Cancelled',
+    'arrived': 'Arrived'
   };
 
   return (
@@ -95,6 +99,13 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
           </div>
         )}
 
+        {isArrived && (
+          <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded text-primary text-sm">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            <span>You've arrived! The barber has been notified.</span>
+          </div>
+        )}
+
         {isCancelled && (
           <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-sm">
             <X className="w-4 h-4 flex-shrink-0" />
@@ -103,30 +114,37 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
         )}
 
         {/* Action Buttons */}
-        {!isCancelled && (
+        {!isCancelled && !isArrived && (
           <div className="flex gap-2 pt-2">
-            <Button
-              size="sm"
-              onClick={() => onStatusChange(booking.id, 'on-the-way')}
-              className={cn(
-                "flex-1 transition-colors",
-                isOnTheWay ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30 border border-green-500/30' : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
-              )}
-              variant="outline"
-            >
-              I'm On The Way
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onStatusChange(booking.id, 'will-be-late')}
-              className={cn(
-                "flex-1 transition-colors",
-                isLate ? 'bg-orange-500/20 text-orange-500 hover:bg-orange-500/30 border border-orange-500/30' : 'bg-orange-500/5 text-orange-500 hover:bg-orange-500/10 border border-orange-500/20'
-              )}
-              variant="outline"
-            >
-              I'll Be Late
-            </Button>
+            {showArrivedButton ? (
+              <Button
+                size="sm"
+                onClick={() => onStatusChange(booking.id, 'arrived')}
+                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                I've Arrived
+              </Button>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => onStatusChange(booking.id, 'on-the-way')}
+                  className="flex-1 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                  variant="outline"
+                >
+                  I'm On The Way
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onStatusChange(booking.id, 'will-be-late')}
+                  className="flex-1 bg-orange-500/5 text-orange-500 hover:bg-orange-500/10 border border-orange-500/20"
+                  variant="outline"
+                >
+                  I'll Be Late
+                </Button>
+              </>
+            )}
             <Button
               size="sm"
               onClick={() => onCancel(booking.id)}

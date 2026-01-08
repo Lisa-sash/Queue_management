@@ -4,7 +4,7 @@ export interface Slot {
   status: 'available' | 'booked' | 'in-progress' | 'completed';
   clientName?: string;
   type: 'app' | 'walk-in';
-  userStatus?: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled';
+  userStatus?: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived';
 }
 
 export interface Barber {
@@ -24,7 +24,7 @@ export interface Booking {
   slotId: string;
   slotTime: string;
   clientName: string;
-  userStatus: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled';
+  userStatus: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived';
   shopName: string;
   shopLocation: string;
 }
