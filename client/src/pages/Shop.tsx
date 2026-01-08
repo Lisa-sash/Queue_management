@@ -5,6 +5,7 @@ import { QueueStatus } from "@/components/queue/QueueStatus";
 import { SlotList } from "@/components/queue/SlotList";
 import { BookingModal } from "@/components/queue/BookingModal";
 import { MOCK_BARBERS, Barber } from "@/lib/mock-data";
+import { bookingStore } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Phone, Instagram, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export default function Shop() {
   
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lastAccessCode, setLastAccessCode] = useState<string | undefined>(undefined);
 
   // Simulation: Random queue updates
   useEffect(() => {
@@ -107,23 +109,32 @@ export default function Shop() {
   const handleBookingConfirm = (name: string) => {
     if (!selectedSlotId) return;
 
+    const slot = barber.slots.find(s => s.id === selectedSlotId);
+    if (!slot) return;
+
+    const newBooking = bookingStore.addBooking({
+      barberId: barber.id,
+      barberName: barber.name,
+      barberAvatar: barber.avatar,
+      slotId: selectedSlotId,
+      slotTime: slot.time,
+      clientName: name,
+      userStatus: 'pending',
+      shopName: shopName,
+      shopLocation: location,
+    });
+
+    setLastAccessCode(newBooking.accessCode);
+
     setBarber(prev => {
-      const newSlots = prev.slots.map(slot => {
-        if (slot.id === selectedSlotId) {
-          return { ...slot, status: 'booked' as const, clientName: name, type: 'app' as const };
+      const newSlots = prev.slots.map(s => {
+        if (s.id === selectedSlotId) {
+          return { ...s, status: 'booked' as const, clientName: name, type: 'app' as const };
         }
-        return slot;
+        return s;
       });
       return { ...prev, slots: newSlots, currentWaitTime: prev.currentWaitTime + 30 };
     });
-
-    toast({
-      title: "Booking Confirmed!",
-      description: `See you soon, ${name}. We'll notify you if the queue moves faster.`,
-      className: "bg-primary text-primary-foreground border-none"
-    });
-    
-    setSelectedSlotId(null);
   };
 
   const selectedSlotTime = barber.slots.find(s => s.id === selectedSlotId)?.time || "";
@@ -182,9 +193,10 @@ export default function Shop() {
 
       <BookingModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => { setIsModalOpen(false); setLastAccessCode(undefined); }}
         onConfirm={handleBookingConfirm}
         timeSlot={selectedSlotTime}
+        accessCode={lastAccessCode}
       />
     </div>
   );

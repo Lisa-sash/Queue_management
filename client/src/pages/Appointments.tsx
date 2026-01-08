@@ -2,38 +2,49 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { BookingStatusCard } from "@/components/queue/BookingStatusCard";
 import { Button } from "@/components/ui/button";
-import { Scissors, Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Scissors, Calendar, Search, KeyRound } from "lucide-react";
 import { Link } from "wouter";
-import { Booking } from "@/lib/mock-data";
+import { bookingStore, BookingWithCode } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Appointments() {
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: 'booking-1',
-      barberId: '1',
-      barberName: 'Jax "The Blade"',
-      barberAvatar: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      slotId: 's3',
-      slotTime: '15:00',
-      clientName: 'You',
-      userStatus: 'pending',
-      shopName: "The Gentleman's Den",
-      shopLocation: '128 High Street, Downtown',
-    }
-  ]);
+  const [bookings, setBookings] = useState<BookingWithCode[]>(bookingStore.getBookings());
+  const [accessCodeInput, setAccessCodeInput] = useState("");
+  const [foundBooking, setFoundBooking] = useState<BookingWithCode | null>(null);
+  const [searchError, setSearchError] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    return bookingStore.subscribe(() => {
+      setBookings(bookingStore.getBookings());
+    });
+  }, []);
+
+  const handleSearch = () => {
+    if (!accessCodeInput.trim()) return;
+    
+    const booking = bookingStore.findByCode(accessCodeInput.trim());
+    if (booking) {
+      setFoundBooking(booking);
+      setSearchError(false);
+    } else {
+      setFoundBooking(null);
+      setSearchError(true);
+      toast({
+        variant: "destructive",
+        title: "Not Found",
+        description: "No booking found with that access code.",
+      });
+    }
+  };
+
   const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled') => {
-    setBookings(prev =>
-      prev.map(booking =>
-        booking.id === bookingId ? { ...booking, userStatus: status } : booking
-      )
-    );
+    bookingStore.updateBooking(bookingId, { userStatus: status });
 
     const messages = {
       'on-the-way': {
-        title: 'On the Way! 🚗',
+        title: 'On the Way!',
         description: 'The barber knows you\'re coming. See you soon!'
       },
       'will-be-late': {
@@ -74,15 +85,65 @@ export default function Appointments() {
           <p className="text-muted-foreground">Track your haircut appointments and update your status in real-time.</p>
         </div>
 
+        <div className="mb-8 p-6 bg-card border border-white/5 rounded-lg">
+          <h3 className="font-heading font-bold mb-3 flex items-center gap-2">
+            <KeyRound className="w-4 h-4 text-primary" />
+            Find Your Booking
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Enter your 4-character access code to find your booking.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={accessCodeInput}
+              onChange={(e) => {
+                setAccessCodeInput(e.target.value.toUpperCase());
+                setSearchError(false);
+              }}
+              placeholder="e.g. AB12"
+              maxLength={4}
+              data-testid="input-access-code"
+              className={`bg-background border-white/10 focus:border-primary/50 uppercase tracking-widest font-mono text-lg ${searchError ? 'border-red-500' : ''}`}
+            />
+            <Button 
+              onClick={handleSearch}
+              data-testid="button-search-booking"
+              className="bg-primary text-primary-foreground"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Find
+            </Button>
+          </div>
+        </div>
+
+        {foundBooking && (
+          <div className="mb-8">
+            <h2 className="text-lg font-heading font-bold mb-4 flex items-center gap-2">
+              <span className="text-primary">Found Booking</span>
+              <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded font-mono">{foundBooking.accessCode}</span>
+            </h2>
+            <BookingStatusCard
+              booking={foundBooking}
+              onStatusChange={handleStatusChange}
+              onCancel={handleCancel}
+            />
+          </div>
+        )}
+
         {activeBookings.length > 0 ? (
           <div className="space-y-6">
+            <h2 className="text-lg font-heading font-bold text-muted-foreground">All Your Bookings</h2>
             {activeBookings.map(booking => (
-              <BookingStatusCard
-                key={booking.id}
-                booking={booking}
-                onStatusChange={handleStatusChange}
-                onCancel={handleCancel}
-              />
+              <div key={booking.id} className="relative">
+                <div className="absolute -top-2 right-4 bg-card px-2 py-0.5 rounded text-xs font-mono text-primary border border-primary/30">
+                  {booking.accessCode}
+                </div>
+                <BookingStatusCard
+                  booking={booking}
+                  onStatusChange={handleStatusChange}
+                  onCancel={handleCancel}
+                />
+              </div>
             ))}
 
             {cancelledBookings.length > 0 && (
@@ -101,7 +162,7 @@ export default function Appointments() {
               </div>
             )}
           </div>
-        ) : (
+        ) : !foundBooking ? (
           <div className="bg-card border border-white/5 rounded-lg p-12 text-center space-y-4">
             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
               <Scissors className="w-8 h-8 text-muted-foreground" />
@@ -114,20 +175,19 @@ export default function Appointments() {
               </Link>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Helpful Info */}
         <div className="mt-12 p-6 bg-card/50 border border-white/5 rounded-lg">
           <h3 className="font-heading font-bold mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary" />
             How It Works
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ Book a slot and set a reminder on your phone</li>
+            <li>✓ Book a slot and save your 4-character access code</li>
+            <li>✓ Use your code to find your booking anytime</li>
             <li>✓ Update your status when you're leaving</li>
             <li>✓ If running late, let the barber know for a 15-min grace period</li>
             <li>✓ Cancel anytime to free the slot for walk-ins</li>
-            <li>✓ Get notifications if the queue moves faster</li>
           </ul>
         </div>
       </div>
