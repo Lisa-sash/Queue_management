@@ -66,7 +66,7 @@ function SlotItem({ slot, onBook }: { slot: Slot, onBook: (id: string) => void }
           {(isBooked || isInProgress) && (
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               {slot.type === 'walk-in' ? <Footprints className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
-              {slot.clientName || 'Reserved'}
+              {isInProgress ? (slot.clientName || 'In Progress') : 'Booked'}
             </span>
           )}
         </div>
