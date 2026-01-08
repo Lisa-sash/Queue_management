@@ -103,43 +103,88 @@ export default function Shop() {
     return () => clearInterval(interval);
   }, [id, toast]);
 
+  const [bookingForLoggedBarber, setBookingForLoggedBarber] = useState<{ barber: LoggedInBarber; day: 'today' | 'tomorrow' } | null>(null);
+
   const handleBookClick = (slotId: string) => {
     setSelectedSlotId(slotId);
+    setBookingForLoggedBarber(null);
+    setIsModalOpen(true);
+  };
+
+  const handleLoggedBarberBookClick = (loggedBarber: LoggedInBarber, day: 'today' | 'tomorrow', slotId: string) => {
+    setSelectedSlotId(slotId);
+    setBookingForLoggedBarber({ barber: loggedBarber, day });
     setIsModalOpen(true);
   };
 
   const handleBookingConfirm = (name: string) => {
     if (!selectedSlotId) return;
 
-    const slot = barber.slots.find(s => s.id === selectedSlotId);
-    if (!slot) return;
+    if (bookingForLoggedBarber) {
+      const { barber: loggedBarber, day } = bookingForLoggedBarber;
+      const slot = loggedBarber.slots[day].find(s => s.id === selectedSlotId);
+      if (!slot) return;
 
-    const newBooking = bookingStore.addBooking({
-      barberId: barber.id,
-      barberName: barber.name,
-      barberAvatar: barber.avatar,
-      slotId: selectedSlotId,
-      slotTime: slot.time,
-      clientName: name,
-      userStatus: 'pending',
-      shopName: shopName,
-      shopLocation: location,
-    });
-
-    setLastAccessCode(newBooking.accessCode);
-
-    setBarber(prev => {
-      const newSlots = prev.slots.map(s => {
-        if (s.id === selectedSlotId) {
-          return { ...s, status: 'booked' as const, clientName: name, type: 'app' as const };
-        }
-        return s;
+      const newBooking = bookingStore.addBooking({
+        barberId: loggedBarber.id,
+        barberName: loggedBarber.name,
+        barberAvatar: loggedBarber.avatar,
+        slotId: selectedSlotId,
+        slotTime: slot.time,
+        clientName: name,
+        userStatus: 'pending',
+        shopName: shopName,
+        shopLocation: location,
       });
-      return { ...prev, slots: newSlots, currentWaitTime: prev.currentWaitTime + 30 };
-    });
+
+      setLastAccessCode(newBooking.accessCode);
+
+      barberStore.updateSlot(loggedBarber.id, day, selectedSlotId, {
+        status: 'booked',
+        clientName: name,
+      });
+
+      toast({
+        title: "Booking Confirmed!",
+        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked.`,
+      });
+    } else {
+      const slot = barber.slots.find(s => s.id === selectedSlotId);
+      if (!slot) return;
+
+      const newBooking = bookingStore.addBooking({
+        barberId: barber.id,
+        barberName: barber.name,
+        barberAvatar: barber.avatar,
+        slotId: selectedSlotId,
+        slotTime: slot.time,
+        clientName: name,
+        userStatus: 'pending',
+        shopName: shopName,
+        shopLocation: location,
+      });
+
+      setLastAccessCode(newBooking.accessCode);
+
+      setBarber(prev => {
+        const newSlots = prev.slots.map(s => {
+          if (s.id === selectedSlotId) {
+            return { ...s, status: 'booked' as const, clientName: name, type: 'app' as const };
+          }
+          return s;
+        });
+        return { ...prev, slots: newSlots, currentWaitTime: prev.currentWaitTime + 30 };
+      });
+    }
   };
 
-  const selectedSlotTime = barber.slots.find(s => s.id === selectedSlotId)?.time || "";
+  const getSelectedSlotTime = () => {
+    if (bookingForLoggedBarber) {
+      const { barber: loggedBarber, day } = bookingForLoggedBarber;
+      return loggedBarber.slots[day].find(s => s.id === selectedSlotId)?.time || "";
+    }
+    return barber.slots.find(s => s.id === selectedSlotId)?.time || "";
+  };
 
   // Mock Shop Details based on ID (usually would come from backend)
   const shopName = id === '2' ? "Urban Cuts" : "The Gentleman's Den";
@@ -248,7 +293,7 @@ export default function Shop() {
                           <button
                             key={slot.id}
                             disabled={slot.status !== 'available'}
-                            onClick={() => handleBookClick(slot.id)}
+                            onClick={() => handleLoggedBarberBookClick(selectedLoggedBarber, 'today', slot.id)}
                             className={`p-2 rounded text-xs font-medium transition-all ${
                               slot.status === 'available'
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
@@ -267,7 +312,7 @@ export default function Shop() {
                           <button
                             key={slot.id}
                             disabled={slot.status !== 'available'}
-                            onClick={() => handleBookClick(slot.id)}
+                            onClick={() => handleLoggedBarberBookClick(selectedLoggedBarber, 'tomorrow', slot.id)}
                             className={`p-2 rounded text-xs font-medium transition-all ${
                               slot.status === 'available'
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
@@ -303,7 +348,7 @@ export default function Shop() {
         isOpen={isModalOpen} 
         onClose={() => { setIsModalOpen(false); setLastAccessCode(undefined); }}
         onConfirm={handleBookingConfirm}
-        timeSlot={selectedSlotTime}
+        timeSlot={getSelectedSlotTime()}
         accessCode={lastAccessCode}
       />
     </div>
