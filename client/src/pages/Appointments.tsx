@@ -3,13 +3,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { BookingStatusCard } from "@/components/queue/BookingStatusCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Scissors, Calendar, Search, KeyRound } from "lucide-react";
+import { Scissors, Search, KeyRound } from "lucide-react";
 import { Link } from "wouter";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Appointments() {
-  const [bookings, setBookings] = useState<BookingWithCode[]>(bookingStore.getBookings());
   const [accessCodeInput, setAccessCodeInput] = useState("");
   const [foundBooking, setFoundBooking] = useState<BookingWithCode | null>(null);
   const [searchError, setSearchError] = useState(false);
@@ -17,9 +16,14 @@ export default function Appointments() {
 
   useEffect(() => {
     return bookingStore.subscribe(() => {
-      setBookings(bookingStore.getBookings());
+      if (foundBooking) {
+        const updated = bookingStore.findByCode(foundBooking.accessCode);
+        if (updated) {
+          setFoundBooking(updated);
+        }
+      }
     });
-  }, []);
+  }, [foundBooking]);
 
   const handleSearch = () => {
     if (!accessCodeInput.trim()) return;
@@ -73,16 +77,13 @@ export default function Appointments() {
     handleStatusChange(bookingId, 'cancelled');
   };
 
-  const activeBookings = bookings.filter(b => b.userStatus !== 'cancelled');
-  const cancelledBookings = bookings.filter(b => b.userStatus === 'cancelled');
-
   return (
     <div className="min-h-screen bg-background font-sans pb-20">
       <Navbar />
       <div className="container mx-auto px-4 pt-32 max-w-2xl">
         <div className="mb-8">
           <h1 className="text-4xl font-heading font-bold mb-2">My Bookings</h1>
-          <p className="text-muted-foreground">Track your haircut appointments and update your status in real-time.</p>
+          <p className="text-muted-foreground">Enter your access code to find and manage your booking.</p>
         </div>
 
         <div className="mb-8 p-6 bg-card border border-white/5 rounded-lg">
@@ -100,6 +101,7 @@ export default function Appointments() {
                 setAccessCodeInput(e.target.value.toUpperCase());
                 setSearchError(false);
               }}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="e.g. AB12"
               maxLength={4}
               data-testid="input-access-code"
@@ -116,80 +118,32 @@ export default function Appointments() {
           </div>
         </div>
 
-        {foundBooking && (
-          <div className="mb-8">
-            <h2 className="text-lg font-heading font-bold mb-4 flex items-center gap-2">
-              <span className="text-primary">Found Booking</span>
+        {foundBooking ? (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-heading font-bold">Your Booking</h2>
               <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded font-mono">{foundBooking.accessCode}</span>
-            </h2>
+            </div>
             <BookingStatusCard
               booking={foundBooking}
               onStatusChange={handleStatusChange}
               onCancel={handleCancel}
             />
           </div>
-        )}
-
-        {activeBookings.length > 0 ? (
-          <div className="space-y-6">
-            <h2 className="text-lg font-heading font-bold text-muted-foreground">All Your Bookings</h2>
-            {activeBookings.map(booking => (
-              <div key={booking.id} className="relative">
-                <div className="absolute -top-2 right-4 bg-card px-2 py-0.5 rounded text-xs font-mono text-primary border border-primary/30">
-                  {booking.accessCode}
-                </div>
-                <BookingStatusCard
-                  booking={booking}
-                  onStatusChange={handleStatusChange}
-                  onCancel={handleCancel}
-                />
-              </div>
-            ))}
-
-            {cancelledBookings.length > 0 && (
-              <div className="mt-8 pt-8 border-t border-white/5">
-                <h2 className="text-lg font-heading font-bold mb-4 text-muted-foreground">Past / Cancelled</h2>
-                <div className="space-y-3">
-                  {cancelledBookings.map(booking => (
-                    <BookingStatusCard
-                      key={booking.id}
-                      booking={booking}
-                      onStatusChange={handleStatusChange}
-                      onCancel={handleCancel}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : !foundBooking ? (
+        ) : (
           <div className="bg-card border border-white/5 rounded-lg p-12 text-center space-y-4">
             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
               <Scissors className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold">No Active Bookings</h2>
-            <p className="text-muted-foreground">You haven't booked any slots yet. Find a barber to get started.</p>
+            <h2 className="text-xl font-bold">No Booking Found</h2>
+            <p className="text-muted-foreground">Enter your access code above to find your booking, or book a new slot.</p>
             <div className="pt-4">
               <Link href="/shops">
                 <Button className="bg-primary text-primary-foreground">Find a Barber</Button>
               </Link>
             </div>
           </div>
-        ) : null}
-
-        <div className="mt-12 p-6 bg-card/50 border border-white/5 rounded-lg">
-          <h3 className="font-heading font-bold mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-primary" />
-            How It Works
-          </h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ Book a slot and save your 4-character access code</li>
-            <li>✓ Use your code to find your booking anytime</li>
-            <li>✓ Update your status when you're leaving</li>
-            <li>✓ If running late, let the barber know for a 15-min grace period</li>
-            <li>✓ Cancel anytime to free the slot for walk-ins</li>
-          </ul>
-        </div>
+        )}
       </div>
     </div>
   );

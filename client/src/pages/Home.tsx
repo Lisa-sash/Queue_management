@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowRight, MapPin, Star, Clock } from "lucide-react";
+import { ArrowRight, MapPin, Star, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { MOCK_BARBERS } from "@/lib/mock-data";
@@ -152,6 +152,40 @@ export default function Home() {
                   <span className="font-heading text-2xl text-muted-foreground">Coming Soon</span>
                </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-card/50 border-t border-white/5">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="p-6 bg-card border border-white/5 rounded-lg">
+            <h3 className="font-heading font-bold text-xl mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              How It Works
+            </h3>
+            <ul className="space-y-3 text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                Book a slot and save your 4-character access code
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                Use your code to find your booking anytime
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                Update your status when you're leaving
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                If running late, let the barber know for a 15-min grace period
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                Cancel anytime to free the slot for walk-ins
+              </li>
+            </ul>
           </div>
         </div>
       </section>
