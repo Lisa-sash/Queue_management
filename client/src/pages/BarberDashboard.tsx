@@ -25,7 +25,7 @@ interface QueueItem {
   time: string;
   clientName: string;
   type: 'app' | 'walk-in';
-  status: 'pending' | 'in-progress' | 'completed' | 'no-show';
+  status: 'pending' | 'in-progress' | 'completed' | 'no-show' | 'paused';
   userStatus?: 'pending' | 'on-the-way' | 'will-be-late' | 'arrived';
   haircutName?: string;
 }
@@ -152,6 +152,34 @@ export default function BarberDashboard() {
     );
     bookingStore.updateBooking(id, { userStatus: 'completed' as any });
     addNotification('booking', `Finished cutting ${client?.clientName}`);
+  };
+
+  const handlePauseCut = (id: string) => {
+    const client = queue.find(q => q.id === id);
+    setQueue(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, status: 'paused' as const } : item
+      )
+    );
+    toast({
+      title: "Cut Paused",
+      description: `${client?.clientName}'s cut has been paused. Booked client can take their spot.`,
+    });
+    addNotification('booking', `Paused ${client?.clientName}'s cut`);
+  };
+
+  const handleResumeCut = (id: string) => {
+    const client = queue.find(q => q.id === id);
+    setQueue(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, status: 'in-progress' as const } : item
+      )
+    );
+    toast({
+      title: "Cut Resumed",
+      description: `Continuing ${client?.clientName}'s cut.`,
+    });
+    addNotification('booking', `Resumed ${client?.clientName}'s cut`);
   };
 
   const handleNoShow = (id: string) => {
@@ -349,6 +377,8 @@ export default function BarberDashboard() {
                         onStartCut={handleStartCut}
                         onCompleteCut={handleCompleteCut}
                         onNoShow={handleNoShow}
+                        onPauseCut={handlePauseCut}
+                        onResumeCut={handleResumeCut}
                       />
                     ))}
                   </AnimatePresence>

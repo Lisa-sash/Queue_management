@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock, User, AlertCircle, CheckCircle, Phone, Scissors } from "lucide-react";
+import { Clock, User, AlertCircle, CheckCircle, Phone, Scissors, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -18,12 +18,14 @@ interface QueueCardProps {
   time: string;
   clientName: string;
   type: 'app' | 'walk-in';
-  status: 'pending' | 'in-progress' | 'completed' | 'no-show';
+  status: 'pending' | 'in-progress' | 'completed' | 'no-show' | 'paused';
   userStatus?: 'pending' | 'on-the-way' | 'will-be-late' | 'arrived';
   haircutName?: string;
   onStartCut?: (id: string, haircutName: string) => void;
   onCompleteCut?: (id: string) => void;
   onNoShow?: (id: string) => void;
+  onPauseCut?: (id: string) => void;
+  onResumeCut?: (id: string) => void;
 }
 
 export function QueueCard({
@@ -37,6 +39,8 @@ export function QueueCard({
   onStartCut,
   onCompleteCut,
   onNoShow,
+  onPauseCut,
+  onResumeCut,
 }: QueueCardProps) {
   const [showHaircutModal, setShowHaircutModal] = useState(false);
   const [haircutInput, setHaircutInput] = useState("");
@@ -44,6 +48,7 @@ export function QueueCard({
   const isInProgress = status === 'in-progress';
   const isPending = status === 'pending';
   const isCompleted = status === 'completed';
+  const isPaused = status === 'paused';
   const isLate = userStatus === 'will-be-late';
   const hasArrived = userStatus === 'arrived';
 
@@ -69,10 +74,11 @@ export function QueueCard({
         className={cn(
           "relative p-4 rounded-lg border transition-all duration-300",
           isInProgress && "bg-primary/15 border-primary/50 shadow-[0_0_20px_rgba(234,179,8,0.15)]",
+          isPaused && "bg-orange-500/15 border-orange-500/50 shadow-[0_0_20px_rgba(249,115,22,0.15)]",
           isPending && hasArrived && "bg-green-500/10 border-green-500/50",
           isPending && !hasArrived && "bg-card border-white/5 hover:border-primary/30",
           isCompleted && "bg-black/20 border-white/5 opacity-60",
-          isLate && !isInProgress && "border-orange-500/50 bg-orange-500/5"
+          isLate && !isInProgress && !isPaused && "border-orange-500/50 bg-orange-500/5"
         )}
       >
         {/* Pulse animation for in-progress */}
@@ -111,6 +117,9 @@ export function QueueCard({
                 </span>
                 {isInProgress && (
                   <span className="text-xs font-bold text-primary animate-pulse">CUTTING</span>
+                )}
+                {isPaused && (
+                  <span className="text-xs font-bold text-orange-500 animate-pulse">PAUSED</span>
                 )}
               </div>
               <p className="text-sm font-medium text-foreground">{clientName}</p>
@@ -166,9 +175,21 @@ export function QueueCard({
                       ? "bg-green-500 text-white hover:bg-green-600 border-green-500"
                       : "bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground border-primary/30"
                   )}
+                  data-testid={`button-start-cut-${id}`}
                 >
                   <Scissors className="w-4 h-4 mr-1" />
                   Start Cut
+                </Button>
+              )}
+              {isInProgress && onPauseCut && (
+                <Button
+                  size="sm"
+                  onClick={() => onPauseCut(id)}
+                  className="flex-1 bg-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white border border-orange-500/30"
+                  data-testid={`button-pause-cut-${id}`}
+                >
+                  <Pause className="w-4 h-4 mr-1" />
+                  Pause
                 </Button>
               )}
               {isInProgress && onCompleteCut && (
@@ -176,6 +197,28 @@ export function QueueCard({
                   size="sm"
                   onClick={() => onCompleteCut(id)}
                   className="flex-1 bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/30"
+                  data-testid={`button-done-cut-${id}`}
+                >
+                  Done ✓
+                </Button>
+              )}
+              {isPaused && onResumeCut && (
+                <Button
+                  size="sm"
+                  onClick={() => onResumeCut(id)}
+                  className="flex-1 bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground border border-primary/30"
+                  data-testid={`button-resume-cut-${id}`}
+                >
+                  <Play className="w-4 h-4 mr-1" />
+                  Resume
+                </Button>
+              )}
+              {isPaused && onCompleteCut && (
+                <Button
+                  size="sm"
+                  onClick={() => onCompleteCut(id)}
+                  className="flex-1 bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/30"
+                  data-testid={`button-done-paused-${id}`}
                 >
                   Done ✓
                 </Button>
@@ -186,6 +229,7 @@ export function QueueCard({
                   onClick={() => onNoShow(id)}
                   variant="outline"
                   className="flex-1 text-red-500 hover:bg-red-500/10 border-red-500/20"
+                  data-testid={`button-noshow-${id}`}
                 >
                   No-show
                 </Button>
