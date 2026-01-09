@@ -345,16 +345,15 @@ export default function Shop() {
             </div>
           )}
 
-          <QueueStatus barber={barber} />
-          
-          <div className="flex items-center justify-between">
-             <h2 className="text-2xl font-heading font-bold">Available Slots</h2>
-             <div className="text-sm text-muted-foreground">
-               Today, {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-             </div>
-          </div>
-
-          <SlotList slots={barber.slots} onBook={handleBookClick} />
+          {allBarbers.length === 0 && (
+            <div className="bg-card border border-white/5 rounded-lg p-8 text-center">
+              <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-heading font-bold mb-2">No Barbers Available Yet</h3>
+              <p className="text-muted-foreground">
+                Barbers will appear here once they log in to the system.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
