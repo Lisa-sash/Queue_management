@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { QueueStatus } from "@/components/queue/QueueStatus";
 import { SlotList } from "@/components/queue/SlotList";
 import { BookingModal } from "@/components/queue/BookingModal";
-import { MOCK_BARBERS, Barber, Slot, generateTomorrowSlots } from "@/lib/mock-data";
+import { MOCK_BARBERS, Barber, Slot } from "@/lib/mock-data";
 import { bookingStore } from "@/lib/booking-store";
 import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import { useToast } from "@/hooks/use-toast";
@@ -195,7 +195,6 @@ export default function Shop() {
     name: string;
     avatar: string;
     slots: { today: Slot[]; tomorrow: Slot[] };
-    isMock: boolean;
   }
 
   const [allBarbers, setAllBarbers] = useState<UnifiedBarber[]>([]);
@@ -204,26 +203,14 @@ export default function Shop() {
 
   useEffect(() => {
     const updateBarbers = () => {
-      const mockBarbersForShop = MOCK_BARBERS.filter(b => b.shop === shopName).map(b => ({
-        id: b.id,
-        name: b.name,
-        avatar: b.avatar,
-        slots: {
-          today: b.slots,
-          tomorrow: generateTomorrowSlots(b.id),
-        },
-        isMock: true,
-      }));
-
-      const loggedInBarbers = barberStore.getBarbersByShop(shopName).map(b => ({
+      const registeredBarbers = barberStore.getBarbersByShop(shopName).map(b => ({
         id: b.id,
         name: b.name,
         avatar: b.avatar,
         slots: b.slots,
-        isMock: false,
       }));
 
-      setAllBarbers([...mockBarbersForShop, ...loggedInBarbers]);
+      setAllBarbers(registeredBarbers);
     };
     updateBarbers();
     return barberStore.subscribe(updateBarbers);

@@ -7,6 +7,7 @@ export interface LoggedInBarber {
   shop: string;
   avatar: string;
   slots: { today: Slot[]; tomorrow: Slot[] };
+  isLoggedIn: boolean;
 }
 
 function generateSlots(prefix: string): Slot[] {
@@ -48,7 +49,9 @@ export const barberStore = {
   addBarber: (name: string, email: string, shop: string): LoggedInBarber => {
     const existing = barbers.find(b => b.email === email);
     if (existing) {
-      return existing;
+      barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: true } : b);
+      listeners.forEach(fn => fn());
+      return { ...existing, isLoggedIn: true };
     }
 
     const id = `barber-${Date.now()}`;
@@ -62,10 +65,16 @@ export const barberStore = {
         today: generateSlots(`${id}-today`),
         tomorrow: generateSlots(`${id}-tomorrow`),
       },
+      isLoggedIn: true,
     };
     barbers = [...barbers, newBarber];
     listeners.forEach(fn => fn());
     return newBarber;
+  },
+
+  logoutBarber: (email: string) => {
+    barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: false } : b);
+    listeners.forEach(fn => fn());
   },
 
   updateSlot: (barberId: string, day: 'today' | 'tomorrow', slotId: string, updates: Partial<Slot>) => {
