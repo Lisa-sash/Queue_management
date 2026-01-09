@@ -17,7 +17,8 @@ interface QueueItem {
   clientName: string;
   type: 'app' | 'walk-in';
   status: 'pending' | 'in-progress' | 'completed' | 'no-show';
-  userStatus?: 'pending' | 'on-the-way' | 'will-be-late';
+  userStatus?: 'pending' | 'on-the-way' | 'will-be-late' | 'arrived';
+  haircutName?: string;
 }
 
 interface Notification {
@@ -68,11 +69,11 @@ export default function BarberDashboard() {
       
       // Convert bookings to queue items
       const queueItems: QueueItem[] = myBookings.map(booking => {
-        // Map userStatus to queue status
+        // Map userStatus to queue status - arrived doesn't auto-start cutting
         let status: 'pending' | 'in-progress' | 'completed' | 'no-show' = 'pending';
         if (booking.userStatus === 'cancelled') {
           status = 'no-show';
-        } else if (booking.userStatus === 'arrived') {
+        } else if (booking.userStatus === 'cutting') {
           status = 'in-progress';
         }
         
@@ -84,7 +85,9 @@ export default function BarberDashboard() {
           status,
           userStatus: booking.userStatus === 'on-the-way' ? 'on-the-way' : 
                       booking.userStatus === 'will-be-late' ? 'will-be-late' : 
-                      booking.userStatus === 'pending' ? 'pending' : undefined,
+                      booking.userStatus === 'pending' ? 'pending' :
+                      booking.userStatus === 'arrived' ? 'arrived' : undefined,
+          haircutName: (booking as any).haircutName,
         };
       });
       
@@ -113,15 +116,15 @@ export default function BarberDashboard() {
     }
   }, [barberId, prevBookingCount]);
 
-  const handleStartCut = (id: string) => {
+  const handleStartCut = (id: string, haircutName: string) => {
     const client = queue.find(q => q.id === id);
     setQueue(prev =>
       prev.map(item =>
-        item.id === id ? { ...item, status: 'in-progress' as const } : item
+        item.id === id ? { ...item, status: 'in-progress' as const, haircutName } : item
       )
     );
-    bookingStore.updateBooking(id, { userStatus: 'arrived' });
-    addNotification('booking', `Started cutting ${client?.clientName}`);
+    bookingStore.updateBooking(id, { userStatus: 'cutting' as any, haircutName } as any);
+    addNotification('booking', `Started cutting ${client?.clientName} - ${haircutName}`);
   };
 
   const handleCompleteCut = (id: string) => {
@@ -287,6 +290,7 @@ export default function BarberDashboard() {
                         type={item.type}
                         status={item.status}
                         userStatus={item.userStatus}
+                        haircutName={item.haircutName}
                         onStartCut={handleStartCut}
                         onCompleteCut={handleCompleteCut}
                         onNoShow={handleNoShow}
