@@ -1,16 +1,18 @@
 import { motion } from "framer-motion";
-import { Clock, Users, TrendingUp, AlertCircle } from "lucide-react";
+import { Clock, Users, TrendingUp, AlertCircle, Scissors } from "lucide-react";
 
 interface DashboardStatsProps {
   currentWaitTime: number;
-  totalToday: number;
+  bookedToday: number;
+  walkInsToday: number;
   completedToday: number;
   lateArrivals: number;
 }
 
 export function DashboardStats({
   currentWaitTime,
-  totalToday,
+  bookedToday,
+  walkInsToday,
   completedToday,
   lateArrivals,
 }: DashboardStatsProps) {
@@ -24,10 +26,17 @@ export function DashboardStats({
     },
     {
       label: 'Booked Today',
-      value: totalToday,
+      value: bookedToday,
       icon: Users,
       color: 'text-green-500',
       bg: 'bg-green-500/10',
+    },
+    {
+      label: 'Walk-ins',
+      value: walkInsToday,
+      icon: Scissors,
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
     },
     {
       label: 'Completed',
@@ -46,7 +55,7 @@ export function DashboardStats({
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}

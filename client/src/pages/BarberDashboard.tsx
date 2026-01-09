@@ -289,8 +289,10 @@ export default function BarberDashboard() {
   };
 
   const completedCount = queue.filter(q => q.status === 'completed').length;
-  const bookedCount = queue.filter(q => q.status !== 'completed' && q.status !== 'no-show').length;
-  const currentWaitTime = bookedCount > 0 ? bookedCount * 30 : 0;
+  const bookedCount = queue.filter(q => q.type === 'app').length;
+  const walkInsCount = queue.filter(q => q.type === 'walk-in').length;
+  const pendingCount = queue.filter(q => q.status !== 'completed' && q.status !== 'no-show').length;
+  const currentWaitTime = pendingCount > 0 ? pendingCount * 30 : 0;
 
   const handleAddWalkIn = () => {
     if (!walkInName.trim() || !walkInHaircut.trim()) return;
@@ -424,7 +426,8 @@ export default function BarberDashboard() {
           <div className="mb-8">
             <DashboardStats
               currentWaitTime={currentWaitTime}
-              totalToday={queue.length}
+              bookedToday={bookedCount}
+              walkInsToday={walkInsCount}
               completedToday={completedCount}
               lateArrivals={queue.filter(q => q.userStatus === 'will-be-late').length}
             />
