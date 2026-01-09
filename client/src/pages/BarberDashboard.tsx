@@ -6,10 +6,19 @@ import { QueueCard } from "@/components/barber/QueueCard";
 import { DashboardStats } from "@/components/barber/DashboardStats";
 import { NotificationPanel } from "@/components/barber/NotificationPanel";
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, Menu, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Bell, Settings, Menu, X, UserPlus, Scissors } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface QueueItem {
   id: string;
@@ -51,6 +60,11 @@ export default function BarberDashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [barberId, setBarberId] = useState<string>("");
   const [prevBookingCount, setPrevBookingCount] = useState(0);
+  
+  // Walk-in modal state
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [walkInName, setWalkInName] = useState("");
+  const [walkInHaircut, setWalkInHaircut] = useState("");
 
   // Load real bookings from bookingStore
   useEffect(() => {
@@ -176,6 +190,34 @@ export default function BarberDashboard() {
   const bookedCount = queue.filter(q => q.status !== 'completed' && q.status !== 'no-show').length;
   const currentWaitTime = bookedCount > 0 ? bookedCount * 30 : 0;
 
+  const handleAddWalkIn = () => {
+    if (!walkInName.trim() || !walkInHaircut.trim()) return;
+    
+    const now = new Date();
+    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    const walkInItem: QueueItem = {
+      id: `walkin-${Date.now()}`,
+      time: timeStr,
+      clientName: walkInName.trim(),
+      type: 'walk-in',
+      status: 'in-progress',
+      haircutName: walkInHaircut.trim(),
+    };
+    
+    setQueue(prev => [...prev, walkInItem]);
+    addNotification('walkin', `Walk-in: ${walkInName} - ${walkInHaircut}`);
+    
+    toast({
+      title: "Walk-in Added",
+      description: `Started cutting ${walkInName}`,
+    });
+    
+    setShowWalkInModal(false);
+    setWalkInName("");
+    setWalkInHaircut("");
+  };
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
@@ -281,7 +323,17 @@ export default function BarberDashboard() {
             {/* Queue Column */}
             <div className="lg:col-span-2 space-y-6">
               <div>
-                <h2 className="text-xl font-heading font-bold mb-4">Today's Queue</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-heading font-bold">Today's Queue</h2>
+                  <Button
+                    onClick={() => setShowWalkInModal(true)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    data-testid="button-add-walkin"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Walk-in
+                  </Button>
+                </div>
                 <div className="space-y-3">
                   <AnimatePresence mode="popLayout">
                     {queue.map((item) => (
@@ -327,6 +379,78 @@ export default function BarberDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Walk-in Modal */}
+      <Dialog open={showWalkInModal} onOpenChange={setShowWalkInModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-blue-500" />
+              Add Walk-in Client
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="walkin-name">Client Name</Label>
+              <Input
+                id="walkin-name"
+                placeholder="Enter client's name"
+                value={walkInName}
+                onChange={(e) => setWalkInName(e.target.value)}
+                autoFocus
+                data-testid="input-walkin-name"
+                className="bg-background border-white/10"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="walkin-haircut">Haircut Style</Label>
+              <Input
+                id="walkin-haircut"
+                placeholder="e.g. Fade, Buzz Cut, Trim..."
+                value={walkInHaircut}
+                onChange={(e) => setWalkInHaircut(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddWalkIn()}
+                data-testid="input-walkin-haircut"
+                className="bg-background border-white/10"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {['Fade', 'Buzz Cut', 'Trim', 'Taper', 'Line Up', 'Beard Trim'].map((style) => (
+                <Button
+                  key={style}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWalkInHaircut(style)}
+                  className={cn(
+                    "text-xs",
+                    walkInHaircut === style && "bg-blue-500/20 border-blue-500 text-blue-500"
+                  )}
+                >
+                  {style}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setShowWalkInModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddWalkIn}
+              disabled={!walkInName.trim() || !walkInHaircut.trim()}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              data-testid="button-confirm-walkin"
+            >
+              <Scissors className="w-4 h-4 mr-2" />
+              Start Cutting
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
