@@ -70,6 +70,12 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
           </div>
         </div>
 
+        {/* Client Name */}
+        <div className="p-3 bg-primary/5 border border-primary/10 rounded">
+          <p className="text-xs text-muted-foreground mb-1">Booking for</p>
+          <p className="font-heading font-bold text-foreground">{booking.clientName}</p>
+        </div>
+
         {/* Time & Status Separator */}
         <div className="h-px bg-white/5" />
 
