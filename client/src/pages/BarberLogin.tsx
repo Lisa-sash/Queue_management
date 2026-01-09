@@ -16,23 +16,31 @@ export default function BarberLogin() {
   const [shop, setShop] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<'email' | 'details'>('email');
   const [isExistingBarber, setIsExistingBarber] = useState(false);
 
-  // Check if email belongs to an existing barber
-  useEffect(() => {
-    if (email.includes('@')) {
-      const existing = barberStore.findByEmail(email);
-      if (existing) {
-        setIsExistingBarber(true);
-        setName(existing.name);
-        setShop(existing.shop);
-      } else {
-        setIsExistingBarber(false);
-      }
+  const handleEmailSubmit = () => {
+    if (!email || !email.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const existing = barberStore.findByEmail(email);
+    if (existing) {
+      setIsExistingBarber(true);
+      setName(existing.name);
+      setShop(existing.shop);
     } else {
       setIsExistingBarber(false);
+      setName("");
+      setShop("");
     }
-  }, [email]);
+    setStep('details');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
