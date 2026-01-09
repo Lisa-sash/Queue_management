@@ -52,11 +52,11 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
         {/* Barber & Shop Info */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex gap-3 flex-1">
-            <img 
-              src={booking.barberAvatar} 
-              alt={booking.barberName} 
-              className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
-            />
+            <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center">
+              <span className="text-primary font-heading font-bold text-lg uppercase">
+                {booking.barberName.charAt(0)}
+              </span>
+            </div>
             <div>
               <h3 className="font-heading font-bold text-foreground">{booking.barberName}</h3>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
