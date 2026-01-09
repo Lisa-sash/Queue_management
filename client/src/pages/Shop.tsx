@@ -211,10 +211,17 @@ export default function Shop() {
       }));
 
       setAllBarbers(registeredBarbers);
+      
+      if (selectedLoggedBarber) {
+        const updatedBarber = registeredBarbers.find(b => b.id === selectedLoggedBarber.id);
+        if (updatedBarber) {
+          setSelectedLoggedBarber(updatedBarber);
+        }
+      }
     };
     updateBarbers();
     return barberStore.subscribe(updateBarbers);
-  }, [shopName]);
+  }, [shopName, selectedLoggedBarber?.id]);
 
   return (
     <div className="min-h-screen bg-background font-sans pb-20">
