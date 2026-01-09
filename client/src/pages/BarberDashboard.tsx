@@ -57,6 +57,7 @@ export default function BarberDashboard() {
   }, [setLocation]);
 
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [walkIns, setWalkIns] = useState<QueueItem[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [barberId, setBarberId] = useState<string>("");
   const [prevBookingCount, setPrevBookingCount] = useState(0);
@@ -65,6 +66,45 @@ export default function BarberDashboard() {
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkInName, setWalkInName] = useState("");
   const [walkInHaircut, setWalkInHaircut] = useState("");
+
+  // Load walk-ins and notifications from localStorage on mount
+  useEffect(() => {
+    const auth = localStorage.getItem("barberAuth");
+    if (auth) {
+      const parsed = JSON.parse(auth);
+      const odayKey = new Date().toISOString().split('T')[0];
+      const savedWalkIns = localStorage.getItem(`walkIns_${parsed.barberId}_${odayKey}`);
+      const savedNotifications = localStorage.getItem(`notifications_${parsed.barberId}_${odayKey}`);
+      
+      if (savedWalkIns) {
+        try {
+          setWalkIns(JSON.parse(savedWalkIns));
+        } catch (e) {}
+      }
+      if (savedNotifications) {
+        try {
+          const notifs = JSON.parse(savedNotifications);
+          setNotifications(notifs.map((n: any) => ({ ...n, timestamp: new Date(n.timestamp) })));
+        } catch (e) {}
+      }
+    }
+  }, []);
+
+  // Save walk-ins to localStorage whenever they change
+  useEffect(() => {
+    if (barberId) {
+      const todayKey = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`walkIns_${barberId}_${todayKey}`, JSON.stringify(walkIns));
+    }
+  }, [walkIns, barberId]);
+
+  // Save notifications to localStorage whenever they change
+  useEffect(() => {
+    if (barberId) {
+      const todayKey = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`notifications_${barberId}_${todayKey}`, JSON.stringify(notifications));
+    }
+  }, [notifications, barberId]);
 
   // Load real bookings from bookingStore
   useEffect(() => {
@@ -107,10 +147,11 @@ export default function BarberDashboard() {
         };
       });
       
-      // Sort by time
-      queueItems.sort((a, b) => a.time.localeCompare(b.time));
+      // Merge with walk-ins and sort by time
+      const allItems = [...queueItems, ...walkIns];
+      allItems.sort((a, b) => a.time.localeCompare(b.time));
       
-      setQueue(queueItems);
+      setQueue(allItems);
       
       // Add notification for new bookings
       if (myBookings.length > prevBookingCount && prevBookingCount > 0) {
@@ -130,7 +171,7 @@ export default function BarberDashboard() {
       syncBookings();
       return bookingStore.subscribe(syncBookings);
     }
-  }, [barberId, prevBookingCount]);
+  }, [barberId, prevBookingCount, walkIns]);
 
   const handleStartCut = (id: string, haircutName: string) => {
     const client = queue.find(q => q.id === id);
@@ -145,22 +186,44 @@ export default function BarberDashboard() {
 
   const handleCompleteCut = (id: string) => {
     const client = queue.find(q => q.id === id);
+    const isWalkIn = id.startsWith('walkin-');
+    
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'completed' as const } : item
       )
     );
-    bookingStore.updateBooking(id, { userStatus: 'completed' as any });
+    
+    if (isWalkIn) {
+      setWalkIns(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status: 'completed' as const } : item
+        )
+      );
+    } else {
+      bookingStore.updateBooking(id, { userStatus: 'completed' as any });
+    }
     addNotification('booking', `Finished cutting ${client?.clientName}`);
   };
 
   const handlePauseCut = (id: string) => {
     const client = queue.find(q => q.id === id);
+    const isWalkIn = id.startsWith('walkin-');
+    
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'paused' as const } : item
       )
     );
+    
+    if (isWalkIn) {
+      setWalkIns(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status: 'paused' as const } : item
+        )
+      );
+    }
+    
     toast({
       title: "Cut Paused",
       description: `${client?.clientName}'s cut has been paused. Booked client can take their spot.`,
@@ -170,11 +233,22 @@ export default function BarberDashboard() {
 
   const handleResumeCut = (id: string) => {
     const client = queue.find(q => q.id === id);
+    const isWalkIn = id.startsWith('walkin-');
+    
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'in-progress' as const } : item
       )
     );
+    
+    if (isWalkIn) {
+      setWalkIns(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status: 'in-progress' as const } : item
+        )
+      );
+    }
+    
     toast({
       title: "Cut Resumed",
       description: `Continuing ${client?.clientName}'s cut.`,
@@ -233,7 +307,8 @@ export default function BarberDashboard() {
       haircutName: walkInHaircut.trim(),
     };
     
-    setQueue(prev => [...prev, walkInItem]);
+    // Add to walkIns state (will be persisted to localStorage)
+    setWalkIns(prev => [...prev, walkInItem]);
     addNotification('walkin', `Walk-in: ${walkInName} - ${walkInHaircut}`);
     
     toast({
@@ -244,6 +319,15 @@ export default function BarberDashboard() {
     setShowWalkInModal(false);
     setWalkInName("");
     setWalkInHaircut("");
+  };
+
+  // Helper to update walk-in status
+  const updateWalkInStatus = (id: string, status: QueueItem['status']) => {
+    setWalkIns(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, status } : item
+      )
+    );
   };
 
   return (
