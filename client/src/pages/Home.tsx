@@ -110,15 +110,14 @@ export default function Home() {
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div className="flex -space-x-2">
-                      {MOCK_BARBERS.slice(0, 1).map(b => (
-                        <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} />
-                      ))}
                       {gentlemansBarbers.map(b => (
-                        <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} title={b.name} />
+                        <div key={b.id} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center" title={b.name}>
+                          <span className="text-primary font-bold text-xs">{b.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</span>
+                        </div>
                       ))}
                     </div>
                     <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded">
-                      {gentlemansBarbers.length > 0 ? `${gentlemansBarbers.length + 1} Barbers` : "Short Wait"}
+                      {gentlemansBarbers.length > 0 ? `${gentlemansBarbers.length} Barbers` : "View Shop"}
                     </span>
                   </div>
                   {gentlemansBarbers.length > 0 && (
@@ -161,13 +160,14 @@ export default function Home() {
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div className="flex -space-x-2">
-                       <img src={MOCK_BARBERS[1].avatar} className="w-8 h-8 rounded-full border-2 border-card" alt="Barber" />
                        {urbanBarbers.map(b => (
-                         <img key={b.id} src={b.avatar} className="w-8 h-8 rounded-full border-2 border-card" alt={b.name} title={b.name} />
+                         <div key={b.id} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center" title={b.name}>
+                           <span className="text-primary font-bold text-xs">{b.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</span>
+                         </div>
                        ))}
                     </div>
                     <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-2 py-1 rounded">
-                      {urbanBarbers.length > 0 ? `${urbanBarbers.length + 1} Barbers` : "Busy"}
+                      {urbanBarbers.length > 0 ? `${urbanBarbers.length} Barbers` : "View Shop"}
                     </span>
                   </div>
                   {urbanBarbers.length > 0 && (
