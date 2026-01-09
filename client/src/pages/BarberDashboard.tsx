@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, Settings, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { bookingStore, BookingWithCode } from "@/lib/booking-store";
 
 interface QueueItem {
   id: string;
@@ -45,71 +46,103 @@ export default function BarberDashboard() {
     setShopName(parsed.shop || "");
   }, [setLocation]);
 
-  const [queue, setQueue] = useState<QueueItem[]>([
-    { id: '1', time: '14:00', clientName: 'Mike R.', type: 'app', status: 'completed' },
-    { id: '2', time: '14:30', clientName: 'Sarah J.', type: 'walk-in', status: 'in-progress' },
-    { id: '3', time: '15:00', clientName: 'Davide', type: 'app', status: 'pending', userStatus: 'on-the-way' },
-    { id: '4', time: '15:30', clientName: 'Alex M.', type: 'app', status: 'pending' },
-    { id: '5', time: '16:00', clientName: 'James D.', type: 'walk-in', status: 'pending', userStatus: 'will-be-late' },
-  ]);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [barberId, setBarberId] = useState<string>("");
+  const [prevBookingCount, setPrevBookingCount] = useState(0);
 
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: '1',
-      type: 'booking',
-      message: 'New booking: Davide at 15:00',
-      timestamp: new Date(Date.now() - 5 * 60000),
-    },
-    {
-      id: '2',
-      type: 'late',
-      message: 'James D. is running late for 16:00 slot',
-      timestamp: new Date(Date.now() - 2 * 60000),
-    },
-  ]);
-
-  // Simulate real-time updates
+  // Load real bookings from bookingStore
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
+    const auth = localStorage.getItem("barberAuth");
+    if (auth) {
+      const parsed = JSON.parse(auth);
+      setBarberId(parsed.id || "");
+    }
+  }, []);
+
+  // Subscribe to booking store and sync real bookings
+  useEffect(() => {
+    const syncBookings = () => {
+      const allBookings = bookingStore.getBookings();
+      const myBookings = allBookings.filter(b => b.barberId === barberId);
+      
+      // Convert bookings to queue items
+      const queueItems: QueueItem[] = myBookings.map(booking => {
+        // Map userStatus to queue status
+        let status: 'pending' | 'in-progress' | 'completed' | 'no-show' = 'pending';
+        if (booking.userStatus === 'cancelled') {
+          status = 'no-show';
+        } else if (booking.userStatus === 'arrived') {
+          status = 'in-progress';
+        }
+        
+        return {
+          id: booking.id,
+          time: booking.slotTime,
+          clientName: booking.clientName,
+          type: 'app' as const,
+          status,
+          userStatus: booking.userStatus === 'on-the-way' ? 'on-the-way' : 
+                      booking.userStatus === 'will-be-late' ? 'will-be-late' : 
+                      booking.userStatus === 'pending' ? 'pending' : undefined,
+        };
+      });
+      
+      // Sort by time
+      queueItems.sort((a, b) => a.time.localeCompare(b.time));
+      
+      setQueue(queueItems);
+      
+      // Add notification for new bookings
+      if (myBookings.length > prevBookingCount && prevBookingCount > 0) {
+        const latestBooking = myBookings[myBookings.length - 1];
         const newNotif: Notification = {
           id: Date.now().toString(),
-          type: Math.random() > 0.5 ? 'booking' : 'walkin',
-          message: Math.random() > 0.5 ? 'New walk-in customer arrived' : 'New app booking confirmed',
+          type: 'booking',
+          message: `New booking: ${latestBooking.clientName} at ${latestBooking.slotTime}`,
           timestamp: new Date(),
         };
         setNotifications(prev => [newNotif, ...prev.slice(0, 4)]);
       }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, []);
+      setPrevBookingCount(myBookings.length);
+    };
+    
+    if (barberId) {
+      syncBookings();
+      return bookingStore.subscribe(syncBookings);
+    }
+  }, [barberId, prevBookingCount]);
 
   const handleStartCut = (id: string) => {
+    const client = queue.find(q => q.id === id);
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'in-progress' as const } : item
       )
     );
-    addNotification('booking', `Started cutting ${queue.find(q => q.id === id)?.clientName}`);
+    bookingStore.updateBooking(id, { userStatus: 'arrived' });
+    addNotification('booking', `Started cutting ${client?.clientName}`);
   };
 
   const handleCompleteCut = (id: string) => {
+    const client = queue.find(q => q.id === id);
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'completed' as const } : item
       )
     );
-    addNotification('booking', `Finished cutting ${queue.find(q => q.id === id)?.clientName}`);
+    addNotification('booking', `Finished cutting ${client?.clientName}`);
   };
 
   const handleNoShow = (id: string) => {
+    const client = queue.find(q => q.id === id);
     setQueue(prev =>
       prev.map(item =>
         item.id === id ? { ...item, status: 'no-show' as const } : item
       )
     );
-    addNotification('cancellation', `${queue.find(q => q.id === id)?.clientName} didn't show up`);
+    bookingStore.updateBooking(id, { userStatus: 'cancelled' });
+    addNotification('cancellation', `${client?.clientName} didn't show up`);
   };
 
   const addNotification = (type: 'booking' | 'cancellation' | 'late' | 'walkin', message: string) => {
