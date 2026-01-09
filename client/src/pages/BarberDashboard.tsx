@@ -56,7 +56,7 @@ export default function BarberDashboard() {
     const auth = localStorage.getItem("barberAuth");
     if (auth) {
       const parsed = JSON.parse(auth);
-      setBarberId(parsed.id || "");
+      setBarberId(parsed.barberId || "");
     }
   }, []);
 
