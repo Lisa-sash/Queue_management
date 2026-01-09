@@ -75,6 +75,8 @@ export default function BarberDashboard() {
           status = 'no-show';
         } else if (booking.userStatus === 'cutting') {
           status = 'in-progress';
+        } else if (booking.userStatus === 'completed') {
+          status = 'completed';
         }
         
         return {
@@ -134,6 +136,7 @@ export default function BarberDashboard() {
         item.id === id ? { ...item, status: 'completed' as const } : item
       )
     );
+    bookingStore.updateBooking(id, { userStatus: 'completed' as any });
     addNotification('booking', `Finished cutting ${client?.clientName}`);
   };
 
