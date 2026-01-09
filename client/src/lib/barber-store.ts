@@ -46,6 +46,10 @@ export const barberStore = {
     return barbers.filter(b => b.shop === shop);
   },
 
+  findByEmail: (email: string): LoggedInBarber | undefined => {
+    return barbers.find(b => b.email.toLowerCase() === email.toLowerCase());
+  },
+
   addBarber: (name: string, email: string, shop: string): LoggedInBarber => {
     const existing = barbers.find(b => b.email === email);
     if (existing) {

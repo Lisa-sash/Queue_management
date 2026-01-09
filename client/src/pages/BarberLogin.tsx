@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scissors, Eye, EyeOff, Loader2, Store } from "lucide-react";
+import { Scissors, Eye, EyeOff, Loader2, Store, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { barberStore } from "@/lib/barber-store";
 
@@ -16,6 +16,23 @@ export default function BarberLogin() {
   const [shop, setShop] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExistingBarber, setIsExistingBarber] = useState(false);
+
+  // Check if email belongs to an existing barber
+  useEffect(() => {
+    if (email.includes('@')) {
+      const existing = barberStore.findByEmail(email);
+      if (existing) {
+        setIsExistingBarber(true);
+        setName(existing.name);
+        setShop(existing.shop);
+      } else {
+        setIsExistingBarber(false);
+      }
+    } else {
+      setIsExistingBarber(false);
+    }
+  }, [email]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,53 +87,68 @@ export default function BarberLogin() {
         {/* Login Card */}
         <div className="bg-card border border-white/5 rounded-lg p-8 space-y-6">
           <form onSubmit={handleLogin} className="space-y-5">
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="e.g. Jax"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                data-testid="input-barber-name"
-                className="bg-background border-white/10 focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            {/* Shop Selection */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-2">
-                <Store className="w-4 h-4" />
-                Which shop do you work at?
-              </Label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShop("The Gentleman's Den")}
-                  data-testid="button-shop-gentlemans"
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    shop === "The Gentleman's Den"
-                      ? "bg-primary/10 border-primary text-foreground"
-                      : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
-                  }`}
-                >
-                  <span className="font-heading font-bold text-sm">The Gentleman's Den</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShop("Urban Cut")}
-                  data-testid="button-shop-urban"
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    shop === "Urban Cut"
-                      ? "bg-primary/10 border-primary text-foreground"
-                      : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
-                  }`}
-                >
-                  <span className="font-heading font-bold text-sm">Urban Cut</span>
-                </button>
+            {/* Existing Barber Welcome */}
+            {isExistingBarber && (
+              <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-foreground">Welcome back, {name}!</p>
+                  <p className="text-sm text-muted-foreground">{shop}</p>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Name - only for new barbers */}
+            {!isExistingBarber && (
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="e.g. Jax"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  data-testid="input-barber-name"
+                  className="bg-background border-white/10 focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+            )}
+
+            {/* Shop Selection - only for new barbers */}
+            {!isExistingBarber && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Store className="w-4 h-4" />
+                  Which shop do you work at?
+                </Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShop("The Gentleman's Den")}
+                    data-testid="button-shop-gentlemans"
+                    className={`p-4 rounded-lg border text-left transition-all ${
+                      shop === "The Gentleman's Den"
+                        ? "bg-primary/10 border-primary text-foreground"
+                        : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
+                    }`}
+                  >
+                    <span className="font-heading font-bold text-sm">The Gentleman's Den</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShop("Urban Cut")}
+                    data-testid="button-shop-urban"
+                    className={`p-4 rounded-lg border text-left transition-all ${
+                      shop === "Urban Cut"
+                        ? "bg-primary/10 border-primary text-foreground"
+                        : "bg-background border-white/10 text-muted-foreground hover:border-white/20"
+                    }`}
+                  >
+                    <span className="font-heading font-bold text-sm">Urban Cut</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Email */}
             <div className="space-y-2">
