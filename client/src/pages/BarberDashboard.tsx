@@ -142,7 +142,7 @@ export default function BarberDashboard() {
       {/* Sidebar */}
       <div className="hidden md:flex md:flex-col">
         <BarberSidebar
-          barberName={`${barberName} "The Blade"`}
+          barberName={barberName}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage="queue"
           onLogout={handleLogout}
@@ -180,7 +180,7 @@ export default function BarberDashboard() {
           </Button>
         </div>
         <BarberSidebar
-          barberName={`${barberName} "The Blade"`}
+          barberName={barberName}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage="queue"
           onLogout={handleLogout}
