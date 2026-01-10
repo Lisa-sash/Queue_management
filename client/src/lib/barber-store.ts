@@ -67,7 +67,7 @@ export const barberStore = {
       avatar: getRandomAvatar(),
       slots: {
         today: generateSlots(`${id}-today`),
-        tomorrow: generateSlots(`${id}-tomorrow`, ['9:00', '10:30', '14:00']),
+        tomorrow: generateSlots(`${id}-tomorrow`),
       },
       isLoggedIn: true,
     };
