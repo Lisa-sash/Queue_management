@@ -207,19 +207,23 @@ export default function Home() {
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                Book a slot and save your 4-character access code
+                Book a slot and receive your unique 4-character access code
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                Use your code to find your booking anytime
+                Use your code in "My Bookings" to view and manage your appointment
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                Update your status when you're leaving
+                Tap "I'm On The Way" when leaving to notify your barber
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                If running late, let the barber know for a 15-min grace period
+                Running late? Let the barber know for a 15-min grace period
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                Tap "I've Arrived" when you reach the shop
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
