@@ -11,6 +11,7 @@ function generateAccessCode(): string {
 
 export interface BookingWithCode extends Booking {
   accessCode: string;
+  bookingDate: 'today' | 'tomorrow';
 }
 
 let bookings: BookingWithCode[] = [];
@@ -19,11 +20,12 @@ let listeners: (() => void)[] = [];
 export const bookingStore = {
   getBookings: () => bookings,
   
-  addBooking: (booking: Omit<Booking, 'id'>): BookingWithCode => {
+  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow' }): BookingWithCode => {
     const newBooking: BookingWithCode = {
       ...booking,
       id: `booking-${Date.now()}`,
       accessCode: generateAccessCode(),
+      bookingDate: booking.bookingDate || 'today',
     };
     bookings = [...bookings, newBooking];
     listeners.forEach(fn => fn());

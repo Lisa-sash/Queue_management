@@ -70,12 +70,8 @@ export default function BarberDashboard() {
   // Queue view tab
   const [queueTab, setQueueTab] = useState<'today' | 'tomorrow'>('today');
   
-  // Mock tomorrow's bookings
-  const [tomorrowQueue] = useState<QueueItem[]>([
-    { id: 'tmrw-1', time: '09:00', clientName: 'Marcus', type: 'app', status: 'pending' },
-    { id: 'tmrw-2', time: '10:30', clientName: 'David', type: 'app', status: 'pending' },
-    { id: 'tmrw-3', time: '14:00', clientName: 'Chris', type: 'app', status: 'pending' },
-  ]);
+  // Tomorrow's bookings from store
+  const [tomorrowQueue, setTomorrowQueue] = useState<QueueItem[]>([]);
 
   // Load walk-ins and notifications from localStorage on mount
   useEffect(() => {
@@ -131,8 +127,12 @@ export default function BarberDashboard() {
       const allBookings = bookingStore.getBookings();
       const myBookings = allBookings.filter(b => b.barberId === barberId);
       
-      // Convert bookings to queue items
-      const queueItems: QueueItem[] = myBookings.map(booking => {
+      // Separate today and tomorrow bookings
+      const todayBookings = myBookings.filter(b => b.bookingDate === 'today' || !b.bookingDate);
+      const tomorrowBookings = myBookings.filter(b => b.bookingDate === 'tomorrow');
+      
+      // Convert today's bookings to queue items
+      const queueItems: QueueItem[] = todayBookings.map(booking => {
         // Map userStatus to queue status - arrived doesn't auto-start cutting
         let status: 'pending' | 'in-progress' | 'completed' | 'no-show' = 'pending';
         if (booking.userStatus === 'cancelled') {
@@ -156,6 +156,18 @@ export default function BarberDashboard() {
           haircutName: (booking as any).haircutName,
         };
       });
+      
+      // Convert tomorrow's bookings to queue items
+      const tomorrowItems: QueueItem[] = tomorrowBookings.map(booking => ({
+        id: booking.id,
+        time: booking.slotTime,
+        clientName: booking.clientName,
+        type: 'app' as const,
+        status: 'pending' as const,
+        haircutName: (booking as any).haircutName,
+      }));
+      tomorrowItems.sort((a, b) => a.time.localeCompare(b.time));
+      setTomorrowQueue(tomorrowItems);
       
       // Merge with walk-ins and sort by time
       const allItems = [...queueItems, ...walkIns];

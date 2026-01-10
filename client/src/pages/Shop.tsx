@@ -135,6 +135,7 @@ export default function Shop() {
         userStatus: 'pending',
         shopName: shopName,
         shopLocation: location,
+        bookingDate: day,
       });
 
       setLastAccessCode(newBooking.accessCode);
