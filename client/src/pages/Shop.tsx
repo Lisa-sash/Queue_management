@@ -24,84 +24,11 @@ export default function Shop() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lastAccessCode, setLastAccessCode] = useState<string | undefined>(undefined);
 
-  // Simulation: Random queue updates
+  // Reset barber if ID changes
   useEffect(() => {
-    // Reset if ID changes
     const current = MOCK_BARBERS.find(b => b.id === id) || MOCK_BARBERS[0];
     setBarber(current);
-
-    const interval = setInterval(() => {
-      setBarber(prev => {
-        const newSlots = [...prev.slots];
-        const random = Math.random();
-        
-        // Scenario 1: Progress (Slot finishes) - 30% chance
-        if (random < 0.3) {
-          const inProgressIdx = newSlots.findIndex(s => s.status === 'in-progress');
-          const nextBookedIdx = newSlots.findIndex(s => s.status === 'booked');
-          
-          if (inProgressIdx !== -1) {
-             newSlots[inProgressIdx] = { ...newSlots[inProgressIdx], status: 'completed' };
-             
-             // Auto-fill with next booking if available
-             if (nextBookedIdx !== -1) {
-                newSlots[nextBookedIdx] = { ...newSlots[nextBookedIdx], status: 'in-progress' };
-                toast({
-                  title: "Queue Moving",
-                  description: `${newSlots[nextBookedIdx].clientName || 'Next client'} is now in the chair.`,
-                });
-             } else {
-                // Or maybe a walk-in takes it immediately?
-                toast({
-                  title: "Chair Available",
-                  description: "Previous cut finished. Chair is open.",
-                });
-             }
-             return { ...prev, slots: newSlots, currentWaitTime: Math.max(0, prev.currentWaitTime - 20) };
-          }
-        }
-        
-        // Scenario 2: Cancellation (Booked slot becomes available) - 10% chance
-        else if (random > 0.3 && random < 0.4) {
-           const bookedSlots = newSlots.filter(s => s.status === 'booked');
-           if (bookedSlots.length > 0) {
-             const randomBooked = bookedSlots[Math.floor(Math.random() * bookedSlots.length)];
-             const idx = newSlots.findIndex(s => s.id === randomBooked.id);
-             
-             newSlots[idx] = { ...newSlots[idx], status: 'available', clientName: undefined, type: 'app' };
-             toast({
-               variant: "destructive", // Use default style but maybe warning color
-               title: "Slot Cancelled!",
-               description: `${randomBooked.time} just opened up! Grab it now.`,
-               className: "border-l-4 border-orange-500"
-             });
-             return { ...prev, slots: newSlots, currentWaitTime: Math.max(0, prev.currentWaitTime - 15) };
-           }
-        }
-
-        // Scenario 3: Walk-in fills an empty slot - 10% chance
-        else if (random > 0.4 && random < 0.5) {
-           const availableSlots = newSlots.filter(s => s.status === 'available');
-           if (availableSlots.length > 0) {
-             // Pick the earliest available slot
-             const firstAvailable = availableSlots[0]; 
-             const idx = newSlots.findIndex(s => s.id === firstAvailable.id);
-             
-             newSlots[idx] = { ...newSlots[idx], status: 'booked', clientName: 'Walk-in', type: 'walk-in' };
-             toast({
-               title: "New Walk-in",
-               description: `A walk-in client just took the ${firstAvailable.time} slot.`,
-             });
-             return { ...prev, slots: newSlots, currentWaitTime: prev.currentWaitTime + 15 };
-           }
-        }
-
-        return prev;
-      });
-    }, 5000); // Check every 5 seconds for more activity during demo
-
-    return () => clearInterval(interval);
-  }, [id, toast]);
+  }, [id]);
 
   const [bookingForLoggedBarber, setBookingForLoggedBarber] = useState<{ barber: LoggedInBarber; day: 'today' | 'tomorrow' } | null>(null);
 
