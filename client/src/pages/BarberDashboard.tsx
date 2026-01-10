@@ -8,7 +8,7 @@ import { NotificationPanel } from "@/components/barber/NotificationPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, Settings, Menu, X, UserPlus, Scissors } from "lucide-react";
+import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
@@ -66,6 +66,16 @@ export default function BarberDashboard() {
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkInName, setWalkInName] = useState("");
   const [walkInHaircut, setWalkInHaircut] = useState("");
+  
+  // Queue view tab
+  const [queueTab, setQueueTab] = useState<'today' | 'tomorrow'>('today');
+  
+  // Mock tomorrow's bookings
+  const [tomorrowQueue] = useState<QueueItem[]>([
+    { id: 'tmrw-1', time: '09:00', clientName: 'Marcus', type: 'app', status: 'pending' },
+    { id: 'tmrw-2', time: '10:30', clientName: 'David', type: 'app', status: 'pending' },
+    { id: 'tmrw-3', time: '14:00', clientName: 'Chris', type: 'app', status: 'pending' },
+  ]);
 
   // Load walk-ins and notifications from localStorage on mount
   useEffect(() => {
@@ -438,38 +448,112 @@ export default function BarberDashboard() {
             {/* Queue Column */}
             <div className="lg:col-span-2 space-y-6">
               <div>
+                {/* Queue Tabs */}
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-heading font-bold">Today's Queue</h2>
-                  <Button
-                    onClick={() => setShowWalkInModal(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                    data-testid="button-add-walkin"
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Walk-in
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={queueTab === 'today' ? 'default' : 'outline'}
+                      onClick={() => setQueueTab('today')}
+                      className={cn(
+                        queueTab === 'today' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'border-white/10 hover:bg-white/5'
+                      )}
+                      data-testid="tab-today-queue"
+                    >
+                      <CalendarDays className="w-4 h-4 mr-2" />
+                      Today's Queue
+                      <span className="ml-2 text-xs bg-white/20 px-1.5 py-0.5 rounded">{queue.length}</span>
+                    </Button>
+                    <Button
+                      variant={queueTab === 'tomorrow' ? 'default' : 'outline'}
+                      onClick={() => setQueueTab('tomorrow')}
+                      className={cn(
+                        queueTab === 'tomorrow' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'border-white/10 hover:bg-white/5'
+                      )}
+                      data-testid="tab-tomorrow-queue"
+                    >
+                      <CalendarDays className="w-4 h-4 mr-2" />
+                      Tomorrow
+                      <span className="ml-2 text-xs bg-white/20 px-1.5 py-0.5 rounded">{tomorrowQueue.length}</span>
+                    </Button>
+                  </div>
+                  {queueTab === 'today' && (
+                    <Button
+                      onClick={() => setShowWalkInModal(true)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      data-testid="button-add-walkin"
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Walk-in
+                    </Button>
+                  )}
                 </div>
-                <div className="space-y-3">
-                  <AnimatePresence mode="popLayout">
-                    {queue.map((item) => (
-                      <QueueCard
-                        key={item.id}
-                        id={item.id}
-                        time={item.time}
-                        clientName={item.clientName}
-                        type={item.type}
-                        status={item.status}
-                        userStatus={item.userStatus}
-                        haircutName={item.haircutName}
-                        onStartCut={handleStartCut}
-                        onCompleteCut={handleCompleteCut}
-                        onNoShow={handleNoShow}
-                        onPauseCut={handlePauseCut}
-                        onResumeCut={handleResumeCut}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
+
+                {/* Today's Queue */}
+                {queueTab === 'today' && (
+                  <div className="space-y-3">
+                    <AnimatePresence mode="popLayout">
+                      {queue.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <Scissors className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                          <p>No clients in queue yet</p>
+                        </div>
+                      ) : (
+                        queue.map((item) => (
+                          <QueueCard
+                            key={item.id}
+                            id={item.id}
+                            time={item.time}
+                            clientName={item.clientName}
+                            type={item.type}
+                            status={item.status}
+                            userStatus={item.userStatus}
+                            haircutName={item.haircutName}
+                            onStartCut={handleStartCut}
+                            onCompleteCut={handleCompleteCut}
+                            onNoShow={handleNoShow}
+                            onPauseCut={handlePauseCut}
+                            onResumeCut={handleResumeCut}
+                          />
+                        ))
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* Tomorrow's Queue */}
+                {queueTab === 'tomorrow' && (
+                  <div className="space-y-3">
+                    {tomorrowQueue.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <CalendarDays className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                        <p>No bookings for tomorrow yet</p>
+                      </div>
+                    ) : (
+                      tomorrowQueue.map((item) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-4 rounded-lg border bg-card border-white/5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="font-heading text-lg font-bold text-primary">{item.time}</span>
+                              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-green-500/20 text-green-500">
+                                Booked
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-sm font-medium text-foreground mt-2">{item.clientName}</p>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
