@@ -7,9 +7,10 @@ interface BarberSidebarProps {
   barberAvatar: string;
   activePage: string;
   onLogout?: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout }: BarberSidebarProps) {
+export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout, onNavigate }: BarberSidebarProps) {
   const menuItems = [
     { id: 'queue', label: 'Queue', icon: Clock },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -35,10 +36,12 @@ export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout }
           <Button
             key={item.id}
             variant="ghost"
+            onClick={() => onNavigate?.(item.id)}
             className={cn(
               "w-full justify-start text-muted-foreground hover:text-foreground transition-colors",
               activePage === item.id && "bg-primary/10 text-primary border border-primary/20"
             )}
+            data-testid={`nav-${item.id}`}
           >
             <item.icon className="w-4 h-4 mr-2" />
             {item.label}

@@ -8,7 +8,7 @@ import { NotificationPanel } from "@/components/barber/NotificationPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays } from "lucide-react";
+import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { AnalyticsPanel } from "@/components/barber/AnalyticsPanel";
 
 interface QueueItem {
   id: string;
@@ -69,6 +70,9 @@ export default function BarberDashboard() {
   
   // Queue view tab
   const [queueTab, setQueueTab] = useState<'today' | 'tomorrow'>('today');
+  
+  // Dashboard page view
+  const [activePage, setActivePage] = useState<'queue' | 'analytics' | 'settings'>('queue');
   
   // Tomorrow's bookings from store
   const [tomorrowQueue, setTomorrowQueue] = useState<QueueItem[]>([]);
@@ -361,8 +365,9 @@ export default function BarberDashboard() {
         <BarberSidebar
           barberName={barberName}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-          activePage="queue"
+          activePage={activePage}
           onLogout={handleLogout}
+          onNavigate={(page) => setActivePage(page as any)}
         />
       </div>
 
@@ -399,8 +404,9 @@ export default function BarberDashboard() {
         <BarberSidebar
           barberName={barberName}
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-          activePage="queue"
+          activePage={activePage}
           onLogout={handleLogout}
+          onNavigate={(page) => { setActivePage(page as any); setMobileMenuOpen(false); }}
         />
       </motion.div>
 
@@ -444,6 +450,16 @@ export default function BarberDashboard() {
 
         {/* Page Content */}
         <div className="p-6 max-w-7xl">
+          {activePage === 'analytics' ? (
+            <AnalyticsPanel barberId={barberId} />
+          ) : activePage === 'settings' ? (
+            <div className="text-center py-20 text-muted-foreground">
+              <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <h2 className="text-xl font-heading font-bold mb-2">Settings</h2>
+              <p>Settings panel coming soon</p>
+            </div>
+          ) : (
+          <>
           {/* Stats */}
           <div className="mb-8">
             <DashboardStats
@@ -590,6 +606,8 @@ export default function BarberDashboard() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
       </div>
 
