@@ -10,7 +10,7 @@ export interface LoggedInBarber {
   isLoggedIn: boolean;
 }
 
-function generateSlots(prefix: string): Slot[] {
+function generateSlots(prefix: string, bookedTimes: string[] = []): Slot[] {
   const times = [
     "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
@@ -20,7 +20,7 @@ function generateSlots(prefix: string): Slot[] {
   return times.map((time, i) => ({
     id: `${prefix}-s${i + 1}`,
     time,
-    status: 'available' as const,
+    status: bookedTimes.includes(time) ? 'booked' as const : 'available' as const,
     type: 'app' as const,
   }));
 }
@@ -67,7 +67,7 @@ export const barberStore = {
       avatar: getRandomAvatar(),
       slots: {
         today: generateSlots(`${id}-today`),
-        tomorrow: generateSlots(`${id}-tomorrow`),
+        tomorrow: generateSlots(`${id}-tomorrow`, ['9:00', '10:30', '14:00']),
       },
       isLoggedIn: true,
     };
