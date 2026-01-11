@@ -145,18 +145,37 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
             Track your performance and grow your business
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-white/10">
-          <span className={cn(
-            "text-xs font-bold uppercase tracking-wider",
-            tier === 'basic' && "text-muted-foreground",
-            tier === 'professional' && "text-blue-500",
-            tier === 'enterprise' && "text-primary"
-          )}>
-            {tier === 'basic' && <Zap className="w-3 h-3 inline mr-1" />}
-            {tier === 'professional' && <Star className="w-3 h-3 inline mr-1" />}
-            {tier === 'enterprise' && <Crown className="w-3 h-3 inline mr-1" />}
-            {tier} Plan
-          </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground mr-2">Preview:</span>
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant={tier === 'basic' ? 'default' : 'outline'}
+              className={cn("text-xs h-7 px-2", tier === 'basic' && "bg-muted-foreground")}
+              onClick={() => analyticsStore.upgradeTier(barberId, 'basic')}
+            >
+              <Zap className="w-3 h-3 mr-1" />
+              Basic
+            </Button>
+            <Button
+              size="sm"
+              variant={tier === 'professional' ? 'default' : 'outline'}
+              className={cn("text-xs h-7 px-2", tier === 'professional' && "bg-blue-500 hover:bg-blue-600")}
+              onClick={() => analyticsStore.upgradeTier(barberId, 'professional')}
+            >
+              <Star className="w-3 h-3 mr-1" />
+              Pro
+            </Button>
+            <Button
+              size="sm"
+              variant={tier === 'enterprise' ? 'default' : 'outline'}
+              className={cn("text-xs h-7 px-2", tier === 'enterprise' && "bg-primary hover:bg-primary/90")}
+              onClick={() => analyticsStore.upgradeTier(barberId, 'enterprise')}
+            >
+              <Crown className="w-3 h-3 mr-1" />
+              Enterprise
+            </Button>
+          </div>
         </div>
       </div>
 
