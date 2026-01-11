@@ -293,6 +293,17 @@ export default function BarberDashboard() {
     addNotification('cancellation', `${client?.clientName} didn't show up`);
   };
 
+  const handleCancelBooking = (id: string) => {
+    const client = queue.find(q => q.id === id);
+    setQueue(prev => prev.filter(item => item.id !== id));
+    bookingStore.updateBooking(id, { userStatus: 'cancelled', cancelledByBarber: true } as any);
+    addNotification('cancellation', `Cancelled ${client?.clientName}'s booking - suggested to book with another barber`);
+    toast({
+      title: "Booking Cancelled",
+      description: `${client?.clientName} has been notified to book with another barber.`,
+    });
+  };
+
   const addNotification = (type: 'booking' | 'cancellation' | 'late' | 'walkin', message: string) => {
     setNotifications(prev => [
       {
@@ -545,6 +556,7 @@ export default function BarberDashboard() {
                             onNoShow={handleNoShow}
                             onPauseCut={handlePauseCut}
                             onResumeCut={handleResumeCut}
+                            onCancelBooking={handleCancelBooking}
                           />
                         ))
                       )}

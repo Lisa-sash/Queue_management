@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock, User, AlertCircle, CheckCircle, Phone, Scissors, Pause, Play } from "lucide-react";
+import { Clock, User, AlertCircle, CheckCircle, Phone, Scissors, Pause, Play, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -26,6 +26,7 @@ interface QueueCardProps {
   onNoShow?: (id: string) => void;
   onPauseCut?: (id: string) => void;
   onResumeCut?: (id: string) => void;
+  onCancelBooking?: (id: string) => void;
 }
 
 export function QueueCard({
@@ -41,7 +42,9 @@ export function QueueCard({
   onNoShow,
   onPauseCut,
   onResumeCut,
+  onCancelBooking,
 }: QueueCardProps) {
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showHaircutModal, setShowHaircutModal] = useState(false);
   const [haircutInput, setHaircutInput] = useState("");
 
@@ -228,10 +231,22 @@ export function QueueCard({
                   size="sm"
                   onClick={() => onNoShow(id)}
                   variant="outline"
-                  className="flex-1 text-red-500 hover:bg-red-500/10 border-red-500/20"
+                  className="text-red-500 hover:bg-red-500/10 border-red-500/20"
                   data-testid={`button-noshow-${id}`}
                 >
                   No-show
+                </Button>
+              )}
+              {isPending && type === 'app' && onCancelBooking && (
+                <Button
+                  size="sm"
+                  onClick={() => setShowCancelModal(true)}
+                  variant="outline"
+                  className="text-orange-500 hover:bg-orange-500/10 border-orange-500/20"
+                  data-testid={`button-cancel-booking-${id}`}
+                >
+                  <XCircle className="w-4 h-4 mr-1" />
+                  Cancel
                 </Button>
               )}
             </div>
@@ -292,6 +307,51 @@ export function QueueCard({
             >
               <Scissors className="w-4 h-4 mr-2" />
               Start Cutting
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Booking Modal */}
+      <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2 text-orange-500">
+              <XCircle className="w-5 h-5" />
+              Cancel Booking
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to cancel <span className="font-bold text-foreground">{clientName}'s</span> booking at <span className="font-bold text-foreground">{time}</span>?
+            </p>
+            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
+              <p className="text-sm text-orange-500 font-medium mb-2">
+                The client will be notified to:
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Book with another available barber</li>
+                <li>• Reschedule for a different time</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setShowCancelModal(false)}
+            >
+              Keep Booking
+            </Button>
+            <Button
+              onClick={() => {
+                onCancelBooking?.(id);
+                setShowCancelModal(false);
+              }}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              data-testid="button-confirm-cancel-booking"
+            >
+              <XCircle className="w-4 h-4 mr-2" />
+              Cancel Booking
             </Button>
           </DialogFooter>
         </DialogContent>
