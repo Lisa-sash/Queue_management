@@ -76,7 +76,7 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
     });
   };
 
-  const StatCard = ({ icon: Icon, label, value, change, positive }: any) => (
+  const StatCard = ({ icon: Icon, label, value, comparisons }: any) => (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -86,18 +86,34 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
         <div className="p-2 rounded-lg bg-primary/10">
           <Icon className="w-5 h-5 text-primary" />
         </div>
-        {change && (
+        {comparisons && comparisons.length === 1 && (
           <div className={cn(
             "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded",
-            positive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+            comparisons[0].positive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
           )}>
-            {positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-            {change}
+            {comparisons[0].positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+            {comparisons[0].change}
           </div>
         )}
       </div>
       <p className="text-2xl font-heading font-bold">{value}</p>
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
+      {comparisons && comparisons.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
+          {comparisons.map((comp: any, idx: number) => (
+            <div key={idx} className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{comp.period}</span>
+              <span className={cn(
+                "flex items-center gap-1 font-bold",
+                comp.positive ? "text-green-500" : "text-red-500"
+              )}>
+                {comp.positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                {comp.change}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 
@@ -145,10 +161,41 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
       </div>
 
       <div className="grid md:grid-cols-4 gap-4">
-        <StatCard icon={Scissors} label="Cuts Today" value="8" change="+12%" positive />
-        <StatCard icon={Users} label="Total Clients" value="247" change="+5%" positive />
-        <StatCard icon={Clock} label="Avg Wait Time" value="12m" change="-8%" positive />
-        <StatCard icon={CheckCircle} label="Completion Rate" value="96%" change="+2%" positive />
+        <StatCard 
+          icon={Scissors} 
+          label="Cuts Today" 
+          value="8" 
+          comparisons={[
+            { period: "vs yesterday", change: "+12%", positive: true },
+            { period: "vs same day last week", change: "+3%", positive: true }
+          ]} 
+        />
+        <StatCard 
+          icon={Users} 
+          label="Total Clients" 
+          value="247" 
+          comparisons={[
+            { period: "vs last week", change: "+5%", positive: true },
+            { period: "vs last month", change: "+18%", positive: true }
+          ]} 
+        />
+        <StatCard 
+          icon={Clock} 
+          label="Avg Wait Time" 
+          value="12m" 
+          comparisons={[
+            { period: "vs last week", change: "-8%", positive: true }
+          ]} 
+        />
+        <StatCard 
+          icon={CheckCircle} 
+          label="Completion Rate" 
+          value="96%" 
+          comparisons={[
+            { period: "vs last week", change: "+2%", positive: true },
+            { period: "vs last month", change: "+4%", positive: true }
+          ]} 
+        />
       </div>
 
       <div className="bg-card border border-white/5 rounded-xl p-6">
