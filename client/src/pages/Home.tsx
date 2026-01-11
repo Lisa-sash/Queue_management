@@ -197,39 +197,63 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-card/50 border-t border-white/5">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <div className="p-6 bg-card border border-white/5 rounded-lg">
-            <h3 className="font-heading font-bold text-xl mb-4 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              How It Works
-            </h3>
-            <ul className="space-y-3 text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Book a slot and receive your unique 4-character access code
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Use your code in "My Bookings" to view and manage your appointment
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Tap "I'm On The Way" when leaving to notify your barber
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Running late? Let the barber know for a 15-min grace period
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Tap "I've Arrived" when you reach the shop
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                Cancel anytime to free the slot for walk-ins
-              </li>
-            </ul>
+      <section className="py-20 bg-card/50 border-t border-white/5">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="flex items-start justify-between mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 mb-6">
+                <Star className="w-3 h-3 fill-primary text-primary" />
+                <span className="text-xs font-bold text-primary tracking-wider uppercase">Seamless Experience</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground tracking-tight uppercase">
+                How It Works
+              </h2>
+            </div>
+            <div className="hidden md:flex w-20 h-20 rounded-full border-2 border-white/10 items-center justify-center">
+              <Clock className="w-10 h-10 text-white/20" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="flex gap-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">1</span>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Book a slot and receive your unique 4-character access code</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Use your code in "My Bookings" to view and manage your appointment</p>
+              </div>
+            </div>
+
+            <div className="flex gap-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">3</span>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I'm On The Way" when leaving to notify your barber</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Running late? Let the barber know for a 15-min grace period</p>
+              </div>
+            </div>
+
+            <div className="flex gap-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">2</span>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I've Arrived" when you reach the shop</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Your barber will be notified you're ready and waiting</p>
+              </div>
+            </div>
+
+            <div className="flex gap-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">4</span>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Cancel anytime to free the slot for walk-ins</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">No-shows affect queue efficiency, so help others by canceling if plans change</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
