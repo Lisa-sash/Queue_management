@@ -4,8 +4,13 @@ import { Clock, MapPin, AlertCircle, CheckCircle, X } from "lucide-react";
 import { Booking } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
+interface ExtendedBooking extends Booking {
+  cancelledByBarber?: boolean;
+  slotAvailable?: boolean;
+}
+
 interface BookingStatusCardProps {
-  booking: Booking;
+  booking: ExtendedBooking;
   onStatusChange: (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived') => void;
   onCancel: (bookingId: string) => void;
 }
@@ -16,6 +21,8 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
   const isCancelled = booking.userStatus === 'cancelled';
   const isArrived = booking.userStatus === 'arrived';
   const showArrivedButton = isOnTheWay || isLate;
+  const cancelledByBarber = (booking as ExtendedBooking).cancelledByBarber;
+  const slotAvailable = (booking as ExtendedBooking).slotAvailable;
 
   const statusColor = {
     'pending': 'text-muted-foreground',
@@ -113,9 +120,28 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
         )}
 
         {isCancelled && (
-          <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-sm">
-            <X className="w-4 h-4 flex-shrink-0" />
-            <span>This booking has been cancelled. The slot is now available for others.</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-sm">
+              <X className="w-4 h-4 flex-shrink-0" />
+              <span>
+                {cancelledByBarber 
+                  ? slotAvailable 
+                    ? "This booking was cancelled by the barber. The slot is now available for others."
+                    : "This booking was cancelled by the barber due to an emergency. The slot has been removed."
+                  : "This booking has been cancelled. The slot is now available for others."
+                }
+              </span>
+            </div>
+            {cancelledByBarber && (
+              <div className="p-3 bg-primary/5 border border-primary/10 rounded text-sm">
+                <p className="font-medium text-foreground mb-1">What to do next:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>• Book with another available barber at this shop</li>
+                  <li>• Choose a different time slot</li>
+                  <li>• Try another barbershop nearby</li>
+                </ul>
+              </div>
+            )}
           </div>
         )}
 

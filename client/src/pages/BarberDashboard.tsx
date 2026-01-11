@@ -293,15 +293,29 @@ export default function BarberDashboard() {
     addNotification('cancellation', `${client?.clientName} didn't show up`);
   };
 
-  const handleCancelBooking = (id: string) => {
+  const handleCancelBooking = (id: string, makeSlotAvailable: boolean) => {
     const client = queue.find(q => q.id === id);
     setQueue(prev => prev.filter(item => item.id !== id));
-    bookingStore.updateBooking(id, { userStatus: 'cancelled', cancelledByBarber: true } as any);
-    addNotification('cancellation', `Cancelled ${client?.clientName}'s booking - suggested to book with another barber`);
-    toast({
-      title: "Booking Cancelled",
-      description: `${client?.clientName} has been notified to book with another barber.`,
-    });
+    bookingStore.updateBooking(id, { 
+      userStatus: 'cancelled', 
+      cancelledByBarber: true,
+      slotAvailable: makeSlotAvailable 
+    } as any);
+    
+    if (makeSlotAvailable) {
+      addNotification('cancellation', `Cancelled ${client?.clientName}'s booking - slot now available for others`);
+      toast({
+        title: "Booking Cancelled",
+        description: `${client?.clientName} has been notified. The ${client?.time} slot is now available.`,
+      });
+    } else {
+      addNotification('cancellation', `Cancelled ${client?.clientName}'s booking - slot removed (emergency)`);
+      toast({
+        title: "Booking Cancelled",
+        description: `${client?.clientName} has been notified. The slot has been removed.`,
+        variant: "destructive",
+      });
+    }
   };
 
   const addNotification = (type: 'booking' | 'cancellation' | 'late' | 'walkin', message: string) => {

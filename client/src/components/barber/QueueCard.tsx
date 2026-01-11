@@ -26,7 +26,7 @@ interface QueueCardProps {
   onNoShow?: (id: string) => void;
   onPauseCut?: (id: string) => void;
   onResumeCut?: (id: string) => void;
-  onCancelBooking?: (id: string) => void;
+  onCancelBooking?: (id: string, makeSlotAvailable: boolean) => void;
 }
 
 export function QueueCard({
@@ -47,6 +47,7 @@ export function QueueCard({
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showHaircutModal, setShowHaircutModal] = useState(false);
   const [haircutInput, setHaircutInput] = useState("");
+  const [makeSlotAvailable, setMakeSlotAvailable] = useState(true);
 
   const isInProgress = status === 'in-progress';
   const isPending = status === 'pending';
@@ -313,7 +314,10 @@ export function QueueCard({
       </Dialog>
 
       {/* Cancel Booking Modal */}
-      <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
+      <Dialog open={showCancelModal} onOpenChange={(open) => {
+        setShowCancelModal(open);
+        if (!open) setMakeSlotAvailable(true);
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading flex items-center gap-2 text-orange-500">
@@ -325,13 +329,75 @@ export function QueueCard({
             <p className="text-sm text-muted-foreground">
               Are you sure you want to cancel <span className="font-bold text-foreground">{clientName}'s</span> booking at <span className="font-bold text-foreground">{time}</span>?
             </p>
-            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
-              <p className="text-sm text-orange-500 font-medium mb-2">
-                The client will be notified to:
+            
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">What should happen to this time slot?</p>
+              
+              <div 
+                onClick={() => setMakeSlotAvailable(true)}
+                className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                  makeSlotAvailable 
+                    ? 'border-green-500 bg-green-500/10' 
+                    : 'border-white/10 bg-card hover:border-white/20'
+                }`}
+                data-testid="option-make-available"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                    makeSlotAvailable ? 'border-green-500 bg-green-500' : 'border-white/30'
+                  }`}>
+                    {makeSlotAvailable && <CheckCircle className="w-3 h-3 text-white" />}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">Make slot available for others</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      The {time} slot will be open for other clients to book
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => setMakeSlotAvailable(false)}
+                className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                  !makeSlotAvailable 
+                    ? 'border-red-500 bg-red-500/10' 
+                    : 'border-white/10 bg-card hover:border-white/20'
+                }`}
+                data-testid="option-remove-slot"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                    !makeSlotAvailable ? 'border-red-500 bg-red-500' : 'border-white/30'
+                  }`}>
+                    {!makeSlotAvailable && <XCircle className="w-3 h-3 text-white" />}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">Remove slot (I have an emergency)</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      The {time} slot will be removed and not available for booking
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={`rounded-lg p-4 ${makeSlotAvailable ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+              <p className={`text-sm font-medium mb-2 ${makeSlotAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                {makeSlotAvailable ? 'The client will be notified to:' : 'The client will be notified that:'}
               </p>
               <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• Book with another available barber</li>
-                <li>• Reschedule for a different time</li>
+                {makeSlotAvailable ? (
+                  <>
+                    <li>• Book with another available barber</li>
+                    <li>• Reschedule for a different time</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• Their booking was cancelled due to an emergency</li>
+                    <li>• They should book with another barber or different time</li>
+                  </>
+                )}
               </ul>
             </div>
           </div>
@@ -344,10 +410,11 @@ export function QueueCard({
             </Button>
             <Button
               onClick={() => {
-                onCancelBooking?.(id);
+                onCancelBooking?.(id, makeSlotAvailable);
                 setShowCancelModal(false);
+                setMakeSlotAvailable(true);
               }}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className={makeSlotAvailable ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}
               data-testid="button-confirm-cancel-booking"
             >
               <XCircle className="w-4 h-4 mr-2" />
