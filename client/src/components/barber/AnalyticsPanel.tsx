@@ -210,8 +210,7 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
           label="Completion Rate This Week" 
           value="96%" 
           comparisons={[
-            { period: "vs last week", change: "+2%", positive: true },
-            { period: "vs last month", change: "+4%", positive: true }
+            { period: "vs last week", change: "+2%", positive: true }
           ]} 
         />
       </div>
