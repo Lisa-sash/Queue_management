@@ -194,7 +194,6 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
           label="Clients This Month" 
           value="91" 
           comparisons={[
-            { period: "vs last week", change: "+12 clients", positive: true },
             { period: "vs last month", change: "+23%", positive: true }
           ]} 
         />
