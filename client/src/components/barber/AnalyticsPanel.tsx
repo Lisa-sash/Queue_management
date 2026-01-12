@@ -191,11 +191,11 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
         />
         <StatCard 
           icon={Users} 
-          label="Total Clients" 
-          value="247" 
+          label="Clients This Month" 
+          value="91" 
           comparisons={[
-            { period: "vs last week", change: "+5%", positive: true },
-            { period: "vs last month", change: "+18%", positive: true }
+            { period: "vs last week", change: "+12 clients", positive: true },
+            { period: "vs last month", change: "+23%", positive: true }
           ]} 
         />
         <StatCard 
