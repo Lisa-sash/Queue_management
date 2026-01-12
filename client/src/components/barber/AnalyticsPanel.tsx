@@ -36,12 +36,20 @@ const monthlyData = [
   { week: 'Week 4', clients: 61, revenue: 1830 },
 ];
 
-const serviceBreakdown = [
+const serviceBreakdownMonthly = [
   { name: 'Classic Cut', value: 35, color: '#f97316' },
   { name: 'Fade', value: 28, color: '#3b82f6' },
   { name: 'Beard Trim', value: 18, color: '#22c55e' },
   { name: 'Hot Towel Shave', value: 12, color: '#a855f7' },
   { name: 'Kids Cut', value: 7, color: '#eab308' },
+];
+
+const serviceBreakdownWeekly = [
+  { name: 'Classic Cut', value: 12, color: '#f97316' },
+  { name: 'Fade', value: 9, color: '#3b82f6' },
+  { name: 'Beard Trim', value: 5, color: '#22c55e' },
+  { name: 'Hot Towel Shave', value: 3, color: '#a855f7' },
+  { name: 'Kids Cut', value: 2, color: '#eab308' },
 ];
 
 const hourlyTraffic = [
@@ -265,15 +273,18 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
       <div className="grid md:grid-cols-2 gap-6 relative">
         <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
           {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
-          <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-blue-500" />
-            Service Breakdown
-          </h3>
+          <div className="mb-4">
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-blue-500" />
+              Service Breakdown
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">This Month</p>
+          </div>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPie>
                 <Pie
-                  data={serviceBreakdown}
+                  data={serviceBreakdownMonthly}
                   cx="50%"
                   cy="50%"
                   innerRadius={40}
@@ -281,8 +292,8 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {serviceBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {serviceBreakdownMonthly.map((entry, index) => (
+                    <Cell key={`cell-monthly-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -292,7 +303,48 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
             </ResponsiveContainer>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
-            {serviceBreakdown.map((service) => (
+            {serviceBreakdownMonthly.map((service) => (
+              <div key={service.name} className="flex items-center gap-2 text-xs">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: service.color }} />
+                <span className="text-muted-foreground">{service.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
+          {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
+          <div className="mb-4">
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-purple-500" />
+              Service Breakdown
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">This Week</p>
+          </div>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsPie>
+                <Pie
+                  data={serviceBreakdownWeekly}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {serviceBreakdownWeekly.map((entry, index) => (
+                    <Cell key={`cell-weekly-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                />
+              </RechartsPie>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {serviceBreakdownWeekly.map((service) => (
               <div key={service.name} className="flex items-center gap-2 text-xs">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: service.color }} />
                 <span className="text-muted-foreground">{service.name}</span>
