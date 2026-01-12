@@ -52,11 +52,25 @@ const serviceBreakdownWeekly = [
   { name: 'Kids Cut', value: 2, color: '#eab308' },
 ];
 
-const hourlyTraffic = [
+const hourlyTrafficToday = [
   { hour: '8am', traffic: 2 }, { hour: '9am', traffic: 4 }, { hour: '10am', traffic: 6 },
   { hour: '11am', traffic: 8 }, { hour: '12pm', traffic: 5 }, { hour: '1pm', traffic: 7 },
   { hour: '2pm', traffic: 9 }, { hour: '3pm', traffic: 11 }, { hour: '4pm', traffic: 12 },
   { hour: '5pm', traffic: 10 }, { hour: '6pm', traffic: 8 }, { hour: '7pm', traffic: 6 },
+];
+
+const hourlyTrafficWeekly = [
+  { hour: '8am', traffic: 14 }, { hour: '9am', traffic: 28 }, { hour: '10am', traffic: 42 },
+  { hour: '11am', traffic: 56 }, { hour: '12pm', traffic: 35 }, { hour: '1pm', traffic: 49 },
+  { hour: '2pm', traffic: 63 }, { hour: '3pm', traffic: 77 }, { hour: '4pm', traffic: 84 },
+  { hour: '5pm', traffic: 70 }, { hour: '6pm', traffic: 56 }, { hour: '7pm', traffic: 42 },
+];
+
+const hourlyTrafficMonthly = [
+  { hour: '8am', traffic: 60 }, { hour: '9am', traffic: 120 }, { hour: '10am', traffic: 180 },
+  { hour: '11am', traffic: 240 }, { hour: '12pm', traffic: 150 }, { hour: '1pm', traffic: 210 },
+  { hour: '2pm', traffic: 270 }, { hour: '3pm', traffic: 330 }, { hour: '4pm', traffic: 360 },
+  { hour: '5pm', traffic: 300 }, { hour: '6pm', traffic: 240 }, { hour: '7pm', traffic: 180 },
 ];
 
 const clientRetention = [
@@ -355,13 +369,16 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
 
         <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
           {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
-          <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-green-500" />
-            Peak Hours Analysis
-          </h3>
+          <div className="mb-4">
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <Activity className="w-5 h-5 text-green-500" />
+              Peak Hours Analysis
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">Today</p>
+          </div>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourlyTraffic}>
+              <BarChart data={hourlyTrafficToday}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="hour" stroke="#666" fontSize={10} />
                 <YAxis stroke="#666" fontSize={12} />
@@ -369,6 +386,56 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
                   contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                 />
                 <Bar dataKey="traffic" fill="#22c55e" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6 relative">
+        <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
+          {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
+          <div className="mb-4">
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-500" />
+              Peak Hours Analysis
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">This Week</p>
+          </div>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyTrafficWeekly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="hour" stroke="#666" fontSize={10} />
+                <YAxis stroke="#666" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                />
+                <Bar dataKey="traffic" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
+          {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
+          <div className="mb-4">
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <Activity className="w-5 h-5 text-purple-500" />
+              Peak Hours Analysis
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">This Month</p>
+          </div>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyTrafficMonthly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="hour" stroke="#666" fontSize={10} />
+                <YAxis stroke="#666" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                />
+                <Bar dataKey="traffic" fill="#a855f7" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
