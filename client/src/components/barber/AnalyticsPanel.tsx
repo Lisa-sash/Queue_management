@@ -20,13 +20,13 @@ interface AnalyticsPanelProps {
 }
 
 const weeklyData = [
-  { day: 'Mon', clients: 8, revenue: 240 },
-  { day: 'Tue', clients: 12, revenue: 360 },
-  { day: 'Wed', clients: 10, revenue: 300 },
-  { day: 'Thu', clients: 15, revenue: 450 },
-  { day: 'Fri', clients: 18, revenue: 540 },
-  { day: 'Sat', clients: 22, revenue: 660 },
-  { day: 'Sun', clients: 6, revenue: 180 },
+  { day: 'Mon', clients: 8, lastWeek: 6 },
+  { day: 'Tue', clients: 12, lastWeek: 10 },
+  { day: 'Wed', clients: 10, lastWeek: 9 },
+  { day: 'Thu', clients: 15, lastWeek: 12 },
+  { day: 'Fri', clients: 18, lastWeek: 16 },
+  { day: 'Sat', clients: 22, lastWeek: 19 },
+  { day: 'Sun', clients: 6, lastWeek: 5 },
 ];
 
 const monthlyData = [
@@ -216,10 +216,22 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
       </div>
 
       <div className="bg-card border border-white/5 rounded-xl p-6">
-        <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          Weekly Performance
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-heading font-bold flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Weekly Performance
+          </h3>
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-0.5 bg-primary rounded"></span>
+              <span className="text-muted-foreground">This Week</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-0.5 bg-white/30 rounded"></span>
+              <span className="text-muted-foreground">Last Week</span>
+            </div>
+          </div>
+        </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={weeklyData}>
@@ -227,6 +239,10 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
                 <linearGradient id="colorClients" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorLastWeek" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#666" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#666" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -236,7 +252,8 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
                 contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                 labelStyle={{ color: '#fff' }}
               />
-              <Area type="monotone" dataKey="clients" stroke="#f97316" fillOpacity={1} fill="url(#colorClients)" strokeWidth={2} />
+              <Area type="monotone" dataKey="lastWeek" name="Last Week" stroke="#666" fillOpacity={1} fill="url(#colorLastWeek)" strokeWidth={2} strokeDasharray="5 5" />
+              <Area type="monotone" dataKey="clients" name="This Week" stroke="#f97316" fillOpacity={1} fill="url(#colorClients)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
