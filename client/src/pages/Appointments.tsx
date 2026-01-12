@@ -43,10 +43,14 @@ export default function Appointments() {
     }
   };
 
-  const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived') => {
-    bookingStore.updateBooking(bookingId, { userStatus: status });
+  const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived' | 'completed') => {
+    if (status === 'completed') {
+      bookingStore.updateBooking(bookingId, { userStatus: 'arrived', isCompleted: true } as any);
+    } else {
+      bookingStore.updateBooking(bookingId, { userStatus: status });
+    }
 
-    const messages = {
+    const messages: Record<string, { title: string; description: string }> = {
       'on-the-way': {
         title: 'On the Way!',
         description: 'The barber knows you\'re coming. See you soon!'
@@ -66,6 +70,10 @@ export default function Appointments() {
       'arrived': {
         title: 'You\'ve Arrived!',
         description: 'The barber has been notified of your arrival.'
+      },
+      'completed': {
+        title: 'Appointment Complete!',
+        description: 'Thanks for visiting. We\'d love to hear your feedback!'
       }
     };
 
@@ -74,6 +82,15 @@ export default function Appointments() {
       title: msg.title,
       description: msg.description,
       className: status === 'cancelled' ? '' : 'bg-primary text-primary-foreground border-none'
+    });
+  };
+
+  const handleRate = (bookingId: string, ratings: any) => {
+    bookingStore.updateBooking(bookingId, { hasRated: true } as any);
+    toast({
+      title: 'Thanks for your feedback!',
+      description: 'Your ratings help us improve our service.',
+      className: 'bg-primary text-primary-foreground border-none'
     });
   };
 
@@ -132,6 +149,7 @@ export default function Appointments() {
               booking={foundBooking}
               onStatusChange={handleStatusChange}
               onCancel={handleCancel}
+              onRate={handleRate}
             />
           </div>
         ) : (

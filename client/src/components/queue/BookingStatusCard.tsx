@@ -1,35 +1,57 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, AlertCircle, CheckCircle, X } from "lucide-react";
+import { Clock, MapPin, AlertCircle, CheckCircle, X, Star } from "lucide-react";
 import { Booking } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { RatingModal, RatingData } from "@/components/rating/RatingModal";
 
 interface ExtendedBooking extends Booking {
   cancelledByBarber?: boolean;
   slotAvailable?: boolean;
+  isCompleted?: boolean;
+  hasRated?: boolean;
 }
 
 interface BookingStatusCardProps {
   booking: ExtendedBooking;
-  onStatusChange: (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived') => void;
+  onStatusChange: (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived' | 'completed') => void;
   onCancel: (bookingId: string) => void;
+  onRate?: (bookingId: string, ratings: RatingData) => void;
 }
 
-export function BookingStatusCard({ booking, onStatusChange, onCancel }: BookingStatusCardProps) {
+export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }: BookingStatusCardProps) {
+  const [showRatingModal, setShowRatingModal] = useState(false);
+
   const isLate = booking.userStatus === 'will-be-late';
   const isOnTheWay = booking.userStatus === 'on-the-way';
   const isCancelled = booking.userStatus === 'cancelled';
   const isArrived = booking.userStatus === 'arrived';
+  const isCompleted = (booking as ExtendedBooking).isCompleted;
+  const hasRated = (booking as ExtendedBooking).hasRated;
   const showArrivedButton = isOnTheWay || isLate;
   const cancelledByBarber = (booking as ExtendedBooking).cancelledByBarber;
   const slotAvailable = (booking as ExtendedBooking).slotAvailable;
+
+  const handleMarkComplete = () => {
+    onStatusChange(booking.id, 'completed');
+    setShowRatingModal(true);
+  };
+
+  const handleRatingSubmit = (ratings: RatingData) => {
+    setShowRatingModal(false);
+    if (onRate) {
+      onRate(booking.id, ratings);
+    }
+  };
 
   const statusColor = {
     'pending': 'text-muted-foreground',
     'on-the-way': 'text-green-500',
     'will-be-late': 'text-orange-500',
     'cancelled': 'text-red-500',
-    'arrived': 'text-primary'
+    'arrived': 'text-primary',
+    'completed': 'text-emerald-500'
   };
 
   const statusLabel = {
@@ -37,7 +59,8 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
     'on-the-way': 'On the Way',
     'will-be-late': 'Will Be Late',
     'cancelled': 'Cancelled',
-    'arrived': 'Arrived'
+    'arrived': 'Arrived',
+    'completed': 'Completed'
   };
 
   return (
@@ -112,10 +135,17 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
           </div>
         )}
 
-        {isArrived && (
+        {isArrived && !isCompleted && (
           <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded text-primary text-sm">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
             <span>You've arrived! The barber has been notified.</span>
+          </div>
+        )}
+
+        {isCompleted && (
+          <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-500 text-sm">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            <span>Your appointment is complete. {hasRated ? "Thanks for the feedback!" : "We'd love to hear your feedback!"}</span>
           </div>
         )}
 
@@ -146,9 +176,19 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
         )}
 
         {/* Action Buttons */}
-        {!isCancelled && !isArrived && (
+        {!isCancelled && !isCompleted && (
           <div className="flex gap-2 pt-2">
-            {showArrivedButton ? (
+            {isArrived ? (
+              <Button
+                size="sm"
+                onClick={handleMarkComplete}
+                className="flex-1 bg-emerald-500 text-white hover:bg-emerald-600"
+                data-testid="button-mark-complete"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Mark as Complete
+              </Button>
+            ) : showArrivedButton ? (
               <Button
                 size="sm"
                 onClick={() => onStatusChange(booking.id, 'arrived')}
@@ -177,19 +217,43 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel }: Booking
                 </Button>
               </>
             )}
-            <Button
-              size="sm"
-              onClick={() => onCancel(booking.id)}
-              variant="outline"
-              className="text-red-500 hover:bg-red-500/10 border-red-500/20 hover:border-red-500/30"
-              data-testid="button-cancel-booking"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Cancel Booking
-            </Button>
+            {!isArrived && (
+              <Button
+                size="sm"
+                onClick={() => onCancel(booking.id)}
+                variant="outline"
+                className="text-red-500 hover:bg-red-500/10 border-red-500/20 hover:border-red-500/30"
+                data-testid="button-cancel-booking"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Cancel Booking
+              </Button>
+            )}
           </div>
         )}
+
+        {/* Rate Button for completed bookings */}
+        {isCompleted && !hasRated && (
+          <Button
+            size="sm"
+            onClick={() => setShowRatingModal(true)}
+            className="w-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
+            variant="outline"
+            data-testid="button-rate-service"
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Rate Your Experience
+          </Button>
+        )}
       </div>
+
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        onSubmit={handleRatingSubmit}
+        barberName={booking.barberName}
+        shopName={booking.shopName}
+      />
     </motion.div>
   );
 }
