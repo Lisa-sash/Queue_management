@@ -207,7 +207,7 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
         />
         <StatCard 
           icon={CheckCircle} 
-          label="Completion Rate" 
+          label="Completion Rate This Week" 
           value="96%" 
           comparisons={[
             { period: "vs last week", change: "+2%", positive: true },
