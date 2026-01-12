@@ -199,7 +199,7 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
         />
         <StatCard 
           icon={Clock} 
-          label="Avg Wait Time" 
+          label="Avg Wait Time This Week" 
           value="12m" 
           comparisons={[
             { period: "vs last week", change: "-8%", positive: true }
