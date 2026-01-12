@@ -217,10 +217,13 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
 
       <div className="bg-card border border-white/5 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Weekly Performance
-          </h3>
+          <div>
+            <h3 className="font-heading font-bold flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Weekly Performance
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">Cuts completed per day</p>
+          </div>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-3 h-0.5 bg-primary rounded"></span>
