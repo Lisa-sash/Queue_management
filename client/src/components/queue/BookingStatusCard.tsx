@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, AlertCircle, CheckCircle, X, Star } from "lucide-react";
