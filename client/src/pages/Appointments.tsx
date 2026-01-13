@@ -80,7 +80,9 @@ export default function Appointments() {
     const msg = messages[status];
     toast({
       title: msg.title,
-      description: msg.description,
+      description: status === 'completed' 
+        ? "Your appointment is finished! Please rate your experience below - your feedback helps us stay sharp."
+        : msg.description,
       className: status === 'cancelled' ? '' : 'bg-primary text-primary-foreground border-none'
     });
   };

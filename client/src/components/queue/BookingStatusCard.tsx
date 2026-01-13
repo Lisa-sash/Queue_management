@@ -33,6 +33,12 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
   const cancelledByBarber = (booking as ExtendedBooking).cancelledByBarber;
   const slotAvailable = (booking as ExtendedBooking).slotAvailable;
 
+  useEffect(() => {
+    if (isCompleted && !hasRated) {
+      setShowRatingModal(true);
+    }
+  }, [isCompleted, hasRated]);
+
   const handleMarkComplete = () => {
     onStatusChange(booking.id, 'completed');
     setShowRatingModal(true);
