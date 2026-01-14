@@ -117,7 +117,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           <TooltipTrigger asChild>
             <div className="cursor-help inline-block">
               <p className="text-2xl font-heading font-bold flex items-center gap-2 group">
-                {value}
+                {label.toLowerCase().includes('revenue') ? `R ${value.replace('$', '')}` : value}
                 <Info className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
               </p>
             </div>
@@ -353,7 +353,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={activeShop === 'both' ? "$8,000" : activeShop === 'den' ? "$4,200" : "$3,800"} 
+          value={activeShop === 'both' ? "8,000" : activeShop === 'den' ? "4,200" : "3,800"} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
@@ -474,6 +474,51 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
+            Weekly Revenue Comparison (Aggregate)
+          </div>
+          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-0.5 bg-[#f97316]" />
+              <span className="text-foreground">Gentleman's Den</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+              <span className="text-foreground">Urban Cuts</span>
+            </div>
+          </div>
+        </h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={weeklyData}>
+              <defs>
+                <linearGradient id="colorWeeklyDen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorWeeklyUrban" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                itemStyle={{ fontSize: '12px' }}
+                formatter={(value: any) => [`R ${value}`, "Revenue"]}
+              />
+              <Area type="monotone" dataKey="shop1" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              <Area type="monotone" dataKey="shop2" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
             Monthly Revenue Comparison (Aggregate)
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
@@ -506,7 +551,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                 itemStyle={{ fontSize: '12px' }}
-                formatter={(value: any) => [`$${value}`, "Revenue"]}
+                formatter={(value: any) => [`R ${value}`, "Revenue"]}
               />
               <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
               <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
