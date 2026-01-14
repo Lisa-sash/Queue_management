@@ -76,6 +76,15 @@ const peakHoursMonthly = [
   { hour: '20:00', clients: 15 },
 ];
 
+const monthlyComparisonData = [
+  { month: 'Jan', den: 3800, urban: 3500 },
+  { month: 'Feb', den: 4200, urban: 3800 },
+  { month: 'Mar', den: 4500, urban: 4100 },
+  { month: 'Apr', den: 4800, urban: 4600 },
+  { month: 'May', den: 5200, urban: 4900 },
+  { month: 'Jun', den: 5500, urban: 5200 },
+];
+
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
@@ -488,6 +497,50 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Monthly Comparison (Aggregate)
+          </div>
+          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-0.5 bg-[#f97316]" />
+              <span className="text-foreground">Gentleman's Den</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+              <span className="text-foreground">Urban Cuts</span>
+            </div>
+          </div>
+        </h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={monthlyComparisonData}>
+              <defs>
+                <linearGradient id="colorMonthlyDen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorMonthlyUrban" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                itemStyle={{ fontSize: '12px' }}
+              />
+              <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
