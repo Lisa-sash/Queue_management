@@ -231,10 +231,9 @@ export default function BarberDashboard() {
     }
     addNotification('booking', `Finished cutting ${client?.clientName}`);
     
-    toast.success("Cut completed!");
-    toast("Feedback request sent to client", {
-      description: "A rating notification has been sent to their device.",
-      icon: "✨"
+    toast({
+      title: "Cut completed!",
+      description: "Feedback request sent to client.",
     });
   };
 
