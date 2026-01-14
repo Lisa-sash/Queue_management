@@ -72,7 +72,7 @@ export default function BarberDashboard() {
   const [queueTab, setQueueTab] = useState<'today' | 'tomorrow'>('today');
   
   // Dashboard page view
-  const [activePage, setActivePage] = useState<'queue' | 'analytics' | 'settings'>('queue');
+  const [activePage, setActivePage] = useState<'queue' | 'analytics' | 'professional-analytics' | 'enterprise-analytics' | 'settings'>('queue');
   
   // Tomorrow's bookings from store
   const [tomorrowQueue, setTomorrowQueue] = useState<QueueItem[]>([]);
@@ -482,6 +482,10 @@ export default function BarberDashboard() {
         <div className="p-6 max-w-7xl">
           {activePage === 'analytics' ? (
             <AnalyticsPanel barberId={barberId} />
+          ) : activePage === 'professional-analytics' ? (
+            <AnalyticsPanel barberId={barberId} mode="professional" />
+          ) : activePage === 'enterprise-analytics' ? (
+            <AnalyticsPanel barberId={barberId} mode="enterprise" />
           ) : activePage === 'settings' ? (
             <div className="text-center py-20 text-muted-foreground">
               <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />

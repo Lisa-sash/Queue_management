@@ -44,16 +44,22 @@ const clientRetention = [
   { month: 'Apr', new: 14, returning: 42 },
 ];
 
-export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
+export function AnalyticsPanel({ barberId, mode = 'full' }: { barberId: string; mode?: 'full' | 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [tier, setTier] = useState<AnalyticsTier>('basic');
 
   useEffect(() => {
-    setTier(analyticsStore.getTier(barberId));
-    return analyticsStore.subscribe(() => {
+    if (mode === 'professional') setTier('professional');
+    else if (mode === 'enterprise') setTier('enterprise');
+    else {
       setTier(analyticsStore.getTier(barberId));
+    }
+    
+    const unsubscribe = analyticsStore.subscribe(() => {
+      if (mode === 'full') setTier(analyticsStore.getTier(barberId));
     });
-  }, [barberId]);
+    return unsubscribe;
+  }, [barberId, mode]);
 
   const handleUpgrade = (newTier: AnalyticsTier) => {
     toast({
@@ -63,8 +69,8 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
   };
 
   const StatCard = ({ icon: Icon, label, value, comparisons, tier: cardTier }: any) => {
-    const isLocked = tier === 'basic' && cardTier !== 'basic';
-    const isEnterpriseLocked = tier === 'professional' && cardTier === 'enterprise';
+    const isLocked = mode === 'full' && tier === 'basic' && cardTier !== 'basic';
+    const isEnterpriseLocked = mode === 'full' && tier === 'professional' && cardTier === 'enterprise';
 
     return (
       <motion.div 
@@ -149,266 +155,272 @@ export function AnalyticsPanel({ barberId }: AnalyticsPanelProps) {
         <div>
           <h2 className="text-2xl font-heading font-bold flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-primary" />
-            Analytics Dashboard
+            {mode === 'professional' ? 'Professional Analytics' : mode === 'enterprise' ? 'Enterprise Analytics' : 'Analytics Dashboard'}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Track your performance and grow your business
+            {mode === 'professional' ? 'Individual performance metrics' : mode === 'enterprise' ? 'Full shop performance insights' : 'Track your performance and grow your business'}
           </p>
         </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Analytics Tier</span>
-          <div className="flex gap-1 p-1 bg-white/5 rounded-lg border border-white/5">
-            <Button
-              size="sm"
-              variant={tier === 'basic' ? 'default' : 'ghost'}
-              className={cn(
-                "text-xs h-8 px-4 transition-all", 
-                tier === 'basic' ? "bg-white/10 text-white shadow-lg" : "text-muted-foreground hover:text-white"
-              )}
-              onClick={() => analyticsStore.upgradeTier(barberId, 'basic')}
-            >
-              <Zap className="w-3 h-3 mr-2" />
-              Basic
-            </Button>
-            <Button
-              size="sm"
-              variant={tier === 'professional' ? 'default' : 'ghost'}
-              className={cn(
-                "text-xs h-8 px-4 transition-all", 
-                tier === 'professional' ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "text-muted-foreground hover:text-blue-400"
-              )}
-              onClick={() => analyticsStore.upgradeTier(barberId, 'professional')}
-            >
-              <Star className="w-3 h-3 mr-2" />
-              Professional
-            </Button>
-            <Button
-              size="sm"
-              variant={tier === 'enterprise' ? 'default' : 'ghost'}
-              className={cn(
-                "text-xs h-8 px-4 transition-all", 
-                tier === 'enterprise' ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-primary"
-              )}
-              onClick={() => analyticsStore.upgradeTier(barberId, 'enterprise')}
-            >
-              <Crown className="w-3 h-3 mr-2" />
-              Enterprise
-            </Button>
+        {mode === 'full' && (
+          <div className="flex flex-col gap-2">
+            <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Analytics Tier</span>
+            <div className="flex gap-1 p-1 bg-white/5 rounded-lg border border-white/5">
+              <Button
+                size="sm"
+                variant={tier === 'basic' ? 'default' : 'ghost'}
+                className={cn(
+                  "text-xs h-8 px-4 transition-all", 
+                  tier === 'basic' ? "bg-white/10 text-white shadow-lg" : "text-muted-foreground hover:text-white"
+                )}
+                onClick={() => analyticsStore.upgradeTier(barberId, 'basic')}
+              >
+                <Zap className="w-3 h-3 mr-2" />
+                Basic
+              </Button>
+              <Button
+                size="sm"
+                variant={tier === 'professional' ? 'default' : 'ghost'}
+                className={cn(
+                  "text-xs h-8 px-4 transition-all", 
+                  tier === 'professional' ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "text-muted-foreground hover:text-blue-400"
+                )}
+                onClick={() => analyticsStore.upgradeTier(barberId, 'professional')}
+              >
+                <Star className="w-3 h-3 mr-2" />
+                Professional
+              </Button>
+              <Button
+                size="sm"
+                variant={tier === 'enterprise' ? 'default' : 'ghost'}
+                className={cn(
+                  "text-xs h-8 px-4 transition-all", 
+                  tier === 'enterprise' ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-primary"
+                )}
+                onClick={() => analyticsStore.upgradeTier(barberId, 'enterprise')}
+              >
+                <Crown className="w-3 h-3 mr-2" />
+                Enterprise
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Analytics Section */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/5" />
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] whitespace-nowrap">
-            Analytics
-          </h3>
-          <div className="h-px flex-1 bg-white/5" />
-        </div>
-
-        <div className="grid md:grid-cols-4 gap-4">
-          <StatCard 
-            icon={Scissors} 
-            label="Cuts Today" 
-            value="8" 
-            tier="basic"
-            comparisons={[
-              { period: "vs yesterday", change: "+12%", positive: true },
-              { period: "vs same day last week", change: "+3%", positive: true }
-            ]} 
-          />
-          <StatCard 
-            icon={Users} 
-            label="Clients This Month" 
-            value="91" 
-            tier="basic"
-            comparisons={[
-              { period: "vs last month", change: "+23%", positive: true }
-            ]} 
-          />
-          <StatCard 
-            icon={Clock} 
-            label="Avg Wait Time" 
-            value="12m" 
-            tier="basic"
-            comparisons={[
-              { period: "vs last week", change: "-8%", positive: true }
-            ]} 
-          />
-          <StatCard 
-            icon={CheckCircle} 
-            label="Completion Rate" 
-            value="96%" 
-            tier="basic"
-            comparisons={[
-              { period: "vs last week", change: "+2%", positive: true }
-            ]} 
-          />
-        </div>
-
-        <div className="bg-card border border-white/5 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-heading font-bold flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Weekly Performance
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">Cuts completed per day</p>
-            </div>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklyData}>
-                <defs>
-                  <linearGradient id="colorClients" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="day" stroke="#666" fontSize={12} />
-                <YAxis stroke="#666" fontSize={12} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                />
-                <Area type="monotone" dataKey="clients" name="This Week" stroke="#f97316" fillOpacity={1} fill="url(#colorClients)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Professional Analytics Section */}
-      <div className="space-y-6 pt-8">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/5" />
-          <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-2">
-            <Star className="w-3 h-3" />
-            Professional Analytics
-          </h3>
-          <div className="h-px flex-1 bg-white/5" />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 relative">
-          <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
-            {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
-            <div className="mb-4">
-              <h3 className="font-heading font-bold flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-blue-500" />
-                Service Breakdown
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">This Month</p>
-            </div>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPie>
-                  <Pie
-                    data={serviceBreakdownMonthly}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {serviceBreakdownMonthly.map((entry, index) => (
-                      <Cell key={`cell-monthly-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                  />
-                </RechartsPie>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && "overflow-hidden")}>
-            {tier === 'basic' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
-            <div className="mb-4">
-              <h3 className="font-heading font-bold flex items-center gap-2">
-                <Activity className="w-5 h-5 text-green-500" />
-                Peak Hour Insights
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">Optimization data</p>
-            </div>
-            <div className="flex flex-col items-center justify-center h-48 text-center space-y-4">
-              <div className="p-3 bg-green-500/10 rounded-full">
-                <TrendingUp className="w-8 h-8 text-green-500" />
-              </div>
-              <div>
-                <p className="text-lg font-bold text-foreground">Peak Time: 3pm - 5pm</p>
-                <p className="text-xs text-muted-foreground">Recommend adding a walk-in during this window</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Enterprise Analytics Section */}
-      <div className="space-y-6 pt-8">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/5" />
-          <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-2">
-            <Crown className="w-3 h-3" />
-            Enterprise Analytics
-          </h3>
-          <div className="h-px flex-1 bg-white/5" />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 relative">
-          <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier !== 'enterprise' && "overflow-hidden")}>
-            {tier !== 'enterprise' && <LockedOverlay tierRequired="Enterprise" price="$24.99/mo" />}
-            <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-500" />
-              Retention & Growth
+      {(mode === 'full' || mode === 'professional') && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/5" />
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] whitespace-nowrap">
+              {mode === 'professional' ? 'Your Metrics' : 'Analytics'}
             </h3>
+            <div className="h-px flex-1 bg-white/5" />
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-4">
+            <StatCard 
+              icon={Scissors} 
+              label="Cuts Today" 
+              value="8" 
+              tier="basic"
+              comparisons={[
+                { period: "vs yesterday", change: "+12%", positive: true },
+                { period: "vs same day last week", change: "+3%", positive: true }
+              ]} 
+            />
+            <StatCard 
+              icon={Users} 
+              label="Clients This Month" 
+              value="91" 
+              tier="basic"
+              comparisons={[
+                { period: "vs last month", change: "+23%", positive: true }
+              ]} 
+            />
+            <StatCard 
+              icon={Clock} 
+              label="Avg Wait Time" 
+              value="12m" 
+              tier="basic"
+              comparisons={[
+                { period: "vs last week", change: "-8%", positive: true }
+              ]} 
+            />
+            <StatCard 
+              icon={CheckCircle} 
+              label="Completion Rate" 
+              value="96%" 
+              tier="basic"
+              comparisons={[
+                { period: "vs last week", change: "+2%", positive: true }
+              ]} 
+            />
+          </div>
+
+          <div className="bg-card border border-white/5 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-heading font-bold flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Weekly Performance
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">Cuts completed per day</p>
+              </div>
+            </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={clientRetention}>
+                <AreaChart data={weeklyData}>
+                  <defs>
+                    <linearGradient id="colorClients" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="month" stroke="#666" fontSize={12} />
+                  <XAxis dataKey="day" stroke="#666" fontSize={12} />
                   <YAxis stroke="#666" fontSize={12} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                   />
-                  <Bar dataKey="new" name="New Clients" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="returning" name="Returning" fill="#a855f7" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                  <Area type="monotone" dataKey="clients" name="This Week" stroke="#f97316" fillOpacity={1} fill="url(#colorClients)" strokeWidth={2} />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier !== 'enterprise' && "overflow-hidden")}>
-            {tier !== 'enterprise' && <LockedOverlay tierRequired="Enterprise" price="$24.99/mo" />}
-            <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              Advanced Financials
+      {(mode === 'full' || mode === 'professional') && (
+        <div className="space-y-6 pt-8">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/5" />
+            <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-2">
+              <Star className="w-3 h-3" />
+              Professional Analytics
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
-                <p className="text-3xl font-heading font-bold text-primary">$4,230</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Monthly Revenue</p>
+            <div className="h-px flex-1 bg-white/5" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 relative">
+            <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && mode === 'full' && "overflow-hidden")}>
+              {tier === 'basic' && mode === 'full' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
+              <div className="mb-4">
+                <h3 className="font-heading font-bold flex items-center gap-2">
+                  <PieChart className="w-5 h-5 text-blue-500" />
+                  Service Breakdown
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">This Month</p>
               </div>
-              <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
-                <p className="text-3xl font-heading font-bold text-blue-500">73%</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Retention Rate</p>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPie>
+                    <Pie
+                      data={serviceBreakdownMonthly}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={70}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {serviceBreakdownMonthly.map((entry, index) => (
+                        <Cell key={`cell-monthly-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                    />
+                  </RechartsPie>
+                </ResponsiveContainer>
               </div>
-              <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
-                <p className="text-3xl font-heading font-bold text-purple-500">$28.50</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Avg. Ticket</p>
+            </div>
+
+            <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier === 'basic' && mode === 'full' && "overflow-hidden")}>
+              {tier === 'basic' && mode === 'full' && <LockedOverlay tierRequired="Professional" price="$9.99/mo" />}
+              <div className="mb-4">
+                <h3 className="font-heading font-bold flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-green-500" />
+                  Peak Hour Insights
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">Optimization data</p>
               </div>
-              <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5 flex flex-col items-center justify-center">
-                <Award className="w-6 h-6 text-yellow-500 mb-1" />
-                <p className="text-xs font-bold text-foreground">Top 5%</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Performance</p>
+              <div className="flex flex-col items-center justify-center h-48 text-center space-y-4">
+                <div className="p-3 bg-green-500/10 rounded-full">
+                  <TrendingUp className="w-8 h-8 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-foreground">Peak Time: 3pm - 5pm</p>
+                  <p className="text-xs text-muted-foreground">Recommend adding a walk-in during this window</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {(mode === 'full' || mode === 'enterprise') && (
+        <div className="space-y-6 pt-8">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/5" />
+            <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-2">
+              <Crown className="w-3 h-3" />
+              Enterprise Analytics
+            </h3>
+            <div className="h-px flex-1 bg-white/5" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 relative">
+            <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier !== 'enterprise' && mode === 'full' && "overflow-hidden")}>
+              {tier !== 'enterprise' && mode === 'full' && <LockedOverlay tierRequired="Enterprise" price="$24.99/mo" />}
+              <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-purple-500" />
+                Retention & Growth
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={clientRetention}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="month" stroke="#666" fontSize={12} />
+                    <YAxis stroke="#666" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                    />
+                    <Bar dataKey="new" name="New Clients" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="returning" name="Returning" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className={cn("bg-card border border-white/5 rounded-xl p-6 relative", tier !== 'enterprise' && mode === 'full' && "overflow-hidden")}>
+              {tier !== 'enterprise' && mode === 'full' && <LockedOverlay tierRequired="Enterprise" price="$24.99/mo" />}
+              <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" />
+                Advanced Financials
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
+                  <p className="text-3xl font-heading font-bold text-primary">$4,230</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Monthly Revenue</p>
+                </div>
+                <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
+                  <p className="text-3xl font-heading font-bold text-blue-500">73%</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Retention Rate</p>
+                </div>
+                <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5">
+                  <p className="text-3xl font-heading font-bold text-purple-500">$28.50</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Avg. Ticket</p>
+                </div>
+                <div className="text-center p-4 bg-background/50 rounded-lg border border-white/5 flex flex-col items-center justify-center">
+                  <Award className="w-6 h-6 text-yellow-500 mb-1" />
+                  <p className="text-xs font-bold text-foreground">Top 5%</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Performance</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
 }
