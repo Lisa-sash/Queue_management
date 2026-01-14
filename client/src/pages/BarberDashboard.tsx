@@ -8,7 +8,7 @@ import { NotificationPanel } from "@/components/barber/NotificationPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays, BarChart3 } from "lucide-react";
+import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays, BarChart3, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
@@ -72,7 +72,25 @@ export default function BarberDashboard() {
   const [queueTab, setQueueTab] = useState<'today' | 'tomorrow'>('today');
   
   // Dashboard page view
-  const [activePage, setActivePage] = useState<'queue' | 'analytics' | 'professional-analytics' | 'enterprise-analytics' | 'settings'>('queue');
+  const [activePage, setActivePage] = useState<'queue' | 'analytics' | 'manager-analytics' | 'settings'>('queue');
+  const [showManagerCodeModal, setShowManagerCodeModal] = useState(false);
+  const [managerCode, setManagerCode] = useState("");
+  const [isManagerAuthenticated, setIsManagerAuthenticated] = useState(false);
+
+  const handleManagerAccess = () => {
+    if (managerCode === "BOSS2026") {
+      setIsManagerAuthenticated(true);
+      setActivePage('manager-analytics');
+      setShowManagerCodeModal(false);
+      setManagerCode("");
+    } else {
+      toast({
+        title: "Access Denied",
+        description: "Invalid manager code.",
+        variant: "destructive"
+      });
+    }
+  };
   
   // Tomorrow's bookings from store
   const [tomorrowQueue, setTomorrowQueue] = useState<QueueItem[]>([]);
@@ -365,7 +383,6 @@ export default function BarberDashboard() {
       haircutName: walkInHaircut.trim(),
     };
     
-    // Add to walkIns state (will be persisted to localStorage)
     setWalkIns(prev => [...prev, walkInItem]);
     addNotification('walkin', `Walk-in: ${walkInName} - ${walkInHaircut}`);
     
@@ -379,17 +396,38 @@ export default function BarberDashboard() {
     setWalkInHaircut("");
   };
 
-  // Helper to update walk-in status
-  const updateWalkInStatus = (id: string, status: QueueItem['status']) => {
-    setWalkIns(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, status } : item
-      )
-    );
-  };
-
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Manager Code Modal */}
+      <Dialog open={showManagerCodeModal} onOpenChange={setShowManagerCodeModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              Manager Access Required
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="managerCode">Enter Security Code</Label>
+              <Input
+                id="managerCode"
+                type="password"
+                placeholder="••••••••"
+                value={managerCode}
+                onChange={(e) => setManagerCode(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleManagerAccess()}
+              />
+              <p className="text-xs text-muted-foreground">Manager code is required to access aggregate business metrics.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowManagerCodeModal(false)}>Cancel</Button>
+            <Button onClick={handleManagerAccess}>Verify Code</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Sidebar */}
       <div className="hidden md:flex md:flex-col">
         <BarberSidebar
@@ -397,7 +435,13 @@ export default function BarberDashboard() {
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage={activePage}
           onLogout={handleLogout}
-          onNavigate={(page) => setActivePage(page as any)}
+          onNavigate={(page) => {
+            if (page === 'manager-analytics' && !isManagerAuthenticated) {
+              setShowManagerCodeModal(true);
+            } else {
+              setActivePage(page as any);
+            }
+          }}
         />
       </div>
 
@@ -436,7 +480,14 @@ export default function BarberDashboard() {
           barberAvatar="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
           activePage={activePage}
           onLogout={handleLogout}
-          onNavigate={(page) => { setActivePage(page as any); setMobileMenuOpen(false); }}
+          onNavigate={(page) => { 
+            if (page === 'manager-analytics' && !isManagerAuthenticated) {
+              setShowManagerCodeModal(true);
+            } else {
+              setActivePage(page as any);
+            }
+            setMobileMenuOpen(false); 
+          }}
         />
       </motion.div>
 
@@ -481,10 +532,8 @@ export default function BarberDashboard() {
         {/* Page Content */}
         <div className="p-6 max-w-7xl">
           {activePage === 'analytics' ? (
-            <AnalyticsPanel barberId={barberId} />
-          ) : activePage === 'professional-analytics' ? (
             <AnalyticsPanel barberId={barberId} mode="professional" />
-          ) : activePage === 'enterprise-analytics' ? (
+          ) : activePage === 'manager-analytics' ? (
             <AnalyticsPanel barberId={barberId} mode="enterprise" />
           ) : activePage === 'settings' ? (
             <div className="text-center py-20 text-muted-foreground">
@@ -620,25 +669,9 @@ export default function BarberDashboard() {
               </div>
             </div>
 
-            {/* Notifications Sidebar */}
+            {/* Notifications Column */}
             <div className="lg:col-span-1">
-              <div className="bg-card border border-white/5 rounded-lg p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Bell className="w-5 h-5 text-primary" />
-                  <h3 className="font-heading font-bold">Alerts</h3>
-                  {notifications.length > 0 && (
-                    <span className="ml-auto text-xs font-bold bg-primary/20 text-primary px-2 py-0.5 rounded">
-                      {notifications.length}
-                    </span>
-                  )}
-                </div>
-                <div className="border-t border-white/5 pt-4">
-                  <NotificationPanel
-                    notifications={notifications}
-                    onDismiss={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
-                  />
-                </div>
-              </div>
+              <NotificationPanel notifications={notifications} />
             </div>
           </div>
           </>
@@ -650,70 +683,31 @@ export default function BarberDashboard() {
       <Dialog open={showWalkInModal} onOpenChange={setShowWalkInModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-heading flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-blue-500" />
-              Add Walk-in Client
-            </DialogTitle>
+            <DialogTitle>Add Walk-in Client</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="walkin-name">Client Name</Label>
+              <Label htmlFor="name">Client Name</Label>
               <Input
-                id="walkin-name"
-                placeholder="Enter client's name"
+                id="name"
+                placeholder="Enter client name"
                 value={walkInName}
                 onChange={(e) => setWalkInName(e.target.value)}
-                autoFocus
-                data-testid="input-walkin-name"
-                className="bg-background border-white/10"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="walkin-haircut">Haircut Style</Label>
+              <Label htmlFor="haircut">Service / Haircut</Label>
               <Input
-                id="walkin-haircut"
-                placeholder="e.g. Fade, Buzz Cut, Trim..."
+                id="haircut"
+                placeholder="e.g. Skin Fade"
                 value={walkInHaircut}
                 onChange={(e) => setWalkInHaircut(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddWalkIn()}
-                data-testid="input-walkin-haircut"
-                className="bg-background border-white/10"
               />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {['Fade', 'Buzz Cut', 'Trim', 'Taper', 'Line Up', 'Beard Trim'].map((style) => (
-                <Button
-                  key={style}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setWalkInHaircut(style)}
-                  className={cn(
-                    "text-xs",
-                    walkInHaircut === style && "bg-blue-500/20 border-blue-500 text-blue-500"
-                  )}
-                >
-                  {style}
-                </Button>
-              ))}
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setShowWalkInModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddWalkIn}
-              disabled={!walkInName.trim() || !walkInHaircut.trim()}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-              data-testid="button-confirm-walkin"
-            >
-              <Scissors className="w-4 h-4 mr-2" />
-              Start Cutting
-            </Button>
+            <Button variant="outline" onClick={() => setShowWalkInModal(false)}>Cancel</Button>
+            <Button onClick={handleAddWalkIn} className="bg-blue-500 hover:bg-blue-600">Start Service</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

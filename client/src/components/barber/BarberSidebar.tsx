@@ -14,8 +14,7 @@ export function BarberSidebar({ barberName, barberAvatar, activePage, onLogout, 
   const menuItems = [
     { id: 'queue', label: 'Queue', icon: Clock },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'professional-analytics', label: 'Professional Analytics', icon: Star },
-    { id: 'enterprise-analytics', label: 'Enterprise Analytics', icon: Crown },
+    { id: 'manager-analytics', label: 'Manager Analytics', icon: Crown },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
