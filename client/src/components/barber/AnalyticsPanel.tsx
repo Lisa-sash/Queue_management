@@ -77,12 +77,12 @@ const peakHoursMonthly = [
 ];
 
 const monthlyComparisonData = [
-  { month: 'Jan', den: 3800, urban: 3500 },
-  { month: 'Feb', den: 4200, urban: 3800 },
-  { month: 'Mar', den: 4500, urban: 4100 },
-  { month: 'Apr', den: 4800, urban: 4600 },
-  { month: 'May', den: 5200, urban: 4900 },
-  { month: 'Jun', den: 5500, urban: 5200 },
+  { month: 'Jan', den: 4200, urban: 3800 },
+  { month: 'Feb', den: 4500, urban: 4100 },
+  { month: 'Mar', den: 4800, urban: 4400 },
+  { month: 'Apr', den: 5100, urban: 4700 },
+  { month: 'May', den: 5400, urban: 5000 },
+  { month: 'Jun', den: 5800, urban: 5400 },
 ];
 
 const monthlyCutsData = [
@@ -362,7 +362,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={activeShop === 'both' ? "8,000" : activeShop === 'den' ? "4,200" : "3,800"} 
+          value={activeShop === 'both' ? "9,600" : activeShop === 'den' ? "5,200" : "4,400"} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
@@ -370,7 +370,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={Users} 
           label="Total Clients" 
-          value={activeShop === 'both' ? "230" : activeShop === 'den' ? "120" : "110"} 
+          value={activeShop === 'both' ? "370" : activeShop === 'den' ? "190" : "180"} 
           change="+8%" positive 
           period="vs last month"
           description="Total number of client visits served across selected locations, showing growth trends month-over-month."
