@@ -197,6 +197,69 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         />
       </div>
 
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
+            <Star className="w-5 h-5 text-yellow-500" />
+            Barber Performance Ratings
+          </h3>
+          <div className="space-y-4">
+            {[
+              { name: "Jax", shop: "Gentleman's Den", cutQuality: 4.9, queueMgmt: 4.8, total: 4.85 },
+              { name: "Leo", shop: "Urban Cuts", cutQuality: 4.7, queueMgmt: 4.9, total: 4.8 },
+              { name: "Sam", shop: "Gentleman's Den", cutQuality: 4.6, queueMgmt: 4.5, total: 4.55 },
+              { name: "Marcus", shop: "Urban Cuts", cutQuality: 4.5, queueMgmt: 4.4, total: 4.45 },
+            ].map((barber, i) => (
+              <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                <div>
+                  <p className="text-sm font-bold">{barber.name}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{barber.shop}</p>
+                </div>
+                <div className="flex gap-4 text-right">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase">Cut Quality</p>
+                    <p className="text-sm font-bold text-primary">★ {barber.cutQuality}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase">Queue Mgmt</p>
+                    <p className="text-sm font-bold text-blue-500">★ {barber.queueMgmt}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-red-500" />
+            Critical Feedback (Below 3★)
+          </h3>
+          <div className="space-y-4">
+            {[
+              { client: "Robert M.", barber: "Sam", rating: 2, reason: "Queue Management", comment: "Wait was 30 mins longer than app said.", date: "2 days ago" },
+              { client: "Kevin L.", barber: "Marcus", rating: 1, reason: "Cut Quality", comment: "Uneven sideburns, had to fix at home.", date: "3 days ago" },
+            ].map((review, i) => (
+              <div key={i} className="p-3 rounded-lg border border-red-500/20 bg-red-500/5 space-y-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-bold text-red-500">{review.client}</p>
+                    <p className="text-[10px] text-muted-foreground">Barber: {review.barber} • <span className="text-red-400">{review.reason}</span></p>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={cn("w-3 h-3", i < review.rating ? "text-red-500 fill-red-500" : "text-white/20")} />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs italic text-muted-foreground">"{review.comment}"</p>
+                <p className="text-[9px] text-right text-muted-foreground/50">{review.date}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
