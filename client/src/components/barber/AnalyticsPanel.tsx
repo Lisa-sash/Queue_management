@@ -474,7 +474,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Monthly Comparison (Aggregate)
+            Monthly Revenue Comparison (Aggregate)
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
             <div className="flex items-center gap-1.5">
@@ -506,6 +506,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                 itemStyle={{ fontSize: '12px' }}
+                formatter={(value: any) => [`$${value}`, "Revenue"]}
               />
               <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
               <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
