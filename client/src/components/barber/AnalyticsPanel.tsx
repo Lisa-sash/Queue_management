@@ -518,7 +518,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       <div className="bg-card border border-white/5 rounded-xl p-6">
         <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
-          Aggregate Performance (All Shops)
+          Aggregate Performance - Total Cuts (All Shops)
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -536,7 +536,11 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                itemStyle={{ fontSize: '12px' }}
+                formatter={(value: any) => [value, "Cuts"]}
+              />
               <Legend />
               <Area type="monotone" dataKey="shop1" name="Gentleman's Den" stroke="#f97316" fill="url(#colorShop1)" strokeWidth={2} />
               <Area type="monotone" dataKey="shop2" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorShop2)" strokeWidth={2} />
