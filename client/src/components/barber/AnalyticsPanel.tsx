@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/tooltip";
 
 const weeklyData = [
-  { day: 'Mon', clients: 8, shop1: 45, shop2: 38 },
-  { day: 'Tue', clients: 12, shop1: 52, shop2: 48 },
-  { day: 'Wed', clients: 10, shop1: 48, shop2: 55 },
-  { day: 'Thu', clients: 15, shop1: 61, shop2: 59 },
-  { day: 'Fri', clients: 18, shop1: 75, shop2: 82 },
-  { day: 'Sat', clients: 22, shop1: 88, shop2: 95 },
-  { day: 'Sun', clients: 6, shop1: 30, shop2: 25 },
+  { day: 'Mon', current: 8, previous: 7, shop1: 45, shop2: 38 },
+  { day: 'Tue', current: 12, previous: 14, shop1: 52, shop2: 48 },
+  { day: 'Wed', current: 10, previous: 9, shop1: 48, shop2: 55 },
+  { day: 'Thu', current: 15, previous: 13, shop1: 61, shop2: 59 },
+  { day: 'Fri', current: 18, previous: 16, shop1: 75, shop2: 82 },
+  { day: 'Sat', current: 22, previous: 20, shop1: 88, shop2: 95 },
+  { day: 'Sun', current: 6, previous: 8, shop1: 30, shop2: 25 },
 ];
 
 const serviceBreakdown = [
@@ -146,9 +146,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
 
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="bg-card border border-white/5 rounded-xl p-6">
-            <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Weekly Performance
+            <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                Weekly Performance
+              </div>
+              <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-primary" />
+                  <span className="text-foreground">Current</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-white/20 border-t border-dashed" />
+                  <span className="text-muted-foreground">Previous</span>
+                </div>
+              </div>
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -162,8 +174,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                   <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                   <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-                  <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
-                  <Area type="monotone" dataKey="clients" stroke="#f97316" fill="url(#colorPersonal)" strokeWidth={2} />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                    itemStyle={{ fontSize: '12px' }}
+                  />
+                  <Line type="monotone" dataKey="previous" stroke="#ffffff33" strokeDasharray="5 5" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="current" stroke="#f97316" fill="url(#colorPersonal)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
