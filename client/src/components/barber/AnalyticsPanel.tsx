@@ -468,36 +468,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </div>
         </div>
 
-        <div className="bg-card border border-white/5 rounded-xl p-6">
-          <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-500" />
-            Recent Client Feedback
-          </h3>
-          <div className="space-y-4">
-            {[
-              { client: "Michael R.", barber: "Jax", rating: 5, comment: "Best fade I've ever had. Highly recommend!", date: "2 hours ago" },
-              { client: "Sarah W.", barber: "Leo", rating: 4, comment: "Great service, very professional.", date: "5 hours ago" },
-              { client: "David K.", barber: "Jax", rating: 5, comment: "Exactly what I asked for. Perfect!", date: "1 day ago" },
-              { client: "James T.", barber: "Marcus", rating: 5, comment: "Quick and sharp. I'll be back.", date: "1 day ago" },
-            ].map((review, i) => (
-              <div key={i} className="p-3 rounded-lg bg-white/5 space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-bold">{review.client}</p>
-                    <p className="text-[10px] text-muted-foreground">Barber: {review.barber}</p>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={cn("w-3 h-3", i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-white/20")} />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-xs italic text-muted-foreground">"{review.comment}"</p>
-                <p className="text-[9px] text-right text-muted-foreground/50">{review.date}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
