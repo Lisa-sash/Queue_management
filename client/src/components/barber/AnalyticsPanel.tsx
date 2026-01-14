@@ -85,6 +85,15 @@ const monthlyComparisonData = [
   { month: 'Jun', den: 5500, urban: 5200 },
 ];
 
+const monthlyCutsData = [
+  { month: 'Jan', den: 120, urban: 110 },
+  { month: 'Feb', den: 145, urban: 125 },
+  { month: 'Mar', den: 160, urban: 140 },
+  { month: 'Apr', den: 175, urban: 165 },
+  { month: 'May', den: 190, urban: 180 },
+  { month: 'Jun', den: 210, urban: 195 },
+];
+
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
@@ -622,7 +631,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyComparisonData}>
+            <BarChart data={monthlyCutsData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
