@@ -27,7 +27,7 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
   const isOnTheWay = booking.userStatus === 'on-the-way';
   const isCancelled = booking.userStatus === 'cancelled';
   const isArrived = booking.userStatus === 'arrived';
-  const isCompleted = (booking as ExtendedBooking).isCompleted;
+  const isCompleted = (booking as ExtendedBooking).isCompleted || booking.userStatus === 'completed';
   const hasRated = (booking as ExtendedBooking).hasRated;
   const showArrivedButton = isOnTheWay || isLate;
   const cancelledByBarber = (booking as ExtendedBooking).cancelledByBarber;
@@ -41,10 +41,10 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
 
   // Handle automatic rating modal popup when barber marks as done
   useEffect(() => {
-    if (booking.status === 'completed' && !isCompleted && !hasRated) {
+    if (booking.userStatus === 'completed' && !hasRated) {
       setShowRatingModal(true);
     }
-  }, [booking.status, isCompleted, hasRated]);
+  }, [booking.userStatus, hasRated]);
 
   const handleMarkComplete = () => {
     onStatusChange(booking.id, 'completed');
