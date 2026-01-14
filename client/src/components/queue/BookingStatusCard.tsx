@@ -192,15 +192,9 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
         {!isCancelled && !isCompleted && (
           <div className="flex gap-2 pt-2">
             {isArrived ? (
-              <Button
-                size="sm"
-                onClick={handleMarkComplete}
-                className="flex-1 bg-emerald-500 text-white hover:bg-emerald-600"
-                data-testid="button-mark-complete"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Mark as Complete
-              </Button>
+              <div className="flex-1 py-2 px-4 bg-primary/10 border border-primary/20 rounded text-primary text-center text-sm font-medium">
+                Waiting for service...
+              </div>
             ) : showArrivedButton ? (
               <Button
                 size="sm"
