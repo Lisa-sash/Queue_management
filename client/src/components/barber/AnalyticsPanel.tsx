@@ -33,12 +33,20 @@ const weeklyData = [
   { day: 'Sun', current: 6, previous: 8, shop1: 30, shop2: 25 },
 ];
 
-const serviceBreakdown = [
-  { name: 'Classic Cut', value: 35, color: '#f97316' },
-  { name: 'Fade', value: 28, color: '#3b82f6' },
-  { name: 'Beard Trim', value: 18, color: '#22c55e' },
-  { name: 'Hot Towel Shave', value: 12, color: '#a855f7' },
-  { name: 'Kids Cut', value: 7, color: '#eab308' },
+const serviceBreakdownWeekly = [
+  { name: 'Skin Fade', value: 35, color: '#f97316' },
+  { name: 'Classic Scissors', value: 28, color: '#3b82f6' },
+  { name: 'Beard Sculpt', value: 18, color: '#22c55e' },
+  { name: 'Buzz Cut', value: 12, color: '#a855f7' },
+  { name: 'The Den Special', value: 7, color: '#eab308' },
+];
+
+const serviceBreakdownMonthly = [
+  { name: 'Skin Fade', value: 145, color: '#f97316' },
+  { name: 'Classic Scissors', value: 112, color: '#3b82f6' },
+  { name: 'Beard Sculpt', value: 78, color: '#22c55e' },
+  { name: 'Buzz Cut', value: 45, color: '#a855f7' },
+  { name: 'The Den Special', value: 32, color: '#eab308' },
 ];
 
 const shopComparisonData = [
@@ -186,21 +194,45 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </div>
 
           <div className="bg-card border border-white/5 rounded-xl p-6">
-            <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-blue-500" />
-              Service Breakdown
+            <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-blue-500" />
+                Service Breakdown
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Weekly</span>
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPie>
-                  <Pie data={serviceBreakdown} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {serviceBreakdown.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  <Pie data={serviceBreakdownWeekly} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {serviceBreakdownWeekly.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
                   <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                   <Legend />
                 </RechartsPie>
               </ResponsiveContainer>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+          <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-purple-500" />
+              Service Breakdown
+            </div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Monthly</span>
+          </h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsPie>
+                <Pie data={serviceBreakdownMonthly} innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value">
+                  {serviceBreakdownMonthly.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                </Pie>
+                <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                <Legend />
+              </RechartsPie>
+            </ResponsiveContainer>
           </div>
         </div>
 
