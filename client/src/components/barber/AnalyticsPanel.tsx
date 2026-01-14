@@ -117,12 +117,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           />
           <StatCard 
             icon={Users} 
-            label="Clients (Month)" 
+            label="Total Clients (Month)" 
             value="91" 
             change="+23%" 
             positive 
             period="vs last month"
-            description="Total unique clients served during the current calendar month compared to the same period last month."
+            description="Total number of client visits served during the current calendar month compared to the same period last month."
           />
           <StatCard 
             icon={Clock} 
@@ -241,7 +241,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           value={activeShop === 'both' ? "230" : activeShop === 'den' ? "120" : "110"} 
           change="+8%" positive 
           period="vs last month"
-          description="Total number of unique clients served across selected locations, showing growth trends month-over-month."
+          description="Total number of client visits served across selected locations, showing growth trends month-over-month."
         />
         <StatCard 
           icon={Clock} 
