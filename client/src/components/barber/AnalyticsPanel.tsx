@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { 
   BarChart3, TrendingUp, Users, DollarSign, Clock, Calendar,
   Lock, Crown, Zap, Star, Target, PieChart, Activity, Award,
-  ArrowUpRight, ArrowDownRight, Scissors, CheckCircle, Store, Layers
+  ArrowUpRight, ArrowDownRight, Scissors, CheckCircle, Store, Layers,
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,10 +12,16 @@ import { analyticsStore, AnalyticsTier } from "@/lib/analytics-store";
 import { useToast } from "@/hooks/use-toast";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, 
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart as RechartsPie, Pie, Cell, Legend
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const weeklyData = [
   { day: 'Mon', clients: 8, shop1: 45, shop2: 38 },
@@ -45,7 +52,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
 
-  const StatCard = ({ icon: Icon, label, value, change, positive }: any) => (
+  const StatCard = ({ icon: Icon, label, value, change, positive, description, period }: any) => (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -55,17 +62,34 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <div className="p-2 rounded-lg bg-primary/10">
           <Icon className="w-5 h-5 text-primary" />
         </div>
-        {change && (
-          <div className={cn(
-            "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded",
-            positive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-          )}>
-            {positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-            {change}
-          </div>
-        )}
+        <div className="flex flex-col items-end gap-1">
+          {change && (
+            <div className={cn(
+              "flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded",
+              positive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+            )}>
+              {positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+              {change}
+            </div>
+          )}
+          {period && <span className="text-[9px] text-muted-foreground/60 uppercase font-medium">{period}</span>}
+        </div>
       </div>
-      <p className="text-2xl font-heading font-bold">{value}</p>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="cursor-help inline-block">
+              <p className="text-2xl font-heading font-bold flex items-center gap-2 group">
+                {value}
+                <Info className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
+              </p>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[200px] text-xs p-3">
+            <p>{description}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </motion.div>
   );
@@ -82,10 +106,42 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </div>
 
         <div className="grid md:grid-cols-4 gap-4">
-          <StatCard icon={Scissors} label="Cuts Today" value="8" change="+12%" positive />
-          <StatCard icon={Users} label="Clients (Month)" value="91" change="+23%" positive />
-          <StatCard icon={Clock} label="Avg Wait Time" value="12m" change="-8%" positive />
-          <StatCard icon={CheckCircle} label="Completion Rate" value="96%" change="+2%" positive />
+          <StatCard 
+            icon={Scissors} 
+            label="Cuts Today" 
+            value="8" 
+            change="+12%" 
+            positive 
+            period="vs yesterday"
+            description="Total number of completed haircuts today compared to your performance at this time yesterday."
+          />
+          <StatCard 
+            icon={Users} 
+            label="Clients (Month)" 
+            value="91" 
+            change="+23%" 
+            positive 
+            period="vs last month"
+            description="Total unique clients served during the current calendar month compared to the same period last month."
+          />
+          <StatCard 
+            icon={Clock} 
+            label="Avg Wait Time" 
+            value="12m" 
+            change="-8%" 
+            positive 
+            period="vs last week"
+            description="The average time clients spent in the queue before their service started. Lower is better."
+          />
+          <StatCard 
+            icon={CheckCircle} 
+            label="Completion Rate" 
+            value="96%" 
+            change="+2%" 
+            positive 
+            period="vs last week"
+            description="Percentage of bookings that resulted in a completed service rather than a no-show or cancellation."
+          />
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
@@ -106,7 +162,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                   <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                   <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                   <Area type="monotone" dataKey="clients" stroke="#f97316" fill="url(#colorPersonal)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -124,7 +180,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   <Pie data={serviceBreakdown} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                     {serviceBreakdown.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                   <Legend />
                 </RechartsPie>
               </ResponsiveContainer>
@@ -176,24 +232,32 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           label="Total Revenue" 
           value={activeShop === 'both' ? "$8,000" : activeShop === 'den' ? "$4,200" : "$3,800"} 
           change="+15%" positive 
+          period="vs last month"
+          description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
         />
         <StatCard 
           icon={Users} 
           label="Total Clients" 
           value={activeShop === 'both' ? "230" : activeShop === 'den' ? "120" : "110"} 
           change="+8%" positive 
+          period="vs last month"
+          description="Total number of unique clients served across selected locations, showing growth trends month-over-month."
         />
         <StatCard 
           icon={Clock} 
           label="Avg Wait Time" 
           value={activeShop === 'both' ? "13.5m" : activeShop === 'den' ? "12m" : "15m"} 
           change="-5%" positive 
+          period="vs last week"
+          description="The combined average wait time for all barbers at selected shops. A key indicator of shop efficiency."
         />
         <StatCard 
           icon={Award} 
           label="Shop Rating" 
           value={activeShop === 'both' ? "4.7" : activeShop === 'den' ? "4.8" : "4.6"} 
           change="+0.2" positive 
+          period="vs last month"
+          description="Weighted average of all client feedback ratings received for services at selected locations."
         />
       </div>
 
@@ -272,7 +336,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                 <XAxis dataKey="metric" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                 <Legend />
                 <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -334,7 +398,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+              <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
               <Legend />
               <Area type="monotone" dataKey="shop1" name="Gentleman's Den" stroke="#f97316" fill="url(#colorShop1)" strokeWidth={2} />
               <Area type="monotone" dataKey="shop2" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorShop2)" strokeWidth={2} />
