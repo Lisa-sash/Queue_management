@@ -56,6 +56,26 @@ const shopComparisonData = [
   { metric: 'Rating', den: 4.8, urban: 4.6 },
 ];
 
+const peakHoursWeekly = [
+  { hour: '08:00', clients: 2 },
+  { hour: '10:00', clients: 5 },
+  { hour: '12:00', clients: 4 },
+  { hour: '14:00', clients: 8 },
+  { hour: '16:00', clients: 9 },
+  { hour: '18:00', clients: 6 },
+  { hour: '20:00', clients: 3 },
+];
+
+const peakHoursMonthly = [
+  { hour: '08:00', clients: 12 },
+  { hour: '10:00', clients: 25 },
+  { hour: '12:00', clients: 22 },
+  { hour: '14:00', clients: 45 },
+  { hour: '16:00', clients: 48 },
+  { hour: '18:00', clients: 32 },
+  { hour: '20:00', clients: 15 },
+];
+
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
@@ -236,18 +256,64 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </div>
         </div>
 
-        <div className="bg-card border border-white/5 rounded-xl p-6">
-          <h3 className="font-heading font-bold mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-green-500" />
-            Peak Hours
-          </h3>
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="p-4 bg-green-500/10 rounded-full mb-4">
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-card border border-white/5 rounded-xl p-6">
+            <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-green-500" />
+                Peak Hours
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Weekly</span>
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={peakHoursWeekly}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                  <XAxis dataKey="hour" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                  <Bar dataKey="clients" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="bg-card border border-white/5 rounded-xl p-6">
+            <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-green-500" />
+                Peak Hours
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Monthly</span>
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={peakHoursMonthly}>
+                  <defs>
+                    <linearGradient id="colorPeak" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                  <XAxis dataKey="hour" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8_px' }} />
+                  <Area type="monotone" dataKey="clients" stroke="#22c55e" fill="url(#colorPeak)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+          <h3 className="font-heading font-bold mb-4 flex items-center justify-center py-4 flex-col gap-2">
+            <div className="p-4 bg-green-500/10 rounded-full">
               <Clock className="w-10 h-10 text-green-500" />
             </div>
             <p className="text-xl font-bold">Your Peak: 2:00 PM - 5:00 PM</p>
-            <p className="text-sm text-muted-foreground mt-1">High demand period based on your last 30 days</p>
-          </div>
+            <p className="text-sm text-muted-foreground mt-1 text-center">High demand period based on your last 30 days</p>
+          </h3>
         </div>
       </div>
     );
