@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, BarChart3, Clock, Settings, Scissors } from "lucide-react";
+import { LogOut, BarChart3, Clock, Settings, Scissors, Star, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BarberSidebarProps {

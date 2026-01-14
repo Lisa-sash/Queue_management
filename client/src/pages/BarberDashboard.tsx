@@ -139,11 +139,11 @@ export default function BarberDashboard() {
       const queueItems: QueueItem[] = todayBookings.map(booking => {
         // Map userStatus to queue status - arrived doesn't auto-start cutting
         let status: 'pending' | 'in-progress' | 'completed' | 'no-show' = 'pending';
-        if (booking.userStatus === 'cancelled') {
+        if ((booking.userStatus as string) === 'cancelled') {
           status = 'no-show';
-        } else if (booking.userStatus === 'cutting') {
+        } else if ((booking.userStatus as string) === 'cutting') {
           status = 'in-progress';
-        } else if (booking.userStatus === 'completed') {
+        } else if ((booking.userStatus as string) === 'completed') {
           status = 'completed';
         }
         

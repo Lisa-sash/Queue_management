@@ -423,4 +423,3 @@ export function AnalyticsPanel({ barberId, mode = 'full' }: { barberId: string; 
     </div>
   );
 }
-}
