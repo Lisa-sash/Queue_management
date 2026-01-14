@@ -451,7 +451,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <div className="lg:col-span-2 bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
             <BarChart className="w-5 h-5 text-primary" />
-            Revenue Comparison (Shop vs Shop)
+            Shop Performance Comparison (Current Month)
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -459,7 +459,14 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                 <XAxis dataKey="metric" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-                <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  formatter={(value: any, name: string, props: any) => {
+                    if (props.payload.metric === 'Revenue') return [`R ${value}`, name];
+                    if (props.payload.metric === 'Wait Time') return [`${value}m`, name];
+                    return [value, name];
+                  }}
+                />
                 <Legend />
                 <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
