@@ -230,6 +230,12 @@ export default function BarberDashboard() {
       bookingStore.updateBooking(id, { userStatus: 'completed' as any });
     }
     addNotification('booking', `Finished cutting ${client?.clientName}`);
+    
+    toast.success("Cut completed!");
+    toast("Feedback request sent to client", {
+      description: "A rating notification has been sent to their device.",
+      icon: "✨"
+    });
   };
 
   const handlePauseCut = (id: string) => {

@@ -39,6 +39,13 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
     }
   }, [isCompleted, hasRated]);
 
+  // Handle automatic rating modal popup when barber marks as done
+  useEffect(() => {
+    if (booking.status === 'completed' && !isCompleted && !hasRated) {
+      setShowRatingModal(true);
+    }
+  }, [booking.status, isCompleted, hasRated]);
+
   const handleMarkComplete = () => {
     onStatusChange(booking.id, 'completed');
     setShowRatingModal(true);
