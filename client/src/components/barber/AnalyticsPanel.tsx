@@ -94,6 +94,13 @@ const monthlyCutsData = [
   { month: 'Jun', den: 210, urban: 195 },
 ];
 
+const yearToDateComparisonData = [
+  { metric: 'Revenue', den: 28800, urban: 25200 },
+  { metric: 'Clients', den: 840, urban: 780 },
+  { metric: 'Wait Time', den: 14, urban: 16 },
+  { metric: 'Rating', den: 4.8, urban: 4.6 },
+];
+
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
@@ -460,20 +467,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <div className="lg:col-span-2 bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
             <BarChart className="w-5 h-5 text-primary" />
-            Shop Performance Comparison (Current Month)
+            Shop Performance Comparison (Year to Date)
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={shopComparisonData}>
+              <BarChart data={yearToDateComparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                 <XAxis dataKey="metric" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
                   formatter={(value: any, name: string, props: any) => {
-                    if (props.payload.metric === 'Revenue') return [`R ${value}`, name];
+                    if (props.payload.metric === 'Revenue') return [`R ${value.toLocaleString()}`, name];
                     if (props.payload.metric === 'Wait Time') return [`${value}m`, name];
-                    return [value, name];
+                    if (props.payload.metric === 'Rating') return [`★ ${value}`, name];
+                    return [value.toLocaleString(), name];
                   }}
                 />
                 <Legend />
