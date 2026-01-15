@@ -412,7 +412,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               { name: "Leo", shop: "Urban Cuts", cutQuality: 4.7, queueMgmt: 4.9, total: 4.8 },
               { name: "Sam", shop: "Gentleman's Den", cutQuality: 4.6, queueMgmt: 4.5, total: 4.55 },
               { name: "Marcus", shop: "Urban Cuts", cutQuality: 4.5, queueMgmt: 4.4, total: 4.45 },
-            ].map((barber, i) => (
+            ].filter(b => activeShop === 'both' || (activeShop === 'den' && b.shop === "Gentleman's Den") || (activeShop === 'urban' && b.shop === "Urban Cuts")).map((barber, i) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                 <div>
                   <p className="text-sm font-bold">{barber.name}</p>
@@ -440,9 +440,9 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </h3>
           <div className="space-y-4">
             {[
-              { client: "Robert M.", barber: "Sam", rating: 2, reason: "Queue Management", comment: "Wait was 30 mins longer than app said.", date: "2 days ago" },
-              { client: "Kevin L.", barber: "Marcus", rating: 1, reason: "Cut Quality", comment: "Uneven sideburns, had to fix at home.", date: "3 days ago" },
-            ].map((review, i) => (
+              { client: "Robert M.", barber: "Sam", rating: 2, reason: "Queue Management", comment: "Wait was 30 mins longer than app said.", date: "2 days ago", shop: "Gentleman's Den" },
+              { client: "Kevin L.", barber: "Marcus", rating: 1, reason: "Cut Quality", comment: "Uneven sideburns, had to fix at home.", date: "3 days ago", shop: "Urban Cuts" },
+            ].filter(r => activeShop === 'both' || (activeShop === 'den' && r.shop === "Gentleman's Den") || (activeShop === 'urban' && r.shop === "Urban Cuts")).map((review, i) => (
               <div key={i} className="p-3 rounded-lg border border-red-500/20 bg-red-500/5 space-y-2">
                 <div className="flex justify-between items-start">
                   <div>
@@ -467,7 +467,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <div className="lg:col-span-2 bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
             <BarChart className="w-5 h-5 text-primary" />
-            Shop Performance Comparison (Year to Date)
+            Shop Performance {activeShop === 'both' ? '(Year to Date)' : activeShop === 'den' ? '- Gentleman\'s Den (YTD)' : '- Urban Cuts (YTD)'}
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -485,8 +485,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   }}
                 />
                 <Legend />
-                <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                {(activeShop === 'both' || activeShop === 'den') && (
+                  <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+                )}
+                {(activeShop === 'both' || activeShop === 'urban') && (
+                  <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                )}
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -498,17 +502,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Weekly Revenue Comparison (Aggregate)
+            Weekly Revenue Comparison {activeShop === 'both' ? '(Aggregate)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-0.5 bg-[#f97316]" />
-              <span className="text-foreground">Gentleman's Den</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
-              <span className="text-foreground">Urban Cuts</span>
-            </div>
+            {(activeShop === 'both' || activeShop === 'den') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#f97316]" />
+                <span className="text-foreground">Gentleman's Den</span>
+              </div>
+            )}
+            {(activeShop === 'both' || activeShop === 'urban') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+                <span className="text-foreground">Urban Cuts</span>
+              </div>
+            )}
           </div>
         </h3>
         <div className="h-80">
@@ -532,8 +540,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 itemStyle={{ fontSize: '12px' }}
                 formatter={(value: any) => [`R ${value}`, "Revenue"]}
               />
-              <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
-              <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -543,17 +555,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Monthly Revenue Comparison (Aggregate)
+            Monthly Revenue Comparison {activeShop === 'both' ? '(Aggregate)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-0.5 bg-[#f97316]" />
-              <span className="text-foreground">Gentleman's Den</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
-              <span className="text-foreground">Urban Cuts</span>
-            </div>
+            {(activeShop === 'both' || activeShop === 'den') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#f97316]" />
+                <span className="text-foreground">Gentleman's Den</span>
+              </div>
+            )}
+            {(activeShop === 'both' || activeShop === 'urban') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+                <span className="text-foreground">Urban Cuts</span>
+              </div>
+            )}
           </div>
         </h3>
         <div className="h-80">
@@ -577,8 +593,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 itemStyle={{ fontSize: '12px' }}
                 formatter={(value: any) => [`R ${value}`, "Revenue"]}
               />
-              <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
-              <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -588,17 +608,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            Weekly Aggregate Performance - Total Cuts
+            Weekly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
-              <span className="text-foreground">Gentleman's Den</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
-              <span className="text-foreground">Urban Cuts</span>
-            </div>
+            {(activeShop === 'both' || activeShop === 'den') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
+                <span className="text-foreground">Gentleman's Den</span>
+              </div>
+            )}
+            {(activeShop === 'both' || activeShop === 'urban') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
+                <span className="text-foreground">Urban Cuts</span>
+              </div>
+            )}
           </div>
         </h3>
         <div className="h-80">
@@ -613,8 +637,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 formatter={(value: any) => [value, "Cuts"]}
               />
               <Legend />
-              <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -624,17 +652,21 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            Monthly Aggregate Performance - Total Cuts
+            Monthly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
-              <span className="text-foreground">Gentleman's Den</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
-              <span className="text-foreground">Urban Cuts</span>
-            </div>
+            {(activeShop === 'both' || activeShop === 'den') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
+                <span className="text-foreground">Gentleman's Den</span>
+              </div>
+            )}
+            {(activeShop === 'both' || activeShop === 'urban') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
+                <span className="text-foreground">Urban Cuts</span>
+              </div>
+            )}
           </div>
         </h3>
         <div className="h-80">
@@ -649,8 +681,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 formatter={(value: any) => [value, "Cuts"]}
               />
               <Legend />
-              <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
