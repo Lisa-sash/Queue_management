@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/tooltip";
 
 const weeklyData = [
-  { day: 'Mon', current: 8, previous: 7, shop1: 45, shop2: 38 },
-  { day: 'Tue', current: 12, previous: 14, shop1: 52, shop2: 48 },
-  { day: 'Wed', current: 10, previous: 9, shop1: 48, shop2: 55 },
-  { day: 'Thu', current: 15, previous: 13, shop1: 61, shop2: 59 },
-  { day: 'Fri', current: 18, previous: 16, shop1: 75, shop2: 82 },
-  { day: 'Sat', current: 22, previous: 20, shop1: 88, shop2: 95 },
-  { day: 'Sun', current: 6, previous: 8, shop1: 30, shop2: 25 },
+  { day: 'Mon', current: 8, previous: 7, den: 420, urban: 380 },
+  { day: 'Tue', current: 12, previous: 14, den: 450, urban: 410 },
+  { day: 'Wed', current: 10, previous: 9, den: 480, urban: 440 },
+  { day: 'Thu', current: 15, previous: 13, den: 510, urban: 470 },
+  { day: 'Fri', current: 18, previous: 16, den: 650, urban: 610 },
+  { day: 'Sat', current: 22, previous: 20, den: 850, urban: 790 },
+  { day: 'Sun', current: 6, previous: 8, den: 540, urban: 500 },
 ];
 
 const serviceBreakdownWeekly = [
@@ -362,7 +362,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={activeShop === 'both' ? "9,600" : activeShop === 'den' ? "5,200" : "4,400"} 
+          value={activeShop === 'both' ? "8,000" : activeShop === 'den' ? "4,200" : "3,800"} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
@@ -370,7 +370,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={Users} 
           label="Total Clients" 
-          value={activeShop === 'both' ? "370" : activeShop === 'den' ? "190" : "180"} 
+          value={activeShop === 'both' ? "230" : activeShop === 'den' ? "120" : "110"} 
           change="+8%" positive 
           period="vs last month"
           description="Total number of client visits served across selected locations, showing growth trends month-over-month."
