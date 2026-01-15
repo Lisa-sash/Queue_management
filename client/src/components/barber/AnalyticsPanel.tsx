@@ -605,8 +605,8 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 formatter={(value: any) => [value, "Cuts"]}
               />
               <Legend />
-              <Bar dataKey="shop1" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="shop2" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
