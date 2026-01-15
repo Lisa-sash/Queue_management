@@ -24,13 +24,23 @@ import {
 } from "@/components/ui/tooltip";
 
 const weeklyData = [
-  { day: 'Mon', current: 8, previous: 7, den: 420, urban: 380 },
-  { day: 'Tue', current: 12, previous: 14, den: 450, urban: 410 },
-  { day: 'Wed', current: 10, previous: 9, den: 480, urban: 440 },
-  { day: 'Thu', current: 15, previous: 13, den: 510, urban: 470 },
-  { day: 'Fri', current: 18, previous: 16, den: 650, urban: 610 },
-  { day: 'Sat', current: 22, previous: 20, den: 850, urban: 790 },
-  { day: 'Sun', current: 6, previous: 8, den: 540, urban: 500 },
+  { day: 'Mon', current: 8, previous: 7, den: 420, urban: 380, denPrev: 390, urbanPrev: 350 },
+  { day: 'Tue', current: 12, previous: 14, den: 450, urban: 410, denPrev: 430, urbanPrev: 380 },
+  { day: 'Wed', current: 10, previous: 9, den: 480, urban: 440, denPrev: 460, urbanPrev: 410 },
+  { day: 'Thu', current: 15, previous: 13, den: 510, urban: 470, denPrev: 490, urbanPrev: 430 },
+  { day: 'Fri', current: 18, previous: 16, den: 650, urban: 610, denPrev: 580, urbanPrev: 540 },
+  { day: 'Sat', current: 22, previous: 20, den: 850, urban: 790, denPrev: 750, urbanPrev: 700 },
+  { day: 'Sun', current: 6, previous: 8, den: 540, urban: 500, denPrev: 510, urbanPrev: 460 },
+];
+
+const weeklyCutsData = [
+  { day: 'Mon', den: 6, urban: 5, denPrev: 5, urbanPrev: 4 },
+  { day: 'Tue', den: 9, urban: 7, denPrev: 8, urbanPrev: 6 },
+  { day: 'Wed', den: 8, urban: 6, denPrev: 7, urbanPrev: 5 },
+  { day: 'Thu', den: 11, urban: 9, denPrev: 10, urbanPrev: 8 },
+  { day: 'Fri', den: 14, urban: 12, denPrev: 13, urbanPrev: 10 },
+  { day: 'Sat', den: 18, urban: 15, denPrev: 16, urbanPrev: 14 },
+  { day: 'Sun', den: 5, urban: 4, denPrev: 6, urbanPrev: 5 },
 ];
 
 const serviceBreakdownWeekly = [
@@ -506,16 +516,28 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
             {(activeShop === 'both' || activeShop === 'den') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-0.5 bg-[#f97316]" />
-                <span className="text-foreground">Gentleman's Den</span>
-              </div>
+              <>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-[#f97316]" />
+                  <span className="text-foreground">Den (Current)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-[#f97316]/30 border-t border-dashed" />
+                  <span className="text-muted-foreground">Den (Prev)</span>
+                </div>
+              </>
             )}
             {(activeShop === 'both' || activeShop === 'urban') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
-                <span className="text-foreground">Urban Cuts</span>
-              </div>
+              <>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+                  <span className="text-foreground">Urban (Current)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-0.5 bg-[#3b82f6]/30 border-t border-dashed" />
+                  <span className="text-muted-foreground">Urban (Prev)</span>
+                </div>
+              </>
             )}
           </div>
         </h3>
@@ -541,10 +563,16 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 formatter={(value: any) => [`R ${value}`, "Revenue"]}
               />
               {(activeShop === 'both' || activeShop === 'den') && (
-                <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+                <>
+                  <Area type="monotone" dataKey="denPrev" name="Den (Previous)" stroke="#f9731633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="den" name="Den (Current)" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+                </>
               )}
               {(activeShop === 'both' || activeShop === 'urban') && (
-                <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+                <>
+                  <Area type="monotone" dataKey="urbanPrev" name="Urban (Previous)" stroke="#3b82f633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="urban" name="Urban (Current)" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+                </>
               )}
             </AreaChart>
           </ResponsiveContainer>
@@ -612,22 +640,34 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
             {(activeShop === 'both' || activeShop === 'den') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
-                <span className="text-foreground">Gentleman's Den</span>
-              </div>
+              <>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
+                  <span className="text-foreground">Den (Current)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#f97316]/30 rounded-sm" />
+                  <span className="text-muted-foreground">Den (Prev)</span>
+                </div>
+              </>
             )}
             {(activeShop === 'both' || activeShop === 'urban') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
-                <span className="text-foreground">Urban Cuts</span>
-              </div>
+              <>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
+                  <span className="text-foreground">Urban (Current)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#3b82f6]/30 rounded-sm" />
+                  <span className="text-muted-foreground">Urban (Prev)</span>
+                </div>
+              </>
             )}
           </div>
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyData}>
+            <BarChart data={weeklyCutsData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
@@ -638,10 +678,16 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               />
               <Legend />
               {(activeShop === 'both' || activeShop === 'den') && (
-                <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+                <>
+                  <Bar dataKey="denPrev" name="Den (Previous)" fill="#f9731633" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="den" name="Den (Current)" fill="#f97316" radius={[4, 4, 0, 0]} />
+                </>
               )}
               {(activeShop === 'both' || activeShop === 'urban') && (
-                <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <>
+                  <Bar dataKey="urbanPrev" name="Urban (Previous)" fill="#3b82f633" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="urban" name="Urban (Current)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </>
               )}
             </BarChart>
           </ResponsiveContainer>
