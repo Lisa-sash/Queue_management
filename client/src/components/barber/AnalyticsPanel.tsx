@@ -524,8 +524,8 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 itemStyle={{ fontSize: '12px' }}
                 formatter={(value: any) => [`R ${value}`, "Revenue"]}
               />
-              <Area type="monotone" dataKey="shop1" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
-              <Area type="monotone" dataKey="shop2" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+              <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
