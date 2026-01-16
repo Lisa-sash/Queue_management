@@ -42,8 +42,12 @@ let listeners: (() => void)[] = [];
 export const barberStore = {
   getBarbers: () => barbers,
   
-  getBarbersByShop: (shop: string): LoggedInBarber[] => {
-    return barbers.filter(b => b.shop === shop);
+  getBarbersByShop: (shopName: string): LoggedInBarber[] => {
+    return barbers.filter(b => 
+      b.shop === shopName || 
+      (shopName === "Urban Cuts" && b.shop === "urban") || 
+      (shopName === "The Gentleman's Den" && b.shop === "den")
+    );
   },
 
   findByEmail: (email: string): LoggedInBarber | undefined => {
