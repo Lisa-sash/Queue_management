@@ -589,130 +589,130 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 </>
               )}
               {(activeShop === 'both' || activeShop === 'urban') && (
-                <>
-                  <Area type="monotone" dataKey="urbanPrev" name="Urban (Previous)" stroke="#3b82f633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
-                  <Area type="monotone" dataKey="urban" name="Urban (Current)" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
-                </>
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        <>
+          <Area type="monotone" dataKey="urbanPrev" name="Urban (Previous)" stroke="#3b82f633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
+          <Area type="monotone" dataKey="urban" name="Urban (Current)" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+        </>
+      )}
+    </AreaChart>
+  </ResponsiveContainer>
+</div>
+</div>
 
-      <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
-        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Monthly Revenue Comparison {activeShop === 'both' ? '(Aggregate)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
-          </div>
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            {(activeShop === 'both' || activeShop === 'den') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-0.5 bg-[#f97316]" />
-                <span className="text-foreground">Gentleman's Den</span>
-              </div>
-            )}
-            {(activeShop === 'both' || activeShop === 'urban') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
-                <span className="text-foreground">Urban Cuts</span>
-              </div>
-            )}
-          </div>
-        </h3>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={monthlyComparisonData}>
-              <defs>
-                <linearGradient id="colorMonthlyDen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorMonthlyUrban" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-              <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <RechartsTooltip 
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                itemStyle={{ fontSize: '12px' }}
-                formatter={(value: any) => [`R ${value}`, "Revenue"]}
-              />
-              {(activeShop === 'both' || activeShop === 'den') && (
-                <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
-              )}
-              {(activeShop === 'both' || activeShop === 'urban') && (
-                <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+<div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+<h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <TrendingUp className="w-5 h-5 text-primary" />
+    Monthly Revenue Comparison {activeShop === 'both' ? '(Aggregate)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
+  </div>
+  <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+    {(activeShop === 'both' || activeShop === 'den') && (
+      <div className="flex items-center gap-1.5">
+        <div className="w-2.5 h-0.5 bg-[#f97316]" />
+        <span className="text-foreground">Gentleman's Den</span>
       </div>
+    )}
+    {(activeShop === 'both' || activeShop === 'urban') && (
+      <div className="flex items-center gap-1.5">
+        <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+        <span className="text-foreground">Urban Cuts</span>
+      </div>
+    )}
+  </div>
+</h3>
+<div className="h-80">
+  <ResponsiveContainer width="100%" height="100%">
+    <AreaChart data={monthlyComparisonData}>
+      <defs>
+        <linearGradient id="colorMonthlyDen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+          <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+        </linearGradient>
+        <linearGradient id="colorMonthlyUrban" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+        </linearGradient>
+      </defs>
+      <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+      <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+      <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+        itemStyle={{ fontSize: '12px' }}
+        formatter={(value: any) => [`R ${value}`, "Revenue"]}
+      />
+      {(activeShop === 'both' || activeShop === 'den') && (
+        <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+      )}
+      {(activeShop === 'both' || activeShop === 'urban') && (
+        <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+      )}
+    </AreaChart>
+  </ResponsiveContainer>
+</div>
+</div>
 
-      <div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
-        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            Weekly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
-          </div>
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            {(activeShop === 'both' || activeShop === 'den') && (
-              <>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
-                  <span className="text-foreground">Den (Current)</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-[#f97316]/30 rounded-sm" />
-                  <span className="text-muted-foreground">Den (Prev)</span>
-                </div>
-              </>
-            )}
-            {(activeShop === 'both' || activeShop === 'urban') && (
-              <>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
-                  <span className="text-foreground">Urban (Current)</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-[#3b82f6]/30 rounded-sm" />
-                  <span className="text-muted-foreground">Urban (Prev)</span>
-                </div>
-              </>
-            )}
-          </div>
-        </h3>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={enterpriseWeeklyCutsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-              <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <RechartsTooltip 
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                itemStyle={{ fontSize: '12px' }}
-                formatter={(value: any) => [value, "Cuts"]}
-              />
-              <Legend />
-              {(activeShop === 'both' || activeShop === 'den') && (
-                <>
-                  <Bar dataKey="denPrev" name="Den (Previous)" fill="#f9731633" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="den" name="Den (Current)" fill="#f97316" radius={[4, 4, 0, 0]} />
-                </>
-              )}
-              {(activeShop === 'both' || activeShop === 'urban') && (
-                <>
-                  <Bar dataKey="urbanPrev" name="Urban (Previous)" fill="#3b82f633" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="urban" name="Urban (Current)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </>
-              )}
-            </BarChart>
-          </ResponsiveContainer>
+<div className="bg-card border border-white/5 rounded-xl p-6 mb-8">
+<h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <BarChart3 className="w-5 h-5 text-primary" />
+    Weekly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
+  </div>
+  <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+    {(activeShop === 'both' || activeShop === 'den') && (
+      <>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
+          <span className="text-foreground">Den (Current)</span>
         </div>
-      </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 bg-[#f97316]/30 rounded-sm" />
+          <span className="text-muted-foreground">Den (Prev)</span>
+        </div>
+      </>
+    )}
+    {(activeShop === 'both' || activeShop === 'urban') && (
+      <>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
+          <span className="text-foreground">Urban (Current)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 bg-[#3b82f6]/30 rounded-sm" />
+          <span className="text-muted-foreground">Urban (Prev)</span>
+        </div>
+      </>
+    )}
+  </div>
+</h3>
+<div className="h-80">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={enterpriseWeeklyCutsData}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+      <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+      <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+        itemStyle={{ fontSize: '12px' }}
+        formatter={(value: any) => [value, "Cuts"]}
+      />
+      <Legend />
+      {(activeShop === 'both' || activeShop === 'den') && (
+        <>
+          <Bar dataKey="denPrev" name="Den (Previous)" fill="#f9731633" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="den" name="Den (Current)" fill="#f97316" radius={[4, 4, 0, 0]} />
+        </>
+      )}
+      {(activeShop === 'both' || activeShop === 'urban') && (
+        <>
+          <Bar dataKey="urbanPrev" name="Urban (Previous)" fill="#3b82f633" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="urban" name="Urban (Current)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        </>
+      )}
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+</div>
 
       <div className="bg-card border border-white/5 rounded-xl p-6">
         <h3 className="font-heading font-bold mb-6 flex items-center justify-between">

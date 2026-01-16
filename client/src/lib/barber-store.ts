@@ -45,8 +45,8 @@ export const barberStore = {
   getBarbersByShop: (shopName: string): LoggedInBarber[] => {
     return barbers.filter(b => 
       b.shop === shopName || 
-      (shopName === "Urban Cuts" && b.shop === "urban") || 
-      (shopName === "The Gentleman's Den" && b.shop === "den")
+      (shopName === "Urban Cuts" && (b.shop === "urban" || b.shop === "Urban Cuts" || b.shop === "Urban Cut")) || 
+      (shopName === "The Gentleman's Den" && (b.shop === "den" || b.shop === "The Gentleman's Den"))
     );
   },
 
