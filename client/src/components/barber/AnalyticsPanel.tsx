@@ -354,6 +354,26 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     );
   }
 
+  const enterpriseWeeklyData = [
+    { day: 'Mon', den: 420, urban: 380, denPrev: 390, urbanPrev: 350 },
+    { day: 'Tue', den: 450, urban: 410, denPrev: 430, urbanPrev: 380 },
+    { day: 'Wed', den: 480, urban: 440, denPrev: 460, urbanPrev: 410 },
+    { day: 'Thu', den: 510, urban: 470, denPrev: 490, urbanPrev: 430 },
+    { day: 'Fri', den: 650, urban: 610, denPrev: 580, urbanPrev: 540 },
+    { day: 'Sat', den: 850, urban: 790, denPrev: 750, urbanPrev: 700 },
+    { day: 'Sun', den: 540, urban: 500, denPrev: 510, urbanPrev: 460 },
+  ];
+
+  const enterpriseWeeklyCutsData = [
+    { day: 'Mon', den: 6, urban: 5, denPrev: 5, urbanPrev: 4 },
+    { day: 'Tue', den: 9, urban: 7, denPrev: 8, urbanPrev: 6 },
+    { day: 'Wed', den: 8, urban: 6, denPrev: 7, urbanPrev: 5 },
+    { day: 'Thu', den: 11, urban: 9, denPrev: 10, urbanPrev: 8 },
+    { day: 'Fri', den: 14, urban: 12, denPrev: 13, urbanPrev: 10 },
+    { day: 'Sat', den: 18, urban: 15, denPrev: 16, urbanPrev: 14 },
+    { day: 'Sun', den: 5, urban: 4, denPrev: 6, urbanPrev: 5 },
+  ];
+
   // Enterprise / Manager View
   return (
     <div className="space-y-8">
@@ -543,7 +563,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={weeklyData}>
+            <AreaChart data={enterpriseWeeklyData}>
               <defs>
                 <linearGradient id="colorWeeklyDen" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
@@ -667,7 +687,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyCutsData}>
+            <BarChart data={enterpriseWeeklyCutsData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
               <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
