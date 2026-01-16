@@ -15,23 +15,24 @@ import { Loader2 } from "lucide-react";
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (name: string) => void;
+  onConfirm: (name: string, phone: string) => void;
   timeSlot: string;
   accessCode?: string;
 }
 
 export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode }: BookingModalProps) {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !phone.trim()) return;
 
     setIsSubmitting(true);
     setTimeout(() => {
-      onConfirm(name);
+      onConfirm(name, phone);
       setIsSubmitting(false);
       setShowConfirmation(true);
     }, 1000);
@@ -39,6 +40,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
 
   const handleClose = () => {
     setName("");
+    setPhone("");
     setShowConfirmation(false);
     onClose();
   };
@@ -100,6 +102,19 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
               autoFocus
             />
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="phone" className="text-muted-foreground">Phone Number</Label>
+            <Input
+              id="phone"
+              data-testid="input-phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g. 082 123 4567"
+              className="bg-background border-white/10 focus:border-primary/50"
+              type="tel"
+            />
+            <p className="text-[10px] text-muted-foreground">Used for SMS updates and booking recovery.</p>
+          </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={handleClose}>
               Cancel
@@ -107,7 +122,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
             <Button 
               type="submit" 
               data-testid="button-confirm-booking"
-              disabled={!name.trim() || isSubmitting}
+              disabled={!name.trim() || !phone.trim() || isSubmitting}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? (

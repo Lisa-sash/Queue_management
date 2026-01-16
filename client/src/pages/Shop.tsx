@@ -44,7 +44,7 @@ export default function Shop() {
     setIsModalOpen(true);
   };
 
-  const handleBookingConfirm = (name: string) => {
+  const handleBookingConfirm = (name: string, phone: string) => {
     if (!selectedSlotId) return;
 
     if (bookingForLoggedBarber) {
@@ -59,6 +59,7 @@ export default function Shop() {
         slotId: selectedSlotId,
         slotTime: slot.time,
         clientName: name,
+        clientPhone: phone,
         userStatus: 'pending',
         shopName: shopName,
         shopLocation: location,
@@ -87,6 +88,7 @@ export default function Shop() {
         slotId: selectedSlotId,
         slotTime: slot.time,
         clientName: name,
+        clientPhone: phone,
         userStatus: 'pending',
         shopName: shopName,
         shopLocation: location,

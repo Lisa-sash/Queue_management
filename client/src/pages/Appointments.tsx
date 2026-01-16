@@ -1,173 +1,112 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { BookingStatusCard } from "@/components/queue/BookingStatusCard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Scissors, Search, KeyRound } from "lucide-react";
-import { Link } from "wouter";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Search, Calendar, Clock, MapPin, Scissors, 
+  ArrowRight, Ticket, User, Phone, AlertCircle,
+  History, LogIn
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { BookingStatusCard } from "@/components/queue/BookingStatusCard";
 
 export default function Appointments() {
-  const [accessCodeInput, setAccessCodeInput] = useState("");
-  const [foundBooking, setFoundBooking] = useState<BookingWithCode | null>(null);
-  const [searchError, setSearchError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<'code' | 'phone'>('code');
+  const [foundBookings, setFoundBookings] = useState<BookingWithCode[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     return bookingStore.subscribe(() => {
-      if (foundBooking) {
-        const updated = bookingStore.findByCode(foundBooking.accessCode);
-        if (updated) {
-          setFoundBooking(updated);
-        }
+      if (foundBookings.length > 0) {
+        const updated = foundBookings.map(fb => 
+          bookingStore.getBookings().find(b => b.id === fb.id)
+        ).filter(Boolean) as BookingWithCode[];
+        setFoundBookings(updated);
       }
     });
-  }, [foundBooking]);
+  }, [foundBookings]);
 
-  const handleSearch = () => {
-    if (!accessCodeInput.trim()) return;
-    
-    const booking = bookingStore.findByCode(accessCodeInput.trim());
-    if (booking) {
-      setFoundBooking(booking);
-      setSearchError(false);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    let results: BookingWithCode[] = [];
+    if (activeTab === 'code') {
+      const booking = bookingStore.findByCode(searchQuery.trim());
+      if (booking) results = [booking];
     } else {
-      setFoundBooking(null);
-      setSearchError(true);
+      results = bookingStore.findByPhone(searchQuery.trim());
+    }
+
+    setFoundBookings(results);
+    setHasSearched(true);
+
+    if (results.length === 0) {
       toast({
-        variant: "destructive",
-        title: "Not Found",
-        description: "No booking found with that access code.",
+        title: "No appointments found",
+        description: `We couldn't find any bookings matching that ${activeTab === 'code' ? 'access code' : 'phone number'}.`,
+        variant: "destructive"
       });
     }
   };
 
-  const handleStatusChange = (bookingId: string, status: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived' | 'completed') => {
+  const handleStatusChange = (bookingId: string, status: any) => {
     if (status === 'completed') {
       bookingStore.updateBooking(bookingId, { userStatus: 'arrived', isCompleted: true } as any);
     } else {
       bookingStore.updateBooking(bookingId, { userStatus: status });
     }
-
-    const messages: Record<string, { title: string; description: string }> = {
-      'on-the-way': {
-        title: 'On the Way!',
-        description: 'The barber knows you\'re coming. See you soon!'
-      },
-      'will-be-late': {
-        title: 'Late Notice Sent',
-        description: 'The barber has been notified. Your slot is reserved for 15 extra minutes.'
-      },
-      'pending': {
-        title: 'Status Updated',
-        description: 'Your booking status has been reset.'
-      },
-      'cancelled': {
-        title: 'Booking Cancelled',
-        description: 'Your slot has been released and is now available for others.'
-      },
-      'arrived': {
-        title: 'You\'ve Arrived!',
-        description: 'The barber has been notified of your arrival.'
-      },
-      'completed': {
-        title: 'Appointment Complete!',
-        description: 'Thanks for visiting. We\'d love to hear your feedback!'
-      }
-    };
-
-    const msg = messages[status];
-    toast({
-      title: msg.title,
-      description: status === 'completed' 
-        ? "Your appointment is finished! Please rate your experience below - your feedback helps us stay sharp."
-        : msg.description,
-      className: status === 'cancelled' ? '' : 'bg-primary text-primary-foreground border-none'
-    });
-  };
-
-  const handleRate = (bookingId: string, ratings: any) => {
-    bookingStore.updateBooking(bookingId, { hasRated: true } as any);
-    toast({
-      title: 'Thanks for your feedback!',
-      description: 'Your ratings help us improve our service.',
-      className: 'bg-primary text-primary-foreground border-none'
-    });
-  };
-
-  const handleCancel = (bookingId: string) => {
-    handleStatusChange(bookingId, 'cancelled');
+    toast({ title: "Status Updated", description: "Your barber has been notified." });
   };
 
   return (
-    <div className="min-h-screen bg-background font-sans pb-20">
+    <div className="min-h-screen bg-background pb-12">
       <Navbar />
-      <div className="container mx-auto px-4 pt-32 max-w-2xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-heading font-bold mb-2">My Bookings</h1>
-          <p className="text-muted-foreground">Enter your access code to find and manage your booking.</p>
+      
+      <div className="pt-32 pb-12 px-4 bg-gradient-to-b from-card to-background border-b border-white/5">
+        <div className="container mx-auto max-w-4xl text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">Track Your Appointment</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Lost your code? No problem. Search for your booking using either your unique access code or the phone number used during booking.
+            </p>
+          </motion.div>
         </div>
+      </div>
 
-        <div className="mb-8 p-6 bg-card border border-white/5 rounded-lg">
-          <h3 className="font-heading font-bold mb-3 flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-primary" />
-            Find Your Booking
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Enter your 4-character access code to find your booking.
-          </p>
-          <div className="flex gap-2">
-            <Input
-              value={accessCodeInput}
-              onChange={(e) => {
-                setAccessCodeInput(e.target.value.toUpperCase());
-                setSearchError(false);
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="e.g. AB12"
-              maxLength={4}
-              data-testid="input-access-code"
-              className={`bg-background border-white/10 focus:border-primary/50 uppercase tracking-widest font-mono text-lg ${searchError ? 'border-red-500' : ''}`}
-            />
-            <Button 
-              onClick={handleSearch}
-              data-testid="button-search-booking"
-              className="bg-primary text-primary-foreground"
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Find
-            </Button>
+      <div className="container mx-auto px-4 -mt-8">
+        <div className="max-w-2xl mx-auto">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur-sm">
+            <div className="flex p-1 bg-white/5 rounded-xl mb-8">
+              <button onClick={() => { setActiveTab('code'); setHasSearched(false); setSearchQuery(""); }} className={cn("flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all", activeTab === 'code' ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>Access Code</button>
+              <button onClick={() => { setActiveTab('phone'); setHasSearched(false); setSearchQuery(""); }} className={cn("flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all", activeTab === 'phone' ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>Phone Number</button>
+            </div>
+
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
+              <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={activeTab === 'code' ? "Enter 4-digit code" : "Enter phone number"} className="flex-1 h-14 bg-background border-white/10 text-lg" />
+              <Button type="submit" size="lg" className="h-14 px-8 font-bold">Search</Button>
+            </form>
+          </motion.div>
+
+          <div className="mt-12 space-y-6">
+            <AnimatePresence>
+              {hasSearched && foundBookings.length > 0 ? (
+                foundBookings.map((booking) => (
+                  <BookingStatusCard key={booking.id} booking={booking} onStatusChange={handleStatusChange} onCancel={() => {}} onRate={() => {}} />
+                ))
+              ) : hasSearched && (
+                <div className="text-center py-12">
+                  <h3 className="text-xl font-bold">No Appointments Found</h3>
+                </div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-
-        {foundBooking ? (
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-heading font-bold">Your Booking</h2>
-              <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded font-mono">{foundBooking.accessCode}</span>
-            </div>
-            <BookingStatusCard
-              booking={foundBooking}
-              onStatusChange={handleStatusChange}
-              onCancel={handleCancel}
-              onRate={handleRate}
-            />
-          </div>
-        ) : (
-          <div className="bg-card border border-white/5 rounded-lg p-12 text-center space-y-4">
-            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Scissors className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-bold">No Booking Found</h2>
-            <p className="text-muted-foreground">Enter your access code above to find your booking, or book a new slot.</p>
-            <div className="pt-4">
-              <Link href="/shops">
-                <Button className="bg-primary text-primary-foreground">Find a Barber</Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

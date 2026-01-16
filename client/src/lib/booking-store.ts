@@ -12,6 +12,7 @@ function generateAccessCode(): string {
 export interface BookingWithCode extends Booking {
   accessCode: string;
   bookingDate: 'today' | 'tomorrow';
+  clientPhone?: string;
 }
 
 let bookings: BookingWithCode[] = [];
@@ -20,19 +21,20 @@ let listeners: (() => void)[] = [];
 export const bookingStore = {
   getBookings: () => bookings,
   
-  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow' }): BookingWithCode => {
+  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string }): BookingWithCode => {
     const newBooking: BookingWithCode = {
       ...booking,
       id: `booking-${Date.now()}`,
       accessCode: generateAccessCode(),
       bookingDate: booking.bookingDate || 'today',
+      clientPhone: booking.clientPhone,
     };
     bookings = [...bookings, newBooking];
     listeners.forEach(fn => fn());
     return newBooking;
   },
   
-  updateBooking: (id: string, updates: Partial<Booking>) => {
+  updateBooking: (id: string, updates: Partial<BookingWithCode>) => {
     bookings = bookings.map(b => 
       b.id === id ? { ...b, ...updates } : b
     );
@@ -41,6 +43,10 @@ export const bookingStore = {
   
   findByCode: (code: string): BookingWithCode | undefined => {
     return bookings.find(b => b.accessCode.toUpperCase() === code.toUpperCase());
+  },
+  
+  findByPhone: (phone: string): BookingWithCode[] => {
+    return bookings.filter(b => b.clientPhone === phone);
   },
   
   subscribe: (fn: () => void) => {
