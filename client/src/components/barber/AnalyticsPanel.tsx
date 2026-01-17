@@ -561,50 +561,5 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </div>
       </div>
     </div>
-
-      <div className="bg-card border border-white/5 rounded-xl p-6">
-        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            Monthly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
-          </div>
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            {(activeShop === 'both' || activeShop === 'den') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
-                <span className="text-foreground">Gentleman's Den</span>
-              </div>
-            )}
-            {(activeShop === 'both' || activeShop === 'urban') && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
-                <span className="text-foreground">Urban Cuts</span>
-              </div>
-            )}
-          </div>
-        </h3>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyCutsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-              <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-              <RechartsTooltip 
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                itemStyle={{ fontSize: '12px' }}
-                formatter={(value: any) => [value, "Cuts"]}
-              />
-              <Legend />
-              {(activeShop === 'both' || activeShop === 'den') && (
-                <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
-              )}
-              {(activeShop === 'both' || activeShop === 'urban') && (
-                <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              )}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
   );
 }
