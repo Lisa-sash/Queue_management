@@ -584,14 +584,52 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               />
               {(activeShop === 'both' || activeShop === 'den') && (
                 <>
-                  <Area type="monotone" dataKey="denPrev" name="Den (Previous)" stroke="#f9731633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
-                  <Area type="monotone" dataKey="den" name="Den (Current)" stroke="#f97316" fill="url(#colorWeeklyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="denPrev" 
+                    name="Den (Previous)" 
+                    stroke="#f97316" 
+                    strokeDasharray="5 5" 
+                    fill="none" 
+                    strokeWidth={2} 
+                    dot={false} 
+                    isAnimationActive={false}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="den" 
+                    name="Den (Current)" 
+                    stroke="#f97316" 
+                    fill="url(#colorWeeklyDen)" 
+                    strokeWidth={2} 
+                    dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} 
+                    isAnimationActive={false}
+                  />
                 </>
               )}
               {(activeShop === 'both' || activeShop === 'urban') && (
         <>
-          <Area type="monotone" dataKey="urbanPrev" name="Urban (Previous)" stroke="#3b82f633" strokeDasharray="5 5" fill="none" strokeWidth={2} dot={false} />
-          <Area type="monotone" dataKey="urban" name="Urban (Current)" stroke="#3b82f6" fill="url(#colorWeeklyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+          <Area 
+            type="monotone" 
+            dataKey="urbanPrev" 
+            name="Urban (Previous)" 
+            stroke="#3b82f6" 
+            strokeDasharray="5 5" 
+            fill="none" 
+            strokeWidth={2} 
+            dot={false} 
+            isAnimationActive={false}
+          />
+          <Area 
+            type="monotone" 
+            dataKey="urban" 
+            name="Urban (Current)" 
+            stroke="#3b82f6" 
+            fill="url(#colorWeeklyUrban)" 
+            strokeWidth={2} 
+            dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} 
+            isAnimationActive={false}
+          />
         </>
       )}
     </AreaChart>
@@ -642,10 +680,10 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         formatter={(value: any) => [`R ${value}`, "Revenue"]}
       />
       {(activeShop === 'both' || activeShop === 'den') && (
-        <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} />
+        <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} isAnimationActive={false} />
       )}
       {(activeShop === 'both' || activeShop === 'urban') && (
-        <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} />
+        <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} isAnimationActive={false} />
       )}
     </AreaChart>
   </ResponsiveContainer>
@@ -699,14 +737,14 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       <Legend />
       {(activeShop === 'both' || activeShop === 'den') && (
         <>
-          <Bar dataKey="denPrev" name="Den (Previous)" fill="#f9731633" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="den" name="Den (Current)" fill="#f97316" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="denPrev" name="Den (Previous)" fill="#f9731633" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+          <Bar dataKey="den" name="Den (Current)" fill="#f97316" radius={[4, 4, 0, 0]} isAnimationActive={false} />
         </>
       )}
       {(activeShop === 'both' || activeShop === 'urban') && (
         <>
-          <Bar dataKey="urbanPrev" name="Urban (Previous)" fill="#3b82f633" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="urban" name="Urban (Current)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="urbanPrev" name="Urban (Previous)" fill="#3b82f633" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+          <Bar dataKey="urban" name="Urban (Current)" fill="#3b82f6" radius={[4, 4, 0, 0]} isAnimationActive={false} />
         </>
       )}
     </BarChart>
