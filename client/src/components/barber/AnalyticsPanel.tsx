@@ -707,11 +707,26 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 </div>
               </div>
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">App Accuracy</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">89%</span>
-                  <ArrowDownRight className="w-3 h-3 text-orange-400" />
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                          App Accuracy
+                          <Info className="w-2.5 h-2.5 opacity-50" />
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold">89%</span>
+                          <ArrowDownRight className="w-3 h-3 text-orange-400" />
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px] text-xs p-3">
+                      <p className="font-bold mb-1">How it's calculated:</p>
+                      <p>Measures how closely the "Ready" notifications matched the actual start time of the cut. 89% means most clients were in the chair within 3-5 minutes of their app notification.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </div>
