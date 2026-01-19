@@ -377,58 +377,117 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   const barberPerformanceData = {
     den: {
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
-      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 }
+      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 },
+      barbers: [
+        { name: 'Jax', week: 42, month: 168 },
+        { name: 'Marco', week: 28, month: 112 },
+        { name: 'Zane', week: 32, month: 125 }
+      ]
     },
     urban: {
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
-      month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 }
+      month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 },
+      barbers: [
+        { name: 'Elena', week: 38, month: 152 },
+        { name: 'Greys', week: 24, month: 98 },
+        { name: 'Kael', week: 31, month: 122 }
+      ]
     },
     both: {
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
-      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 }
+      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 },
+      barbers: [
+        { name: 'Jax', week: 42, month: 168 },
+        { name: 'Elena', week: 38, month: 152 },
+        { name: 'Marco', week: 28, month: 112 },
+        { name: 'Greys', week: 24, month: 98 }
+      ]
     }
   };
 
   const PerformanceSection = ({ title, data }: { title: string, data: any }) => (
-    <div className="bg-card border border-white/5 rounded-xl p-6">
-      <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
-        <Users className="w-5 h-5" />
-        {title}
-      </h3>
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Highest</p>
-            <p className="text-lg font-bold text-primary">{data.week.highest.name}</p>
-            <p className="text-xs text-muted-foreground">{data.week.highest.cuts} cuts</p>
+    <div className="space-y-6">
+      <div className="bg-card border border-white/5 rounded-xl p-6">
+        <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+          <Users className="w-5 h-5" />
+          {title}
+        </h3>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Highest</p>
+              <p className="text-lg font-bold text-primary">{data.week.highest.name}</p>
+              <p className="text-xs text-muted-foreground">{data.week.highest.cuts} cuts</p>
+            </div>
+            <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Lowest</p>
+              <p className="text-lg font-bold text-orange-400">{data.week.lowest.name}</p>
+              <p className="text-xs text-muted-foreground">{data.week.lowest.cuts} cuts</p>
+            </div>
           </div>
-          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Lowest</p>
-            <p className="text-lg font-bold text-orange-400">{data.week.lowest.name}</p>
-            <p className="text-xs text-muted-foreground">{data.week.lowest.cuts} cuts</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Highest</p>
+              <p className="text-lg font-bold text-primary">{data.month.highest.name}</p>
+              <p className="text-xs text-muted-foreground">{data.month.highest.cuts} cuts</p>
+            </div>
+            <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Lowest</p>
+              <p className="text-lg font-bold text-orange-400">{data.month.lowest.name}</p>
+              <p className="text-xs text-muted-foreground">{data.month.lowest.cuts} cuts</p>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Weekly)</p>
+              <p className="text-xl font-bold">{data.week.average} cuts</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Monthly)</p>
+              <p className="text-xl font-bold">{data.month.average} cuts</p>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Highest</p>
-            <p className="text-lg font-bold text-primary">{data.month.highest.name}</p>
-            <p className="text-xs text-muted-foreground">{data.month.highest.cuts} cuts</p>
-          </div>
-          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Lowest</p>
-            <p className="text-lg font-bold text-orange-400">{data.month.lowest.name}</p>
-            <p className="text-xs text-muted-foreground">{data.month.lowest.cuts} cuts</p>
-          </div>
-        </div>
-        <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Weekly)</p>
-            <p className="text-xl font-bold">{data.week.average} cuts</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Monthly)</p>
-            <p className="text-xl font-bold">{data.month.average} cuts</p>
-          </div>
+      </div>
+
+      <div className="bg-card border border-white/5 rounded-xl p-6">
+        <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+          <Activity className="w-5 h-5" />
+          Individual Barber Tracking
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="pb-3 font-medium">Barber</th>
+                <th className="pb-3 font-medium text-center">Weekly Cuts</th>
+                <th className="pb-3 font-medium text-center">Monthly Cuts</th>
+                <th className="pb-3 font-medium text-right">Performance</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {data.barbers.map((barber: any) => {
+                const isAboveAverage = barber.week >= data.week.average;
+                return (
+                  <tr key={barber.name} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 text-sm font-medium">{barber.name}</td>
+                    <td className="py-4 text-sm text-center font-mono">{barber.week}</td>
+                    <td className="py-4 text-sm text-center font-mono">{barber.month}</td>
+                    <td className="py-4 text-right">
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-1 rounded-full",
+                        isAboveAverage 
+                          ? "bg-green-500/10 text-green-500" 
+                          : "bg-red-500/10 text-red-500"
+                      )}>
+                        {isAboveAverage ? "ABOVE AVG" : "BELOW AVG"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
