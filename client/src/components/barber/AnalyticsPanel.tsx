@@ -379,6 +379,14 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 },
       retention: { rate: 68, newClients: { week: 12, month: 45 }, repeatingClients: 82 },
+      fillRate: { 
+        total: 78, 
+        barbers: [
+          { name: 'Jax', rate: 92, booked: 42, total: 45 },
+          { name: 'Zane', rate: 71, booked: 32, total: 45 },
+          { name: 'Marco', rate: 62, booked: 28, total: 45 }
+        ] 
+      },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Marco', week: 28, month: 112 },
@@ -398,6 +406,14 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
       month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 },
       retention: { rate: 54, newClients: { week: 18, month: 62 }, repeatingClients: 58 },
+      fillRate: { 
+        total: 65, 
+        barbers: [
+          { name: 'Elena', rate: 84, booked: 38, total: 45 },
+          { name: 'Kael', rate: 69, booked: 31, total: 45 },
+          { name: 'Greys', rate: 53, booked: 24, total: 45 }
+        ] 
+      },
       barbers: [
         { name: 'Elena', week: 38, month: 152 },
         { name: 'Greys', week: 24, month: 98 },
@@ -416,6 +432,17 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 },
       retention: { rate: 61, newClients: { week: 30, month: 107 }, repeatingClients: 140 },
+      fillRate: { 
+        total: 72, 
+        barbers: [
+          { name: 'Jax', rate: 92, booked: 42, total: 45 },
+          { name: 'Elena', rate: 84, booked: 38, total: 45 },
+          { name: 'Zane', rate: 71, booked: 32, total: 45 },
+          { name: 'Kael', rate: 69, booked: 31, total: 45 },
+          { name: 'Marco', rate: 62, booked: 28, total: 45 },
+          { name: 'Greys', rate: 53, booked: 24, total: 45 }
+        ] 
+      },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Elena', week: 38, month: 152 },
@@ -518,6 +545,47 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+            <Activity className="w-5 h-5" />
+            Booking Fill Rate
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Overall Shop Fill Rate</span>
+              <span className="font-bold text-lg text-primary">{shopPerformance.fillRate.total}%</span>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-1000" 
+                style={{ width: `${shopPerformance.fillRate.total}%` }} 
+              />
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Barber Utilization Ranking</p>
+              {shopPerformance.fillRate.barbers.map((b: any, i: number) => (
+                <div key={b.name} className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground font-mono">{i + 1}.</span>
+                      <span className="font-medium">{b.name}</span>
+                    </div>
+                    <span className="text-muted-foreground">{b.booked} / {b.total} slots ({b.rate}%)</span>
+                  </div>
+                  <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-white/20 transition-all duration-1000" 
+                      style={{ width: `${b.rate}%` }} 
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
