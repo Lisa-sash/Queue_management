@@ -379,10 +379,11 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 },
       retention: { rate: 68, newClients: { week: 12, month: 45 }, repeatingClients: 82 },
+      bookingFillRate: { week: 78, month: 82 },
       barbers: [
-        { name: 'Jax', week: 42, month: 168 },
-        { name: 'Marco', week: 28, month: 112 },
-        { name: 'Zane', week: 32, month: 125 }
+        { name: 'Jax', week: 42, month: 168, bookingRate: 92 },
+        { name: 'Marco', week: 28, month: 112, bookingRate: 74 },
+        { name: 'Zane', week: 32, month: 125, bookingRate: 81 }
       ],
       reviews: {
         highest: [
@@ -398,10 +399,11 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
       month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 },
       retention: { rate: 54, newClients: { week: 18, month: 62 }, repeatingClients: 58 },
+      bookingFillRate: { week: 65, month: 70 },
       barbers: [
-        { name: 'Elena', week: 38, month: 152 },
-        { name: 'Greys', week: 24, month: 98 },
-        { name: 'Kael', week: 31, month: 122 }
+        { name: 'Elena', week: 38, month: 152, bookingRate: 88 },
+        { name: 'Greys', week: 24, month: 98, bookingRate: 62 },
+        { name: 'Kael', week: 31, month: 122, bookingRate: 79 }
       ],
       reviews: {
         highest: [
@@ -416,11 +418,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 },
       retention: { rate: 61, newClients: { week: 30, month: 107 }, repeatingClients: 140 },
+      bookingFillRate: { week: 72, month: 76 },
       barbers: [
-        { name: 'Jax', week: 42, month: 168 },
-        { name: 'Elena', week: 38, month: 152 },
-        { name: 'Marco', week: 28, month: 112 },
-        { name: 'Greys', week: 24, month: 98 }
+        { name: 'Jax', week: 42, month: 168, bookingRate: 92 },
+        { name: 'Elena', week: 38, month: 152, bookingRate: 88 },
+        { name: 'Marco', week: 28, month: 112, bookingRate: 74 },
+        { name: 'Greys', week: 24, month: 98, bookingRate: 62 }
       ],
       reviews: {
         highest: [
@@ -835,6 +838,28 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                     <TooltipContent className="max-w-[200px] text-xs p-3">
                       <p className="font-bold mb-1">How it's calculated:</p>
                       <p>Measures how closely the "Ready" notifications matched the actual start time of the cut. 89% means most clients were in the chair within 3-5 minutes of their app notification.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                          Booking Fill Rate
+                          <Info className="w-2.5 h-2.5 opacity-50" />
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold">{shopPerformance.bookingFillRate.week}%</span>
+                          <TrendingUp className="w-3 h-3 text-green-500" />
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px] text-xs p-3">
+                      <p className="font-bold mb-1">How it's calculated:</p>
+                      <p>Percentage of total available working slots that were successfully booked. High fill rates indicate efficient scheduling and high demand.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
