@@ -695,16 +695,31 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </h3>
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">Referral Potential</p>
-                  <p className="text-xs text-muted-foreground">High among loyal clients</p>
-                </div>
-              </div>
-              <span className="text-xs font-bold text-purple-400">8.4 / 10</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center justify-between w-full cursor-help">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                          <UserPlus className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold flex items-center gap-1">
+                            Referral Potential
+                            <Info className="w-2.5 h-2.5 opacity-50" />
+                          </p>
+                          <p className="text-xs text-muted-foreground">High among loyal clients</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-bold text-purple-400">8.4 / 10</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[200px] text-xs p-3">
+                    <p className="font-bold mb-1">How it's calculated:</p>
+                    <p>Analyzes your most loyal clients (3+ visits) who have given 5-star ratings. A high score suggests these clients are perfect candidates for a referral program to bring in new business.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
