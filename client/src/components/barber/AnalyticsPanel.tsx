@@ -644,6 +644,44 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+            <Target className="w-5 h-5" />
+            Booking Distribution (Weekly)
+          </h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-lg">
+                <p className="text-[10px] uppercase tracking-wider text-green-500/70 mb-1">Highest Booked</p>
+                <p className="text-lg font-bold text-green-500">{shopPerformance.barbers[0].name}</p>
+                <p className="text-xs text-muted-foreground">{shopPerformance.barbers[0].week} slots filled</p>
+              </div>
+              <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-lg">
+                <p className="text-[10px] uppercase tracking-wider text-orange-500/70 mb-1">Lowest Booked</p>
+                <p className="text-lg font-bold text-orange-400">{shopPerformance.barbers[shopPerformance.barbers.length - 1].name}</p>
+                <p className="text-xs text-muted-foreground">{shopPerformance.barbers[shopPerformance.barbers.length - 1].week} slots filled</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Slots Filled per Barber</p>
+              {shopPerformance.barbers.map((barber: any, idx: number) => (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-medium">{barber.name}</span>
+                    <span className="text-muted-foreground">{barber.week} / {Math.round(barber.week / (barber.bookingRate/100))} slots</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-primary transition-all duration-1000" 
+                      style={{ width: `${barber.bookingRate}%` }} 
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-green-500">
             <Users className="w-5 h-5" />
             Client Retention & Growth
