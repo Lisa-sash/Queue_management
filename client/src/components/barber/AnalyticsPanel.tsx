@@ -4,7 +4,7 @@ import {
   BarChart3, TrendingUp, Users, DollarSign, Clock, Calendar,
   Lock, Crown, Zap, Star, Target, PieChart, Activity, Award,
   ArrowUpRight, ArrowDownRight, Scissors, CheckCircle, Store, Layers,
-  Info, UserPlus
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -379,14 +379,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 },
       retention: { rate: 68, newClients: { week: 12, month: 45 }, repeatingClients: 82 },
-      fillRate: { 
-        total: 78, 
-        barbers: [
-          { name: 'Jax', rate: 92, booked: 42, total: 45 },
-          { name: 'Zane', rate: 71, booked: 32, total: 45 },
-          { name: 'Marco', rate: 62, booked: 28, total: 45 }
-        ] 
-      },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Marco', week: 28, month: 112 },
@@ -406,14 +398,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
       month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 },
       retention: { rate: 54, newClients: { week: 18, month: 62 }, repeatingClients: 58 },
-      fillRate: { 
-        total: 65, 
-        barbers: [
-          { name: 'Elena', rate: 84, booked: 38, total: 45 },
-          { name: 'Kael', rate: 69, booked: 31, total: 45 },
-          { name: 'Greys', rate: 53, booked: 24, total: 45 }
-        ] 
-      },
       barbers: [
         { name: 'Elena', week: 38, month: 152 },
         { name: 'Greys', week: 24, month: 98 },
@@ -432,17 +416,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 },
       retention: { rate: 61, newClients: { week: 30, month: 107 }, repeatingClients: 140 },
-      fillRate: { 
-        total: 72, 
-        barbers: [
-          { name: 'Jax', rate: 92, booked: 42, total: 45 },
-          { name: 'Elena', rate: 84, booked: 38, total: 45 },
-          { name: 'Zane', rate: 71, booked: 32, total: 45 },
-          { name: 'Kael', rate: 69, booked: 31, total: 45 },
-          { name: 'Marco', rate: 62, booked: 28, total: 45 },
-          { name: 'Greys', rate: 53, booked: 24, total: 45 }
-        ] 
-      },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Elena', week: 38, month: 152 },
@@ -545,47 +518,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
-
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-white/5 rounded-xl p-6">
-          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
-            <Activity className="w-5 h-5" />
-            Booking Fill Rate
-          </h3>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Overall Shop Fill Rate</span>
-              <span className="font-bold text-lg text-primary">{shopPerformance.fillRate.total}%</span>
-            </div>
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary transition-all duration-1000" 
-                style={{ width: `${shopPerformance.fillRate.total}%` }} 
-              />
-            </div>
-
-            <div className="space-y-4 pt-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Barber Utilization Ranking</p>
-              {shopPerformance.fillRate.barbers.map((b: any, i: number) => (
-                <div key={b.name} className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground font-mono">{i + 1}.</span>
-                      <span className="font-medium">{b.name}</span>
-                    </div>
-                    <span className="text-muted-foreground">{b.booked} / {b.total} slots ({b.rate}%)</span>
-                  </div>
-                  <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-white/20 transition-all duration-1000" 
-                      style={{ width: `${b.rate}%` }} 
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -1021,7 +953,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
+            <BarChart className="w-5 h-5 text-primary" />
             Shop Performance {activeShop === 'both' ? '(Year to Date)' : activeShop === 'den' ? '- Gentleman\'s Den (YTD)' : '- Urban Cuts (YTD)'}
           </h3>
           <div className="h-80">
@@ -1052,34 +984,100 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </div>
 
         <div className="bg-card border border-white/5 rounded-xl p-6">
-          <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-blue-500" />
-            Revenue Distribution
+          <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-primary" />
+              Monthly Performance {activeShop === 'both' ? '(Total Cuts)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
+            </div>
+            <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#f97316] rounded-sm" />
+                  <span className="text-foreground">Gentleman's Den</span>
+                </div>
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-sm" />
+                  <span className="text-foreground">Urban Cuts</span>
+                </div>
+              )}
+            </div>
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <RechartsPieChart>
-                <Pie
-                  data={[
-                    { name: 'Haircuts', value: 65, fill: '#f97316' },
-                    { name: 'Beard Trims', value: 20, fill: '#3b82f6' },
-                    { name: 'Products', value: 10, fill: '#10b981' },
-                    { name: 'Other', value: 5, fill: '#6366f1' }
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
-                />
+              <BarChart data={monthlyCutsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  itemStyle={{ fontSize: '12px' }}
+                  formatter={(value: any) => [value, "Cuts"]}
                 />
                 <Legend />
-              </RechartsPieChart>
+                {(activeShop === 'both' || activeShop === 'den') && (
+                  <Bar dataKey="den" name="Gentleman's Den" fill="#f97316" radius={[4, 4, 0, 0]} />
+                )}
+                {(activeShop === 'both' || activeShop === 'urban') && (
+                  <Bar dataKey="urban" name="Urban Cuts" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                )}
+              </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-card border border-white/5 rounded-xl p-6">
+        <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Monthly Revenue Comparison {activeShop === 'both' ? '(Aggregate)' : activeShop === 'den' ? "- Gentleman's Den" : "- Urban Cuts"}
+          </div>
+          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+            {(activeShop === 'both' || activeShop === 'den') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#f97316]" />
+                <span className="text-foreground">Gentleman's Den</span>
+              </div>
+            )}
+            {(activeShop === 'both' || activeShop === 'urban') && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-[#3b82f6]" />
+                <span className="text-foreground">Urban Cuts</span>
+              </div>
+            )}
+          </div>
+        </h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={monthlyComparisonData}>
+              <defs>
+                <linearGradient id="colorMonthlyDen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorMonthlyUrban" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                itemStyle={{ fontSize: '12px' }}
+                formatter={(value: any) => [`R ${value}`, "Revenue"]}
+              />
+              {(activeShop === 'both' || activeShop === 'den') && (
+                <Area type="monotone" dataKey="den" name="Gentleman's Den" stroke="#f97316" fill="url(#colorMonthlyDen)" strokeWidth={2} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} isAnimationActive={false} />
+              )}
+              {(activeShop === 'both' || activeShop === 'urban') && (
+                <Area type="monotone" dataKey="urban" name="Urban Cuts" stroke="#3b82f6" fill="url(#colorMonthlyUrban)" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} isAnimationActive={false} />
+              )}
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
