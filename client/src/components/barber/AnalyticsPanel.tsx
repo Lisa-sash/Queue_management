@@ -382,7 +382,16 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Marco', week: 28, month: 112 },
         { name: 'Zane', week: 32, month: 125 }
-      ]
+      ],
+      reviews: {
+        highest: [
+          { client: "Leo", rating: 5, comment: "Jax is a master! Best fade I've had in years. The shop vibes are unmatched.", date: "2 days ago" },
+          { client: "Sarah", rating: 5, comment: "Quick, professional, and exactly what I asked for. The queue system is a lifesaver.", date: "4 days ago" }
+        ],
+        lowest: [
+          { client: "Mike", rating: 2, comment: "Wait time was still 15 mins even after I checked in as arrived. Cut was okay but service was slow.", date: "1 week ago" }
+        ]
+      }
     },
     urban: {
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
@@ -391,7 +400,15 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         { name: 'Elena', week: 38, month: 152 },
         { name: 'Greys', week: 24, month: 98 },
         { name: 'Kael', week: 31, month: 122 }
-      ]
+      ],
+      reviews: {
+        highest: [
+          { client: "David", rating: 5, comment: "Elena has incredible attention to detail. Urban Cuts is my new go-to.", date: "1 day ago" }
+        ],
+        lowest: [
+          { client: "Chris", rating: 3, comment: "The cut was great but the shop was a bit loud and crowded. Hard to relax.", date: "5 days ago" }
+        ]
+      }
     },
     both: {
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
@@ -401,7 +418,16 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         { name: 'Elena', week: 38, month: 152 },
         { name: 'Marco', week: 28, month: 112 },
         { name: 'Greys', week: 24, month: 98 }
-      ]
+      ],
+      reviews: {
+        highest: [
+          { client: "Leo", rating: 5, comment: "Jax is a master! Best fade I've had in years.", date: "2 days ago" },
+          { client: "David", rating: 5, comment: "Elena has incredible attention to detail.", date: "1 day ago" }
+        ],
+        lowest: [
+          { client: "Mike", rating: 2, comment: "Wait time was still 15 mins even after check-in.", date: "1 week ago" }
+        ]
+      }
     }
   };
 
@@ -450,44 +476,98 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </div>
       </div>
 
-      <div className="bg-card border border-white/5 rounded-xl p-6">
-        <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
-          <Activity className="w-5 h-5" />
-          Individual Barber Tracking
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="pb-3 font-medium">Barber</th>
-                <th className="pb-3 font-medium text-center">Weekly Cuts</th>
-                <th className="pb-3 font-medium text-center">Monthly Cuts</th>
-                <th className="pb-3 font-medium text-right">Performance</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {data.barbers.map((barber: any) => {
-                const isAboveAverage = barber.week >= data.week.average;
-                return (
-                  <tr key={barber.name} className="group hover:bg-white/[0.02] transition-colors">
-                    <td className="py-4 text-sm font-medium">{barber.name}</td>
-                    <td className="py-4 text-sm text-center font-mono">{barber.week}</td>
-                    <td className="py-4 text-sm text-center font-mono">{barber.month}</td>
-                    <td className="py-4 text-right">
-                      <span className={cn(
-                        "text-[10px] font-bold px-2 py-1 rounded-full",
-                        isAboveAverage 
-                          ? "bg-green-500/10 text-green-500" 
-                          : "bg-red-500/10 text-red-500"
-                      )}>
-                        {isAboveAverage ? "ABOVE AVG" : "BELOW AVG"}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+            <Activity className="w-5 h-5" />
+            Individual Barber Tracking
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-3 font-medium">Barber</th>
+                  <th className="pb-3 font-medium text-center">Weekly Cuts</th>
+                  <th className="pb-3 font-medium text-center">Monthly Cuts</th>
+                  <th className="pb-3 font-medium text-right">Performance</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {data.barbers.map((barber: any) => {
+                  const isAboveAverage = barber.week >= data.week.average;
+                  return (
+                    <tr key={barber.name} className="group hover:bg-white/[0.02] transition-colors">
+                      <td className="py-4 text-sm font-medium">{barber.name}</td>
+                      <td className="py-4 text-sm text-center font-mono">{barber.week}</td>
+                      <td className="py-4 text-sm text-center font-mono">{barber.month}</td>
+                      <td className="py-4 text-right">
+                        <span className={cn(
+                          "text-[10px] font-bold px-2 py-1 rounded-full",
+                          isAboveAverage 
+                            ? "bg-green-500/10 text-green-500" 
+                            : "bg-red-500/10 text-red-500"
+                        )}>
+                          {isAboveAverage ? "ABOVE AVG" : "BELOW AVG"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-amber-400">
+            <Star className="w-5 h-5" />
+            Featured Client Reviews
+          </h3>
+          <div className="space-y-6">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-green-500 font-bold mb-3 flex items-center gap-2">
+                <ArrowUpRight className="w-3 h-3" /> Top Rated
+              </p>
+              <div className="space-y-4">
+                {data.reviews.highest.map((review: any, i: number) => (
+                  <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold">{review.client}</span>
+                      <div className="flex gap-0.5">
+                        {[...Array(review.rating)].map((_, j) => (
+                          <Star key={j} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">"{review.comment}"</p>
+                    <p className="text-[9px] text-muted-foreground/50 mt-2">{review.date}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-orange-400 font-bold mb-3 flex items-center gap-2">
+                <ArrowDownRight className="w-3 h-3" /> Critical Feedback
+              </p>
+              <div className="space-y-4">
+                {data.reviews.lowest.map((review: any, i: number) => (
+                  <div key={i} className="p-3 bg-white/5 rounded-lg border border-white/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold">{review.client}</span>
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, j) => (
+                          <Star key={j} className={cn("w-3 h-3", j < review.rating ? "fill-amber-400 text-amber-400" : "text-white/10")} />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">"{review.comment}"</p>
+                    <p className="text-[9px] text-muted-foreground/50 mt-2">{review.date}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
