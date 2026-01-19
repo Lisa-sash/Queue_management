@@ -84,11 +84,13 @@ export function RatingModal({ isOpen, onClose, onSubmit, barberName, shopName }:
   const [queueRating, setQueueRating] = useState(0);
   const [cutFeedback, setCutFeedback] = useState("");
   const [queueFeedback, setQueueFeedback] = useState("");
+  const [generalFeedback, setGeneralFeedback] = useState("");
   const [step, setStep] = useState<'rating' | 'feedback' | 'thanks'>('rating');
 
   const needsCutFeedback = cutRating > 0 && cutRating <= 3;
   const needsQueueFeedback = queueRating > 0 && queueRating <= 3;
-  const needsFeedback = needsCutFeedback || needsQueueFeedback;
+  const isHighRating = cutRating >= 4 && queueRating >= 4;
+  const needsFeedback = needsCutFeedback || needsQueueFeedback || isHighRating;
 
   const handleContinue = () => {
     if (step === 'rating') {
@@ -110,7 +112,8 @@ export function RatingModal({ isOpen, onClose, onSubmit, barberName, shopName }:
         queueRating,
         cutFeedback: cutFeedback || undefined,
         queueFeedback: queueFeedback || undefined,
-      });
+        generalFeedback: generalFeedback || undefined,
+      } as any);
     }, 1500);
   };
 
@@ -119,6 +122,7 @@ export function RatingModal({ isOpen, onClose, onSubmit, barberName, shopName }:
     setQueueRating(0);
     setCutFeedback("");
     setQueueFeedback("");
+    setGeneralFeedback("");
     setStep('rating');
     onClose();
   };
@@ -223,6 +227,22 @@ export function RatingModal({ isOpen, onClose, onSubmit, barberName, shopName }:
                       placeholder="e.g., The wait time was longer than expected..."
                       className="bg-background border-white/10 focus:border-primary/50 min-h-[80px] resize-none"
                       data-testid="textarea-queue-feedback"
+                    />
+                  </div>
+                )}
+
+                {isHighRating && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      Any specific shoutouts or comments? (Optional)
+                    </label>
+                    <Textarea
+                      value={generalFeedback}
+                      onChange={(e) => setGeneralFeedback(e.target.value)}
+                      placeholder="e.g.,Jax did an amazing job with the fade!"
+                      className="bg-background border-white/10 focus:border-primary/50 min-h-[80px] resize-none"
+                      data-testid="textarea-general-feedback"
                     />
                   </div>
                 )}
