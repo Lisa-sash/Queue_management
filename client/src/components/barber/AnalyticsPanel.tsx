@@ -558,6 +558,88 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+            <Scissors className="w-5 h-5" />
+            Service Quality Ratings
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Haircut Quality</span>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className={cn("w-4 h-4", star <= 4.8 ? "fill-amber-400 text-amber-400" : "text-white/10")} />
+                  ))}
+                </div>
+                <span className="font-bold">4.8</span>
+              </div>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full bg-primary" style={{ width: '96%' }} />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">5 Stars</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold">88%</span>
+                  <ArrowUpRight className="w-3 h-3 text-green-500" />
+                </div>
+              </div>
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">4 Stars</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold">9%</span>
+                  <ArrowUpRight className="w-3 h-3 text-green-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-blue-500">
+            <Clock className="w-5 h-5" />
+            Queue Management Ratings
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Queue Experience</span>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className={cn("w-4 h-4", star <= 4.6 ? "fill-blue-500 text-blue-500" : "text-white/10")} />
+                  ))}
+                </div>
+                <span className="font-bold">4.6</span>
+              </div>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500" style={{ width: '92%' }} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Wait Time Score</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold">94%</span>
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                </div>
+              </div>
+              <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">App Accuracy</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold">89%</span>
+                  <ArrowDownRight className="w-3 h-3 text-orange-400" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-primary" />
