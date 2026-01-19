@@ -374,7 +374,69 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     { day: 'Sun', den: 5, urban: 4, denPrev: 6, urbanPrev: 5 },
   ];
 
+  const barberPerformanceData = {
+    den: {
+      week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
+      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 }
+    },
+    urban: {
+      week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
+      month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 }
+    },
+    both: {
+      week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
+      month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 }
+    }
+  };
+
+  const PerformanceSection = ({ title, data }: { title: string, data: any }) => (
+    <div className="bg-card border border-white/5 rounded-xl p-6">
+      <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
+        <Users className="w-5 h-5" />
+        {title}
+      </h3>
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Highest</p>
+            <p className="text-lg font-bold text-primary">{data.week.highest.name}</p>
+            <p className="text-xs text-muted-foreground">{data.week.highest.cuts} cuts</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Weekly Lowest</p>
+            <p className="text-lg font-bold text-orange-400">{data.week.lowest.name}</p>
+            <p className="text-xs text-muted-foreground">{data.week.lowest.cuts} cuts</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Highest</p>
+            <p className="text-lg font-bold text-primary">{data.month.highest.name}</p>
+            <p className="text-xs text-muted-foreground">{data.month.highest.cuts} cuts</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Monthly Lowest</p>
+            <p className="text-lg font-bold text-orange-400">{data.month.lowest.name}</p>
+            <p className="text-xs text-muted-foreground">{data.month.lowest.cuts} cuts</p>
+          </div>
+        </div>
+        <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Weekly)</p>
+            <p className="text-xl font-bold">{data.week.average} cuts</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop Average (Monthly)</p>
+            <p className="text-xl font-bold">{data.month.average} cuts</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Enterprise / Manager View
+  const shopPerformance = (barberPerformanceData as any)[activeShop];
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -429,6 +491,11 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           description="Weighted average of all client feedback ratings received for services at selected locations."
         />
       </div>
+
+      <PerformanceSection 
+        title={activeShop === 'both' ? 'Network Performance' : `${activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts"} Barber Performance`}
+        data={shopPerformance}
+      />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
