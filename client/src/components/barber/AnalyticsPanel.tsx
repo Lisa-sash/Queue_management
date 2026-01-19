@@ -432,6 +432,112 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Weekly Revenue Comparison
+            </div>
+            <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-primary" />
+                <span className="text-foreground">Current Week</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-white/20 border-t border-dashed" />
+                <span className="text-muted-foreground">Previous Week</span>
+              </div>
+            </div>
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={enterpriseWeeklyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} tickFormatter={(value) => `R ${value}`} />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  itemStyle={{ fontSize: '12px' }}
+                  formatter={(value: any) => [`R ${value}`, "Revenue"]}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey={activeShop === 'both' ? (d => d.denPrev + d.urbanPrev) : activeShop === 'den' ? 'denPrev' : 'urbanPrev'} 
+                  name="Previous Week" 
+                  stroke="#ffffff33" 
+                  strokeDasharray="5 5" 
+                  strokeWidth={2} 
+                  dot={false} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey={activeShop === 'both' ? (d => d.den + d.urban) : activeShop === 'den' ? 'den' : 'urban'} 
+                  name="Current Week" 
+                  stroke="#f97316" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#1a1a1a' }} 
+                  activeDot={{ r: 6, strokeWidth: 0 }} 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Scissors className="w-5 h-5 text-blue-500" />
+              Weekly Cuts Comparison
+            </div>
+            <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-blue-500" />
+                <span className="text-foreground">Current Week</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-0.5 bg-white/20 border-t border-dashed" />
+                <span className="text-muted-foreground">Previous Week</span>
+              </div>
+            </div>
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={enterpriseWeeklyCutsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  itemStyle={{ fontSize: '12px' }}
+                  formatter={(value: any) => [value, "Cuts"]}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey={activeShop === 'both' ? (d => d.denPrev + d.urbanPrev) : activeShop === 'den' ? 'denPrev' : 'urbanPrev'} 
+                  name="Previous Week" 
+                  stroke="#ffffff33" 
+                  strokeDasharray="5 5" 
+                  strokeWidth={2} 
+                  dot={false} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey={activeShop === 'both' ? (d => d.den + d.urban) : activeShop === 'den' ? 'den' : 'urban'} 
+                  name="Current Week" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1a1a1a' }} 
+                  activeDot={{ r: 6, strokeWidth: 0 }} 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2">
             <BarChart className="w-5 h-5 text-primary" />
             Shop Performance {activeShop === 'both' ? '(Year to Date)' : activeShop === 'den' ? '- Gentleman\'s Den (YTD)' : '- Urban Cuts (YTD)'}
