@@ -4,7 +4,7 @@ import {
   BarChart3, TrendingUp, Users, DollarSign, Clock, Calendar,
   Lock, Crown, Zap, Star, Target, PieChart, Activity, Award,
   ArrowUpRight, ArrowDownRight, Scissors, CheckCircle, Store, Layers,
-  Info
+  Info, UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
