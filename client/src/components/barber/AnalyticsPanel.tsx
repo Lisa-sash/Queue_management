@@ -378,6 +378,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     den: {
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Marco', cuts: 28 }, average: 34 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Marco', cuts: 112 }, average: 135 },
+      retention: { rate: 68, newClients: { week: 12, month: 45 }, repeatingClients: 82 },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Marco', week: 28, month: 112 },
@@ -396,6 +397,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     urban: {
       week: { highest: { name: 'Elena', cuts: 38 }, lowest: { name: 'Greys', cuts: 24 }, average: 31 },
       month: { highest: { name: 'Elena', cuts: 152 }, lowest: { name: 'Greys', cuts: 98 }, average: 124 },
+      retention: { rate: 54, newClients: { week: 18, month: 62 }, repeatingClients: 58 },
       barbers: [
         { name: 'Elena', week: 38, month: 152 },
         { name: 'Greys', week: 24, month: 98 },
@@ -413,6 +415,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     both: {
       week: { highest: { name: 'Jax', cuts: 42 }, lowest: { name: 'Greys', cuts: 24 }, average: 32.5 },
       month: { highest: { name: 'Jax', cuts: 168 }, lowest: { name: 'Greys', cuts: 98 }, average: 129.5 },
+      retention: { rate: 61, newClients: { week: 30, month: 107 }, repeatingClients: 140 },
       barbers: [
         { name: 'Jax', week: 42, month: 168 },
         { name: 'Elena', week: 38, month: 152 },
@@ -635,6 +638,99 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         title={activeShop === 'both' ? 'Network Performance' : `${activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts"} Barber Performance`}
         data={shopPerformance}
       />
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-green-500">
+            <Users className="w-5 h-5" />
+            Client Retention & Growth
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Retention Rate</span>
+              <span className="font-bold text-lg text-green-500">{shopPerformance.retention.rate}%</span>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-green-500 transition-all duration-1000" 
+                style={{ width: `${shopPerformance.retention.rate}%` }} 
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">New Clients (Week)</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-bold">{shopPerformance.retention.newClients.week}</span>
+                  <div className="bg-green-500/10 text-green-500 p-1 rounded">
+                    <ArrowUpRight className="w-3 h-3" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">New Clients (Month)</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-bold">{shopPerformance.retention.newClients.month}</span>
+                  <div className="bg-green-500/10 text-green-500 p-1 rounded">
+                    <ArrowUpRight className="w-3 h-3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-primary/5 rounded-lg border border-primary/10 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-primary font-bold">Repeating Clients</p>
+                <p className="text-sm text-muted-foreground">Active loyal customer base</p>
+              </div>
+              <p className="text-2xl font-bold text-primary">{shopPerformance.retention.repeatingClients}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-white/5 rounded-xl p-6">
+          <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-purple-400">
+            <Target className="w-5 h-5" />
+            Growth Opportunities
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Referral Potential</p>
+                  <p className="text-xs text-muted-foreground">High among loyal clients</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-purple-400">8.4 / 10</span>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Churn Risk</p>
+                  <p className="text-xs text-muted-foreground">Clients not seen in 45 days</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-orange-400">{activeShop === 'den' ? '12' : '18'} clients</span>
+            </div>
+
+            <div className="pt-4 space-y-3">
+              <p className="text-xs text-muted-foreground">Retention insight:</p>
+              <div className="p-3 bg-green-500/5 border border-green-500/10 rounded-lg text-xs text-green-500 leading-relaxed">
+                {activeShop === 'den' 
+                  ? "Gentleman's Den has a high retention rate (68%). Consider a loyalty program to convert the remaining 32% of single-visit clients."
+                  : "Urban Cuts is seeing rapid growth in new clients (62 this month). Focus on staff capacity to maintain service quality."}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-card border border-white/5 rounded-xl p-6">
