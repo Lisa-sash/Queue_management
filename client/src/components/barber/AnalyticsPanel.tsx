@@ -646,38 +646,74 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <div className="bg-card border border-white/5 rounded-xl p-6">
           <h3 className="font-heading font-bold mb-6 flex items-center gap-2 text-primary">
             <Target className="w-5 h-5" />
-            Booking Distribution (Weekly)
+            {activeShop === 'both' ? 'Network Capacity (Weekly)' : 'Booking Distribution (Weekly)'}
           </h3>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-lg">
-                <p className="text-[10px] uppercase tracking-wider text-green-500/70 mb-1">Highest Booked</p>
-                <p className="text-lg font-bold text-green-500">{shopPerformance.barbers[0].name}</p>
-                <p className="text-xs text-muted-foreground">{shopPerformance.barbers[0].week} slots filled</p>
-              </div>
-              <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-lg">
-                <p className="text-[10px] uppercase tracking-wider text-orange-500/70 mb-1">Lowest Booked</p>
-                <p className="text-lg font-bold text-orange-400">{shopPerformance.barbers[shopPerformance.barbers.length - 1].name}</p>
-                <p className="text-xs text-muted-foreground">{shopPerformance.barbers[shopPerformance.barbers.length - 1].week} slots filled</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Slots Filled per Barber</p>
-              {shopPerformance.barbers.map((barber: any, idx: number) => (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium">{barber.name}</span>
-                    <span className="text-muted-foreground">{barber.week} / {Math.round(barber.week / (barber.bookingRate/100))} slots</span>
+            {activeShop === 'both' ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-primary/70 mb-1">Total Slots Filled</p>
+                    <p className="text-2xl font-bold">
+                      {shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0)}
+                    </p>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Total Available</p>
+                    <p className="text-2xl font-bold">
+                      {shopPerformance.barbers.reduce((acc: number, b: any) => acc + Math.round(b.week / (b.bookingRate/100)), 0)}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                    <span>Overall Capacity</span>
+                    <span>{shopPerformance.bookingFillRate.week}%</span>
+                  </div>
+                  <div className="h-3 bg-white/5 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary transition-all duration-1000" 
-                      style={{ width: `${barber.bookingRate}%` }} 
+                      style={{ width: `${shopPerformance.bookingFillRate.week}%` }} 
                     />
                   </div>
                 </div>
-              ))}
-            </div>
+                <p className="text-[10px] text-muted-foreground italic text-center">
+                  *Aggregate data across all locations. Switch to a specific shop to see individual barber metrics.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-green-500/70 mb-1">Highest Booked</p>
+                    <p className="text-lg font-bold text-green-500">{shopPerformance.barbers[0].name}</p>
+                    <p className="text-xs text-muted-foreground">{shopPerformance.barbers[0].week} slots filled</p>
+                  </div>
+                  <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-orange-500/70 mb-1">Lowest Booked</p>
+                    <p className="text-lg font-bold text-orange-400">{shopPerformance.barbers[shopPerformance.barbers.length - 1].name}</p>
+                    <p className="text-xs text-muted-foreground">{shopPerformance.barbers[shopPerformance.barbers.length - 1].week} slots filled</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Slots Filled per Barber</p>
+                  {shopPerformance.barbers.map((barber: any, idx: number) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-medium">{barber.name}</span>
+                        <span className="text-muted-foreground">{barber.week} / {Math.round(barber.week / (barber.bookingRate/100))} slots</span>
+                      </div>
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary transition-all duration-1000" 
+                          style={{ width: `${barber.bookingRate}%` }} 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
