@@ -381,9 +381,9 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       retention: { rate: 68, newClients: { week: 12, month: 45 }, repeatingClients: 82 },
       bookingFillRate: { week: 78, month: 82 },
       barbers: [
-        { name: 'Jax', week: 42, month: 168, bookingRate: 92 },
-        { name: 'Marco', week: 28, month: 112, bookingRate: 74 },
-        { name: 'Zane', week: 32, month: 125, bookingRate: 81 }
+        { name: 'Jax', week: 42, month: 168, bookingRate: 84 },
+        { name: 'Marco', week: 28, month: 112, bookingRate: 56 },
+        { name: 'Zane', week: 32, month: 125, bookingRate: 64 }
       ],
       reviews: {
         highest: [
@@ -401,9 +401,9 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       retention: { rate: 54, newClients: { week: 18, month: 62 }, repeatingClients: 58 },
       bookingFillRate: { week: 65, month: 70 },
       barbers: [
-        { name: 'Elena', week: 38, month: 152, bookingRate: 88 },
-        { name: 'Greys', week: 24, month: 98, bookingRate: 62 },
-        { name: 'Kael', week: 31, month: 122, bookingRate: 79 }
+        { name: 'Elena', week: 38, month: 152, bookingRate: 76 },
+        { name: 'Greys', week: 24, month: 98, bookingRate: 48 },
+        { name: 'Kael', week: 31, month: 122, bookingRate: 62 }
       ],
       reviews: {
         highest: [
@@ -420,10 +420,10 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
       retention: { rate: 61, newClients: { week: 30, month: 107 }, repeatingClients: 140 },
       bookingFillRate: { week: 72, month: 76 },
       barbers: [
-        { name: 'Jax', week: 42, month: 168, bookingRate: 92 },
-        { name: 'Elena', week: 38, month: 152, bookingRate: 88 },
-        { name: 'Marco', week: 28, month: 112, bookingRate: 74 },
-        { name: 'Greys', week: 24, month: 98, bookingRate: 62 }
+        { name: 'Jax', week: 42, month: 168, bookingRate: 84 },
+        { name: 'Elena', week: 38, month: 152, bookingRate: 76 },
+        { name: 'Marco', week: 28, month: 112, bookingRate: 56 },
+        { name: 'Greys', week: 24, month: 98, bookingRate: 48 }
       ],
       reviews: {
         highest: [
@@ -661,19 +661,19 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Total Available</p>
                     <p className="text-2xl font-bold">
-                      {shopPerformance.barbers.reduce((acc: number, b: any) => acc + Math.round(b.week / (b.bookingRate/100)), 0)}
+                      {shopPerformance.barbers.length * 50}
                     </p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
                     <span>Overall Capacity</span>
-                    <span>{shopPerformance.bookingFillRate.week}%</span>
+                    <span>{Math.round((shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0) / (shopPerformance.barbers.length * 50)) * 100)}%</span>
                   </div>
                   <div className="h-3 bg-white/5 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary transition-all duration-1000" 
-                      style={{ width: `${shopPerformance.bookingFillRate.week}%` }} 
+                      style={{ width: `${(shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0) / (shopPerformance.barbers.length * 50)) * 100}%` }} 
                     />
                   </div>
                 </div>
@@ -701,12 +701,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                     <div key={idx} className="space-y-1.5">
                       <div className="flex justify-between text-xs">
                         <span className="font-medium">{barber.name}</span>
-                        <span className="text-muted-foreground">{barber.week} / {Math.round(barber.week / (barber.bookingRate/100))} slots</span>
+                        <span className="text-muted-foreground">{barber.week} / 50 slots</span>
                       </div>
                       <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-primary transition-all duration-1000" 
-                          style={{ width: `${barber.bookingRate}%` }} 
+                          style={{ width: `${(barber.week / 50) * 100}%` }} 
                         />
                       </div>
                     </div>
