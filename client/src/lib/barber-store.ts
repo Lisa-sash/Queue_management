@@ -36,7 +36,16 @@ function getRandomAvatar(): string {
   return avatars[Math.floor(Math.random() * avatars.length)];
 }
 
-let barbers: LoggedInBarber[] = [];
+const STORAGE_KEY = 'barber_store_data';
+
+// Load initial data from localStorage
+const savedBarbers = localStorage.getItem(STORAGE_KEY);
+let barbers: LoggedInBarber[] = savedBarbers ? JSON.parse(savedBarbers) : [];
+
+const persist = () => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(barbers));
+};
+
 let listeners: (() => void)[] = [];
 
 export const barberStore = {
@@ -58,6 +67,7 @@ export const barberStore = {
     const existing = barbers.find(b => b.email === email);
     if (existing) {
       barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: true } : b);
+      persist();
       listeners.forEach(fn => fn());
       return { ...existing, isLoggedIn: true };
     }
@@ -76,12 +86,14 @@ export const barberStore = {
       isLoggedIn: true,
     };
     barbers = [...barbers, newBarber];
+    persist();
     listeners.forEach(fn => fn());
     return newBarber;
   },
 
   logoutBarber: (email: string) => {
     barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: false } : b);
+    persist();
     listeners.forEach(fn => fn());
   },
 
@@ -98,6 +110,7 @@ export const barberStore = {
       }
       return b;
     });
+    persist();
     listeners.forEach(fn => fn());
   },
 

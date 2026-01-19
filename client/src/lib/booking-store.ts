@@ -15,7 +15,16 @@ export interface BookingWithCode extends Booking {
   clientPhone?: string;
 }
 
-let bookings: BookingWithCode[] = [];
+const STORAGE_KEY = 'booking_store_data';
+
+// Load initial data from localStorage
+const savedBookings = localStorage.getItem(STORAGE_KEY);
+let bookings: BookingWithCode[] = savedBookings ? JSON.parse(savedBookings) : [];
+
+const persist = () => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+};
+
 let listeners: (() => void)[] = [];
 
 export const bookingStore = {
@@ -30,6 +39,7 @@ export const bookingStore = {
       clientPhone: booking.clientPhone,
     };
     bookings = [...bookings, newBooking];
+    persist();
     listeners.forEach(fn => fn());
     return newBooking;
   },
@@ -38,6 +48,7 @@ export const bookingStore = {
     bookings = bookings.map(b => 
       b.id === id ? { ...b, ...updates } : b
     );
+    persist();
     listeners.forEach(fn => fn());
   },
   
