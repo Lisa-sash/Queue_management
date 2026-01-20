@@ -65,6 +65,11 @@ export default function Home() {
               <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5 text-lg px-8 py-6 h-auto">
                 How it Works
               </Button>
+              <Link href="/admin">
+                <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-primary text-lg px-8 py-6 h-auto">
+                  Admin Portal
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
