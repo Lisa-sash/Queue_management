@@ -75,7 +75,7 @@ export default function Shop() {
 
       toast({
         title: "Booking Confirmed!",
-        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked.`,
+        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked. An SMS with your access code ${newBooking.accessCode} has been sent to ${phone}.`,
       });
     } else {
       const slot = barber.slots.find(s => s.id === selectedSlotId);
@@ -95,6 +95,11 @@ export default function Shop() {
       });
 
       setLastAccessCode(newBooking.accessCode);
+
+      toast({
+        title: "Booking Confirmed!",
+        description: `Your slot at ${slot.time} with ${barber.name} is booked. An SMS with your access code ${newBooking.accessCode} has been sent to ${phone}.`,
+      });
 
       setBarber(prev => {
         const newSlots = prev.slots.map(s => {

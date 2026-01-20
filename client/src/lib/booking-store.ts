@@ -31,15 +31,20 @@ export const bookingStore = {
   getBookings: () => bookings,
   
   addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string }): BookingWithCode => {
+    const accessCode = generateAccessCode();
     const newBooking: BookingWithCode = {
       ...booking,
       id: `booking-${Date.now()}`,
-      accessCode: generateAccessCode(),
+      accessCode,
       bookingDate: booking.bookingDate || 'today',
       clientPhone: booking.clientPhone,
     };
     bookings = [...bookings, newBooking];
     persist();
+    
+    // Simulate SMS notification
+    console.log(`[SMS Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
+    
     listeners.forEach(fn => fn());
     return newBooking;
   },
