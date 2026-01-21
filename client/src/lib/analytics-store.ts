@@ -97,34 +97,23 @@ export const analyticsStore = {
 
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
+    console.log('[Analytics] Total Bookings:', allBookings.length);
+    
     const filteredBookings = shopName && shopName !== 'both' 
       ? allBookings.filter(b => {
           const name = b.shopName.toLowerCase();
           const target = shopName.toLowerCase();
-          if (target === "gentleman's den" || target === "den") {
-            return name.includes("gentleman") || name === "den";
-          }
-          if (target === "urban cuts" || target === "urban") {
-            return name.includes("urban");
-          }
-          return name.includes(target);
+          const isMatch = target === "gentleman's den" || target === "den" 
+            ? (name.includes("gentleman") || name === "den")
+            : (name.includes("urban") || name === "urban");
+          return isMatch;
         })
       : allBookings;
     
-    const cutsToday = filteredBookings.filter(b => 
-      b.bookingDate === 'today' && b.userStatus === 'completed'
-    ).length;
-
-    const cutsThisMonth = filteredBookings.filter(b => {
-      const bDate = new Date(parseInt(b.id.split('-')[1]));
-      const now = new Date();
-      return b.userStatus === 'completed' && bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
-    }).length;
-
-    const completionRate = filteredBookings.length > 0 
-      ? Math.round((filteredBookings.filter(b => b.userStatus === 'completed').length / filteredBookings.length) * 100)
-      : 0;
-
+    console.log(`[Analytics] Filtered for ${shopName || 'both'}:`, filteredBookings.length);
+    
+    const completedBookings = filteredBookings.filter(b => b.userStatus === 'completed');
+    
     const getDayStats = (dayOffset: number) => {
       const now = new Date();
       const currentDay = now.getDay();
@@ -137,9 +126,9 @@ export const analyticsStore = {
       targetDate.setDate(monday.getDate() + dayOffset);
       
       const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
-      const count = filteredBookings.filter(b => {
+      const count = completedBookings.filter(b => {
         const bDate = new Date(parseInt(b.id.split('-')[1]));
-        return b.userStatus === 'completed' && bDate.toDateString() === targetDate.toDateString();
+        return bDate.toDateString() === targetDate.toDateString();
       }).length;
       return { day: dayName, count };
     };
@@ -147,13 +136,13 @@ export const analyticsStore = {
     const weeklyData = [0, 1, 2, 3, 4, 5, 6].map(offset => getDayStats(offset));
 
     return {
-      totalRevenue: filteredBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0),
-      totalClients: filteredBookings.length,
-      avgWaitTime: 12, // Still mock for now as we don't track start/end times precisely
+      totalRevenue: completedBookings.length * 250,
+      totalClients: completedBookings.length,
+      avgWaitTime: 12,
       rating: 4.8,
       weeklyData,
-      cutsToday,
-      completionRate
+      cutsToday: completedBookings.filter(b => b.bookingDate === 'today').length,
+      completionRate: filteredBookings.length > 0 ? Math.round((completedBookings.length / filteredBookings.length) * 100) : 0
     };
   },
 
