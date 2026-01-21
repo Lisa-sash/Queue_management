@@ -98,7 +98,17 @@ export const analyticsStore = {
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
     const filteredBookings = shopName && shopName !== 'both' 
-      ? allBookings.filter(b => b.shopName.toLowerCase().includes(shopName.toLowerCase()) || (shopName === "Gentleman's Den" && b.shopName === "The Gentleman's Den"))
+      ? allBookings.filter(b => {
+          const name = b.shopName.toLowerCase();
+          const target = shopName.toLowerCase();
+          if (target === "gentleman's den" || target === "den") {
+            return name.includes("gentleman") || name === "den";
+          }
+          if (target === "urban cuts" || target === "urban") {
+            return name.includes("urban");
+          }
+          return name.includes(target);
+        })
       : allBookings;
     
     const cutsToday = filteredBookings.filter(b => 
