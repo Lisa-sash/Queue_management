@@ -37,10 +37,37 @@ function getRandomAvatar(): string {
 }
 
 const STORAGE_KEY = 'barber_store_data';
+const LAST_DATE_KEY = 'barber_store_last_date';
 
 // Load initial data from localStorage
 const savedBarbers = localStorage.getItem(STORAGE_KEY);
 let barbers: LoggedInBarber[] = savedBarbers ? JSON.parse(savedBarbers) : [];
+
+const checkAndRotateSlots = () => {
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem(LAST_DATE_KEY);
+
+  if (lastDate && lastDate !== today) {
+    // It's a new day! Rotate slots.
+    barbers = barbers.map(b => ({
+      ...b,
+      slots: {
+        // Yesterday's tomorrow becomes today
+        today: b.slots.tomorrow.map(s => ({
+          ...s,
+          id: s.id.replace('-tomorrow', '-today').replace('-tmrw', '-today')
+        })),
+        // Generate a fresh tomorrow
+        tomorrow: generateSlots(`${b.id}-tomorrow`)
+      }
+    }));
+    persist();
+    localStorage.setItem(LAST_DATE_KEY, today);
+    listeners.forEach(fn => fn());
+  } else if (!lastDate) {
+    localStorage.setItem(LAST_DATE_KEY, today);
+  }
+};
 
 const persist = () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(barbers));
@@ -49,9 +76,13 @@ const persist = () => {
 let listeners: (() => void)[] = [];
 
 export const barberStore = {
-  getBarbers: () => barbers,
+  getBarbers: () => {
+    checkAndRotateSlots();
+    return barbers;
+  },
   
   getBarbersByShop: (shopName: string): LoggedInBarber[] => {
+    checkAndRotateSlots();
     return barbers.filter(b => 
       b.shop === shopName || 
       (shopName === "Urban Cuts" && (b.shop === "urban" || b.shop === "Urban Cuts" || b.shop === "Urban Cut")) || 
