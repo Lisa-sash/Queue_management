@@ -47,6 +47,8 @@ export const analyticsStore = {
       return { day: dayName, current: count };
     };
 
+    const realWeeklyData = [6, 5, 4, 3, 2, 1, 0].map(offset => getDayStats(offset)).reverse();
+
     const serviceDataMap: Record<string, number> = {};
     const hourDataMap: Record<string, number> = {};
     
