@@ -37,8 +37,18 @@ export const analyticsStore = {
       : 0;
 
     const getDayStats = (dayOffset: number) => {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() - dayOffset);
+      const now = new Date();
+      // Calculate current week's Monday
+      const currentDay = now.getDay(); // 0 is Sunday, 1 is Monday
+      const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+      
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday);
+      monday.setHours(0, 0, 0, 0);
+
+      const targetDate = new Date(monday);
+      targetDate.setDate(monday.getDate() + dayOffset);
+      
       const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
       const count = barberBookings.filter(b => {
         const bDate = new Date(parseInt(b.id.split('-')[1]));
@@ -47,7 +57,7 @@ export const analyticsStore = {
       return { day: dayName, current: count };
     };
 
-    const realWeeklyData = [6, 5, 4, 3, 2, 1, 0].map(offset => getDayStats(offset)).reverse();
+    const realWeeklyData = [0, 1, 2, 3, 4, 5, 6].map(offset => getDayStats(offset));
 
     const serviceDataMap: Record<string, number> = {};
     const hourDataMap: Record<string, number> = {};
