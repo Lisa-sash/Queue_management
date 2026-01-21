@@ -29,18 +29,32 @@ export const analyticsStore = {
     const cutsThisMonth = barberBookings.filter(b => {
       const bDate = new Date(parseInt(b.id.split('-')[1]));
       const now = new Date();
-      return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+      return b.userStatus === 'completed' && bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
     }).length;
 
     const completionRate = barberBookings.length > 0 
       ? Math.round((barberBookings.filter(b => b.userStatus === 'completed').length / barberBookings.length) * 100)
-      : 100;
+      : 0;
+
+    const getDayStats = (dayOffset: number) => {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - dayOffset);
+      const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
+      const count = barberBookings.filter(b => {
+        const bDate = new Date(parseInt(b.id.split('-')[1]));
+        return b.userStatus === 'completed' && bDate.toDateString() === targetDate.toDateString();
+      }).length;
+      return { day: dayName, current: count };
+    };
+
+    const realWeeklyData = [6, 5, 4, 3, 2, 1, 0].map(offset => getDayStats(offset)).reverse();
 
     return {
       cutsToday,
       cutsThisMonth,
       completionRate,
-      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0), // Assuming R250 per cut
+      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0),
+      weeklyData: realWeeklyData
     };
   },
 
