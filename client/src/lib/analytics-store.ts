@@ -98,7 +98,7 @@ export const analyticsStore = {
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
     const filteredBookings = shopName && shopName !== 'both' 
-      ? allBookings.filter(b => b.shopName === shopName)
+      ? allBookings.filter(b => b.shopName.toLowerCase().includes(shopName.toLowerCase()) || (shopName === "Gentleman's Den" && b.shopName === "The Gentleman's Den"))
       : allBookings;
     
     const cutsToday = filteredBookings.filter(b => 
