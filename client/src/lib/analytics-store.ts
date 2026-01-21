@@ -1,3 +1,5 @@
+import { bookingStore } from "./booking-store";
+
 export type AnalyticsTier = 'basic' | 'professional' | 'enterprise';
 
 export interface BarberAnalyticsAccess {
@@ -13,6 +15,33 @@ export const analyticsStore = {
   getTier: (barberId: string): AnalyticsTier => {
     const access = analyticsAccess.find(a => a.barberId === barberId);
     return access?.tier || 'basic';
+  },
+
+  getRealTimeStats: (barberId: string) => {
+    const allBookings = bookingStore.getBookings();
+    const barberBookings = allBookings.filter(b => b.barberId === barberId);
+    
+    const today = new Date().toDateString();
+    const cutsToday = barberBookings.filter(b => 
+      b.bookingDate === 'today' && (b.userStatus === 'arrived' || b.userStatus === 'pending')
+    ).length;
+
+    const cutsThisMonth = barberBookings.filter(b => {
+      const bDate = new Date(parseInt(b.id.split('-')[1]));
+      const now = new Date();
+      return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+    }).length;
+
+    const completionRate = barberBookings.length > 0 
+      ? Math.round((barberBookings.filter(b => b.userStatus === 'arrived').length / barberBookings.length) * 100)
+      : 100;
+
+    return {
+      cutsToday,
+      cutsThisMonth,
+      completionRate,
+      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'arrived' ? 250 : 0), 0), // Assuming R250 per cut
+    };
   },
 
   upgradeTier: (barberId: string, tier: AnalyticsTier) => {

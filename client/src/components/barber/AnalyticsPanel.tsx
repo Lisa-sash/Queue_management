@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { analyticsStore, AnalyticsTier } from "@/lib/analytics-store";
+import { bookingStore } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, 
@@ -114,6 +115,14 @@ const yearToDateComparisonData = [
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
+  const [realStats, setRealStats] = useState(analyticsStore.getRealTimeStats(barberId));
+
+  useEffect(() => {
+    const updateStats = () => {
+      setRealStats(analyticsStore.getRealTimeStats(barberId));
+    };
+    return bookingStore.subscribe(updateStats);
+  }, [barberId]);
 
   const StatCard = ({ icon: Icon, label, value, change, positive, description, period }: any) => (
     <motion.div 
@@ -172,38 +181,38 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           <StatCard 
             icon={Scissors} 
             label="Cuts Today" 
-            value="8" 
-            change="+12%" 
+            value={realStats.cutsToday.toString()} 
+            change="+100%" 
             positive 
-            period="vs yesterday"
-            description="Total number of completed haircuts today compared to your performance at this time yesterday."
+            period="Real-time"
+            description="Total number of completed haircuts today from actual bookings."
           />
           <StatCard 
             icon={Users} 
             label="Total Clients (Month)" 
-            value="91" 
-            change="+23%" 
+            value={realStats.cutsThisMonth.toString()} 
+            change="Live" 
             positive 
-            period="vs last month"
-            description="Total number of client visits served during the current calendar month compared to the same period last month."
+            period="Current Month"
+            description="Total number of real client visits served during the current calendar month."
           />
           <StatCard 
-            icon={Clock} 
-            label="Avg Wait Time" 
-            value="12m" 
-            change="-8%" 
+            icon={DollarSign} 
+            label="Estimated Revenue" 
+            value={`R ${realStats.totalRevenue}`} 
+            change="Live" 
             positive 
-            period="vs last week"
-            description="The average time clients spent in the queue before their service started. Lower is better."
+            period="Total"
+            description="Estimated revenue based on completed bookings (calculated at R250 per service)."
           />
           <StatCard 
             icon={CheckCircle} 
             label="Completion Rate" 
-            value="96%" 
-            change="+2%" 
+            value={`${realStats.completionRate}%`} 
+            change="Live" 
             positive 
-            period="vs last week"
-            description="Percentage of bookings that resulted in a completed service rather than a no-show or cancellation."
+            period="Overall"
+            description="Actual percentage of your bookings that resulted in a completed service."
           />
         </div>
 
