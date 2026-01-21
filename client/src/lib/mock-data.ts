@@ -25,7 +25,7 @@ export interface Booking {
   slotId: string;
   slotTime: string;
   clientName: string;
-  userStatus: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived';
+  userStatus: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived' | 'cutting' | 'completed';
   shopName: string;
   shopLocation: string;
 }

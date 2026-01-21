@@ -23,7 +23,7 @@ export const analyticsStore = {
     
     const today = new Date().toDateString();
     const cutsToday = barberBookings.filter(b => 
-      b.bookingDate === 'today' && (b.userStatus === 'arrived' || b.userStatus === 'pending')
+      b.bookingDate === 'today' && b.userStatus === 'completed'
     ).length;
 
     const cutsThisMonth = barberBookings.filter(b => {
@@ -33,14 +33,14 @@ export const analyticsStore = {
     }).length;
 
     const completionRate = barberBookings.length > 0 
-      ? Math.round((barberBookings.filter(b => b.userStatus === 'arrived').length / barberBookings.length) * 100)
+      ? Math.round((barberBookings.filter(b => b.userStatus === 'completed').length / barberBookings.length) * 100)
       : 100;
 
     return {
       cutsToday,
       cutsThisMonth,
       completionRate,
-      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'arrived' ? 250 : 0), 0), // Assuming R250 per cut
+      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0), // Assuming R250 per cut
     };
   },
 
