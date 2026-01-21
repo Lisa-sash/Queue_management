@@ -95,6 +95,58 @@ export const analyticsStore = {
     };
   },
 
+  getManagerStats: (shopName?: string) => {
+    const allBookings = bookingStore.getBookings();
+    const filteredBookings = shopName && shopName !== 'both' 
+      ? allBookings.filter(b => b.shopName === shopName)
+      : allBookings;
+    
+    const cutsToday = filteredBookings.filter(b => 
+      b.bookingDate === 'today' && b.userStatus === 'completed'
+    ).length;
+
+    const cutsThisMonth = filteredBookings.filter(b => {
+      const bDate = new Date(parseInt(b.id.split('-')[1]));
+      const now = new Date();
+      return b.userStatus === 'completed' && bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+    }).length;
+
+    const completionRate = filteredBookings.length > 0 
+      ? Math.round((filteredBookings.filter(b => b.userStatus === 'completed').length / filteredBookings.length) * 100)
+      : 0;
+
+    const getDayStats = (dayOffset: number) => {
+      const now = new Date();
+      const currentDay = now.getDay();
+      const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday);
+      monday.setHours(0, 0, 0, 0);
+
+      const targetDate = new Date(monday);
+      targetDate.setDate(monday.getDate() + dayOffset);
+      
+      const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
+      const count = filteredBookings.filter(b => {
+        const bDate = new Date(parseInt(b.id.split('-')[1]));
+        return b.userStatus === 'completed' && bDate.toDateString() === targetDate.toDateString();
+      }).length;
+      return { day: dayName, count };
+    };
+
+    const weeklyData = [0, 1, 2, 3, 4, 5, 6].map(offset => getDayStats(offset));
+
+    return {
+      totalRevenue: filteredBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0),
+      totalClients: filteredBookings.length,
+      avgWaitTime: 12, // Still mock for now as we don't track start/end times precisely
+      rating: 4.8,
+      weeklyData,
+      cutsToday,
+      completionRate
+    };
+  },
+
   upgradeTier: (barberId: string, tier: AnalyticsTier) => {
     const existing = analyticsAccess.find(a => a.barberId === barberId);
     if (existing) {

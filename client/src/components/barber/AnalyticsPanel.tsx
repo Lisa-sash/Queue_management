@@ -116,13 +116,15 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
   const [realStats, setRealStats] = useState(analyticsStore.getRealTimeStats(barberId));
+  const [managerStats, setManagerStats] = useState(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "The Gentleman's Den" : "Urban Cuts")));
 
   useEffect(() => {
     const updateStats = () => {
       setRealStats(analyticsStore.getRealTimeStats(barberId));
+      setManagerStats(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "The Gentleman's Den" : "Urban Cuts")));
     };
     return bookingStore.subscribe(updateStats);
-  }, [barberId]);
+  }, [barberId, activeShop]);
 
   const StatCard = ({ icon: Icon, label, value, change, positive, description, period }: any) => (
     <motion.div 
@@ -615,7 +617,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={activeShop === 'both' ? "8,000" : activeShop === 'den' ? "4,200" : "3,800"} 
+          value={managerStats.totalRevenue.toLocaleString()} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
@@ -623,7 +625,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={Users} 
           label="Total Clients" 
-          value={activeShop === 'both' ? "230" : activeShop === 'den' ? "120" : "110"} 
+          value={managerStats.totalClients.toLocaleString()} 
           change="+8%" positive 
           period="vs last month"
           description="Total number of client visits served across selected locations, showing growth trends month-over-month."
@@ -631,7 +633,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={Clock} 
           label="Avg Wait Time" 
-          value={activeShop === 'both' ? "13.5m" : activeShop === 'den' ? "12m" : "15m"} 
+          value={`${managerStats.avgWaitTime}m`} 
           change="-5%" positive 
           period="vs last week"
           description="The combined average wait time for all barbers at selected shops. A key indicator of shop efficiency."
@@ -639,7 +641,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={Award} 
           label="Shop Rating" 
-          value={activeShop === 'both' ? "4.7" : activeShop === 'den' ? "4.8" : "4.6"} 
+          value={managerStats.rating.toString()} 
           change="+0.2" positive 
           period="vs last month"
           description="Weighted average of all client feedback ratings received for services at selected locations."
@@ -664,7 +666,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                   <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg">
                     <p className="text-[10px] uppercase tracking-wider text-primary/70 mb-1">Total Slots Filled</p>
                     <p className="text-2xl font-bold">
-                      {shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0)}
+                      {managerStats.totalClients}
                     </p>
                   </div>
                   <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
@@ -677,12 +679,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
                     <span>Overall Capacity</span>
-                    <span>{Math.round((shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0) / (shopPerformance.barbers.length * 50)) * 100)}%</span>
+                    <span>{Math.round((managerStats.totalClients / (shopPerformance.barbers.length * 50)) * 100)}%</span>
                   </div>
                   <div className="h-3 bg-white/5 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary transition-all duration-1000" 
-                      style={{ width: `${(shopPerformance.barbers.reduce((acc: number, b: any) => acc + b.week, 0) / (shopPerformance.barbers.length * 50)) * 100}%` }} 
+                      style={{ width: `${(managerStats.totalClients / (shopPerformance.barbers.length * 50)) * 100}%` }} 
                     />
                   </div>
                 </div>
@@ -830,6 +832,35 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-card border border-white/5 rounded-xl p-6">
+        <h3 className="font-heading font-bold mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Weekly Performance
+          </div>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Consolidated</span>
+        </h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={managerStats.weeklyData}>
+              <defs>
+                <linearGradient id="colorEnterprise" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+              />
+              <Area type="monotone" dataKey="count" stroke="#f97316" fill="url(#colorEnterprise)" strokeWidth={3} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
