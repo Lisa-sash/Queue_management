@@ -268,8 +268,8 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPie>
-                  <Pie data={serviceBreakdownWeekly} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {serviceBreakdownWeekly.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  <Pie data={realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownWeekly} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {(realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownWeekly).map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
                   <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                   <Legend />
@@ -311,7 +311,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={peakHoursWeekly}>
+                <BarChart data={realStats.peakHours?.length ? realStats.peakHours : peakHoursWeekly}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                   <XAxis dataKey="hour" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />

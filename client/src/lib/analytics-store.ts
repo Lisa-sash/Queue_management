@@ -47,14 +47,39 @@ export const analyticsStore = {
       return { day: dayName, current: count };
     };
 
-    const realWeeklyData = [6, 5, 4, 3, 2, 1, 0].map(offset => getDayStats(offset)).reverse();
+    const serviceDataMap: Record<string, number> = {};
+    const hourDataMap: Record<string, number> = {};
+    
+    barberBookings.filter(b => b.userStatus === 'completed').forEach(b => {
+      // Service distribution
+      const service = (b as any).haircutName || 'Standard Cut';
+      serviceDataMap[service] = (serviceDataMap[service] || 0) + 1;
+      
+      // Peak hours
+      const hour = b.slotTime.split(':')[0] + ':00';
+      hourDataMap[hour] = (hourDataMap[hour] || 0) + 1;
+    });
+
+    const realServiceData = Object.entries(serviceDataMap).map(([name, value], i) => ({
+      name,
+      value,
+      color: ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#eab308'][i % 5]
+    }));
+
+    const hours = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+    const realPeakHours = hours.map(h => ({
+      hour: h,
+      clients: hourDataMap[h] || 0
+    }));
 
     return {
       cutsToday,
       cutsThisMonth,
       completionRate,
       totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0),
-      weeklyData: realWeeklyData
+      weeklyData: realWeeklyData,
+      serviceData: realServiceData,
+      peakHours: realPeakHours
     };
   },
 
