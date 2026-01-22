@@ -65,19 +65,23 @@ const checkAndRotateSlots = () => {
 
     // Also rotate bookings in bookingStore
     const allBookings = bookingStore.getBookings();
+    
+    // First, update all booking dates in the store
     allBookings.forEach(b => {
       if (b.bookingDate === 'tomorrow') {
         bookingStore.updateBooking(b.id, { bookingDate: 'today' });
       } else if (b.bookingDate === 'today' && b.userStatus !== 'completed') {
-        // Clear yesterday's unfinished bookings or mark as expired
         bookingStore.updateBooking(b.id, { bookingDate: 'yesterday' as any });
       }
     });
 
+    // Get the updated bookings to reflect changes in the barber slots
+    const updatedBookings = bookingStore.getBookings();
+
     // CRITICAL: Update the slots in the barbers themselves to match the rotation
     barbers = barbers.map(b => {
-      const updatedTodaySlots = b.slots.today.map(slot => {
-        const matchingBooking = allBookings.find(bk => 
+      const updatedTodaySlots = generateSlots(`${b.id}-today`).map(slot => {
+        const matchingBooking = updatedBookings.find(bk => 
           bk.barberId === b.id && 
           bk.slotTime === slot.time && 
           bk.bookingDate === 'today'
@@ -85,7 +89,7 @@ const checkAndRotateSlots = () => {
         if (matchingBooking) {
           return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
         }
-        return { ...slot, status: 'available' as const, clientName: undefined };
+        return slot;
       });
 
       return {
