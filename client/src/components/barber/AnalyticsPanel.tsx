@@ -116,12 +116,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   const { toast } = useToast();
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
   const [realStats, setRealStats] = useState(analyticsStore.getRealTimeStats(barberId));
-  const [managerStats, setManagerStats] = useState(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "The Gentleman's Den" : "Urban Cuts")));
+  const [managerStats, setManagerStats] = useState(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts")));
 
   useEffect(() => {
     const updateStats = () => {
       setRealStats(analyticsStore.getRealTimeStats(barberId));
-      setManagerStats(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "The Gentleman's Den" : "Urban Cuts")));
+      setManagerStats(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts")));
     };
     return bookingStore.subscribe(updateStats);
   }, [barberId, activeShop]);

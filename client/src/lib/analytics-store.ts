@@ -97,29 +97,26 @@ export const analyticsStore = {
 
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
-    console.log('[Analytics] Total Bookings:', allBookings.length);
     
     const filteredBookings = shopName && shopName !== 'both' 
       ? allBookings.filter(b => {
-          const shop = b.shopName.toLowerCase();
-          const target = shopName.toLowerCase();
+          const shop = (b.shopName || "").toLowerCase().trim();
+          const target = shopName.toLowerCase().trim();
           
-          // Strict matching for Gentleman's Den
-          if (target === "gentleman's den" || target === "den") {
-            return shop === "the gentleman's den" || shop === "gentleman's den" || shop === "den";
+          // Debug help: match anything that looks like the shop name
+          if (target.includes("gentleman") || target.includes("den")) {
+            return shop.includes("gentleman") || shop.includes("den");
           }
           
-          // Strict matching for Urban Cuts
-          if (target === "urban cuts" || target === "urban") {
-            return shop === "urban cuts" || shop === "urban";
+          if (target.includes("urban")) {
+            return shop.includes("urban");
           }
           
           return shop.includes(target);
         })
       : allBookings;
     
-    console.log(`[Analytics] Filtered for ${shopName || 'both'}:`, filteredBookings.length);
-    
+    // Only count COMPLETED bookings for the stats
     const completedBookings = filteredBookings.filter(b => b.userStatus === 'completed');
     
     const getDayStats = (dayOffset: number) => {
@@ -135,8 +132,23 @@ export const analyticsStore = {
       
       const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
       const count = completedBookings.filter(b => {
-        const bDate = new Date(parseInt(b.id.split('-')[1]));
-        return bDate.toDateString() === targetDate.toDateString();
+        // Robust ID parsing for dates
+        const parts = b.id.split('-');
+        // IDs are: booking-<timestamp>-<rand>
+        // Or: booking-today-<timestamp>-<rand>
+        const timestampPart = parts.find(p => !isNaN(parseInt(p)) && p.length > 10);
+        
+        if (timestampPart) {
+          const bDate = new Date(parseInt(timestampPart));
+          return bDate.toDateString() === targetDate.toDateString();
+        }
+        
+        // Fallback for mock data or legacy IDs
+        if (b.bookingDate === 'today' && targetDate.toDateString() === new Date().toDateString()) {
+          return true;
+        }
+        
+        return false;
       }).length;
       return { day: dayName, count };
     };
