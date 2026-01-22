@@ -121,8 +121,14 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   useEffect(() => {
     const updateStats = () => {
       setRealStats(analyticsStore.getRealTimeStats(barberId));
-      setManagerStats(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts")));
+      const targetShop = activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts");
+      setManagerStats(analyticsStore.getManagerStats(targetShop));
     };
+    
+    // Initial update when activeShop changes
+    updateStats();
+    
+    // Subscribe to future changes
     return bookingStore.subscribe(updateStats);
   }, [barberId, activeShop]);
 
