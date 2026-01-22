@@ -74,6 +74,29 @@ const checkAndRotateSlots = () => {
       }
     });
 
+    // CRITICAL: Update the slots in the barbers themselves to match the rotation
+    barbers = barbers.map(b => {
+      const updatedTodaySlots = b.slots.today.map(slot => {
+        const matchingBooking = allBookings.find(bk => 
+          bk.barberId === b.id && 
+          bk.slotTime === slot.time && 
+          bk.bookingDate === 'today'
+        );
+        if (matchingBooking) {
+          return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
+        }
+        return { ...slot, status: 'available' as const, clientName: undefined };
+      });
+
+      return {
+        ...b,
+        slots: {
+          today: updatedTodaySlots,
+          tomorrow: generateSlots(`${b.id}-tomorrow`)
+        }
+      };
+    });
+
     persist();
     localStorage.setItem(LAST_DATE_KEY, today);
     listeners.forEach(fn => fn());
