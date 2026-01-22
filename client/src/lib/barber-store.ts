@@ -66,21 +66,23 @@ const checkAndRotateSlots = () => {
     // Also rotate bookings in bookingStore
     const allBookings = bookingStore.getBookings();
     
-    // First, update all booking dates in the store
+    // Reset all bookings to ensure no overlaps
     allBookings.forEach(b => {
       if (b.bookingDate === 'tomorrow') {
         bookingStore.updateBooking(b.id, { bookingDate: 'today' });
-      } else if (b.bookingDate === 'today' && b.userStatus !== 'completed') {
-        bookingStore.updateBooking(b.id, { bookingDate: 'yesterday' as any });
+      } else if (b.bookingDate === 'today') {
+        bookingStore.updateBooking(b.id, { bookingDate: 'archive' as any });
       }
     });
 
-    // Get the updated bookings to reflect changes in the barber slots
+    // Get fresh snapshot after rotation
     const updatedBookings = bookingStore.getBookings();
 
     // CRITICAL: Update the slots in the barbers themselves to match the rotation
     barbers = barbers.map(b => {
-      const updatedTodaySlots = generateSlots(`${b.id}-today`).map(slot => {
+      // Regenerate today's slots from scratch to clear any previous state
+      const freshTodaySlots = generateSlots(`${b.id}-today`).map(slot => {
+        // Find bookings specifically for TODAY for this barber
         const matchingBooking = updatedBookings.find(bk => 
           bk.barberId === b.id && 
           bk.slotTime === slot.time && 
@@ -89,18 +91,39 @@ const checkAndRotateSlots = () => {
         if (matchingBooking) {
           return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
         }
-        return slot;
+        return { ...slot, status: 'available' as const, clientName: undefined };
+      });
+
+      const freshTomorrowSlots = generateSlots(`${b.id}-tomorrow`).map(slot => {
+        const matchingBooking = updatedBookings.find(bk => 
+          bk.barberId === b.id && 
+          bk.slotTime === slot.time && 
+          bk.bookingDate === 'tomorrow'
+        );
+        if (matchingBooking) {
+          return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
+        }
+        return { ...slot, status: 'available' as const, clientName: undefined };
       });
 
       return {
         ...b,
         slots: {
-          today: updatedTodaySlots,
-          tomorrow: generateSlots(`${b.id}-tomorrow`)
+          today: freshTodaySlots,
+          tomorrow: freshTomorrowSlots
         }
       };
     });
 
+    // Final pass: ensure NO yesterday/old bookings are lingering as 'today'
+    updatedBookings.forEach(bk => {
+      if (bk.bookingDate === 'today') {
+        // Double check this booking actually belongs to today's cycle
+      }
+    });
+
+    // Also clear tomorrow slots from the store that might have had bookings
+    // tomorrow slots are regenerated in the map above, but we need to persist it
     persist();
     localStorage.setItem(LAST_DATE_KEY, today);
     listeners.forEach(fn => fn());

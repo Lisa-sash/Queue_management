@@ -149,10 +149,16 @@ export default function BarberDashboard() {
       const allBookings = bookingStore.getBookings();
       const myBookings = allBookings.filter(b => b.barberId === barberId);
       
-      // Separate today and tomorrow bookings
-      const todayBookings = myBookings.filter(b => b.bookingDate === 'today' || !b.bookingDate);
-      const tomorrowBookings = myBookings.filter(b => b.bookingDate === 'tomorrow');
-      
+      const sortTime = (a: any, b: any) => {
+        const timeA = a.slotTime || a.time || "";
+        const timeB = b.slotTime || b.time || "";
+        return timeA.localeCompare(timeB);
+      };
+
+      // Separate today and tomorrow bookings with absolute strictness
+      const todayBookings = myBookings.filter(b => b.bookingDate === 'today').sort(sortTime);
+      const tomorrowBookings = myBookings.filter(b => b.bookingDate === 'tomorrow').sort(sortTime);
+
       // Convert today's bookings to queue items
       const queueItems: QueueItem[] = todayBookings.map(booking => {
         // Map userStatus to queue status - arrived doesn't auto-start cutting
@@ -673,7 +679,10 @@ export default function BarberDashboard() {
 
             {/* Notifications Column */}
             <div className="lg:col-span-1">
-              <NotificationPanel notifications={notifications} />
+              <NotificationPanel 
+                notifications={notifications} 
+                onDismiss={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
+              />
             </div>
           </div>
           </>

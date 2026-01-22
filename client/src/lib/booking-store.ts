@@ -32,11 +32,12 @@ export const bookingStore = {
   
   addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string }): BookingWithCode => {
     const accessCode = generateAccessCode();
+    const bookingDate = booking.bookingDate || 'today';
     const newBooking: BookingWithCode = {
       ...booking,
-      id: `booking-${Date.now()}`,
+      id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       accessCode,
-      bookingDate: booking.bookingDate || 'today',
+      bookingDate,
       clientPhone: booking.clientPhone,
     };
     bookings = [...bookings, newBooking];
