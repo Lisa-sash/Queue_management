@@ -1,4 +1,5 @@
 import { Slot } from "./mock-data";
+import { bookingStore } from "./booking-store";
 
 export interface LoggedInBarber {
   id: string;
@@ -61,6 +62,15 @@ const checkAndRotateSlots = () => {
         tomorrow: generateSlots(`${b.id}-tomorrow`)
       }
     }));
+
+    // Also rotate bookings in bookingStore
+    const allBookings = bookingStore.getBookings();
+    allBookings.forEach(b => {
+      if (b.bookingDate === 'tomorrow') {
+        bookingStore.updateBooking(b.id, { bookingDate: 'today' });
+      }
+    });
+
     persist();
     localStorage.setItem(LAST_DATE_KEY, today);
     listeners.forEach(fn => fn());

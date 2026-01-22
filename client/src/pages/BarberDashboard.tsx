@@ -639,31 +639,33 @@ export default function BarberDashboard() {
                 {/* Tomorrow's Queue */}
                 {queueTab === 'tomorrow' && (
                   <div className="space-y-3">
-                    {tomorrowQueue.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <CalendarDays className="w-8 h-8 mx-auto mb-3 opacity-50" />
-                        <p>No bookings for tomorrow yet</p>
-                      </div>
-                    ) : (
-                      tomorrowQueue.map((item) => (
-                        <motion.div
-                          key={item.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-4 rounded-lg border bg-card border-white/5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <span className="font-heading text-lg font-bold text-primary">{item.time}</span>
-                              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-green-500/20 text-green-500">
-                                Booked
-                              </span>
-                            </div>
-                          </div>
-                          <p className="text-sm font-medium text-foreground mt-2">{item.clientName}</p>
-                        </motion.div>
-                      ))
-                    )}
+                    <AnimatePresence mode="popLayout">
+                      {tomorrowQueue.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <CalendarDays className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                          <p>No bookings for tomorrow yet</p>
+                        </div>
+                      ) : (
+                        tomorrowQueue.map((item) => (
+                          <QueueCard
+                            key={item.id}
+                            id={item.id}
+                            time={item.time}
+                            clientName={item.clientName}
+                            type={item.type}
+                            status={item.status}
+                            userStatus={item.userStatus}
+                            haircutName={item.haircutName}
+                            onStartCut={handleStartCut}
+                            onCompleteCut={handleCompleteCut}
+                            onNoShow={handleNoShow}
+                            onPauseCut={handlePauseCut}
+                            onResumeCut={handleResumeCut}
+                            onCancelBooking={handleCancelBooking}
+                          />
+                        ))
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>
