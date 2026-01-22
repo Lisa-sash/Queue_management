@@ -68,6 +68,9 @@ const checkAndRotateSlots = () => {
     allBookings.forEach(b => {
       if (b.bookingDate === 'tomorrow') {
         bookingStore.updateBooking(b.id, { bookingDate: 'today' });
+      } else if (b.bookingDate === 'today' && b.userStatus !== 'completed') {
+        // Clear yesterday's unfinished bookings or mark as expired
+        bookingStore.updateBooking(b.id, { bookingDate: 'yesterday' as any });
       }
     });
 
