@@ -101,12 +101,20 @@ export const analyticsStore = {
     
     const filteredBookings = shopName && shopName !== 'both' 
       ? allBookings.filter(b => {
-          const name = b.shopName.toLowerCase();
+          const shop = b.shopName.toLowerCase();
           const target = shopName.toLowerCase();
-          const isMatch = target === "gentleman's den" || target === "den" 
-            ? (name.includes("gentleman") || name === "den")
-            : (name.includes("urban") || name === "urban");
-          return isMatch;
+          
+          // Strict matching for Gentleman's Den
+          if (target === "gentleman's den" || target === "den") {
+            return shop === "the gentleman's den" || shop === "gentleman's den" || shop === "den";
+          }
+          
+          // Strict matching for Urban Cuts
+          if (target === "urban cuts" || target === "urban") {
+            return shop === "urban cuts" || shop === "urban";
+          }
+          
+          return shop.includes(target);
         })
       : allBookings;
     
