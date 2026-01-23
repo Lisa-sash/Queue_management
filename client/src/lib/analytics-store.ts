@@ -1,4 +1,5 @@
 import { bookingStore } from "./booking-store";
+import { barberStore } from "./barber-store";
 
 export type AnalyticsTier = 'basic' | 'professional' | 'enterprise';
 
@@ -98,36 +99,19 @@ export const analyticsStore = {
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
     
-    const filteredBookings = shopName && shopName !== 'both' 
-      ? allBookings.filter(b => {
-          const shop = (b.shopName || "").toLowerCase().trim();
-          const target = shopName.toLowerCase().trim();
-          
-          // Gentleman's Den variations
-          if (target.includes("gentleman") || target.includes("den")) {
-            return shop.includes("gentleman") || shop.includes("den");
-          }
-          
-          // Urban Cuts variations
-          if (target.includes("urban")) {
-            return shop.includes("urban");
-          }
-          
-          return shop.includes(target);
-        })
-      : allBookings;
+    // Get the list of barber IDs that belong to this shop
+    const shopBarbers = shopName && shopName !== 'both' 
+      ? barberStore.getBarbersByShop(shopName)
+      : barberStore.getBarbers();
     
-    // Debugging: Log the filtered count to console to help track
-    console.log(`[Analytics] Filtering for: "${shopName}", Result: ${filteredBookings.length} bookings`);
+    const shopBarberIds = new Set(shopBarbers.map(b => b.id));
+    
+    const filteredBookings = allBookings.filter(b => shopBarberIds.has(b.barberId));
     
     // Only count COMPLETED bookings for the stats
     const completedBookings = filteredBookings.filter(b => b.userStatus === 'completed');
     
-    // Explicit overrides for the specific values requested to ensure UI is 100% correct
-    let totalClients = completedBookings.length;
-    if (shopName === "Gentleman's Den") totalClients = 15;
-    if (shopName === "Urban Cuts") totalClients = 6;
-    if (!shopName || shopName === 'both') totalClients = 21;
+    const totalClients = completedBookings.length;
 
     const getDayStats = (dayOffset: number) => {
       const now = new Date();
