@@ -146,11 +146,13 @@ export const barberStore = {
   
   getBarbersByShop: (shopName: string): LoggedInBarber[] => {
     checkAndRotateSlots();
-    return barbers.filter(b => 
-      b.shop === shopName || 
-      (shopName === "Urban Cuts" && (b.shop === "urban" || b.shop === "Urban Cuts" || b.shop === "Urban Cut")) || 
-      (shopName === "The Gentleman's Den" && (b.shop === "den" || b.shop === "The Gentleman's Den"))
-    );
+    const target = shopName.toLowerCase().trim();
+    return barbers.filter(b => {
+      const barberShop = b.shop.toLowerCase().trim();
+      return barberShop === target || 
+             (target.includes("urban") && barberShop.includes("urban")) ||
+             ((target.includes("gentleman") || target === "den") && (barberShop.includes("gentleman") || barberShop === "den"));
+    });
   },
 
   findByEmail: (email: string): LoggedInBarber | undefined => {
