@@ -225,18 +225,8 @@ export default function Home() {
                 <span className="text-primary font-bold text-lg">1</span>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Book a slot and receive your unique 4-character access code</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">Use your code in "My Bookings" to view and manage your appointment</p>
-              </div>
-            </div>
-
-            <div className="flex gap-5">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">3</span>
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I'm On The Way" when leaving to notify your barber</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">Running late? Let the barber know for a 15-min grace period</p>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Book a slot & Get Code</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Secure your time and receive a unique 4-character access code for your booking.</p>
               </div>
             </div>
 
@@ -245,8 +235,18 @@ export default function Home() {
                 <span className="text-primary font-bold text-lg">2</span>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I've Arrived" when you reach the shop</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">Your barber will be notified you're ready and waiting</p>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I'm On The Way"</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Let your barber know you're leaving. We'll hold your slot for a grace period.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">3</span>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I've Arrived"</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">Check in when you reach the shop. Your barber gets an instant notification.</p>
               </div>
             </div>
 
@@ -255,8 +255,8 @@ export default function Home() {
                 <span className="text-primary font-bold text-lg">4</span>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Cancel anytime to free the slot for walk-ins</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">No-shows affect queue efficiency, so help others by canceling if plans change</p>
+                <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Rate Your Cut</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">After your cut, leave a rating and review to help others find the best barbers.</p>
               </div>
             </div>
           </div>
