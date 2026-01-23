@@ -236,7 +236,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg uppercase tracking-wide mb-2">Tap "I'm On The Way"</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">Let your barber know you're leaving. We'll hold your slot for a grace period.</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">Heading out? Let us know. If you are running late, notify your barber so that they can give you a grace period.</p>
               </div>
             </div>
 
