@@ -55,18 +55,18 @@ export default function Home() {
               and walk in exactly when the chair is ready.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-20">
               <Link href="/shops">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto w-full sm:w-auto">
                   Find a Barber
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5 text-lg px-8 py-6 h-auto">
+              <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5 text-lg px-8 py-6 h-auto w-full sm:w-auto backdrop-blur-sm">
                 How it Works
               </Button>
               <Link href="/admin">
-                <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-primary text-lg px-8 py-6 h-auto">
+                <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-primary text-lg px-8 py-6 h-auto w-full sm:w-auto">
                   Admin Portal
                 </Button>
               </Link>
