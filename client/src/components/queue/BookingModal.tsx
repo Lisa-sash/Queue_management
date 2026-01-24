@@ -108,10 +108,14 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
               id="phone"
               data-testid="input-phone"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. 082 123 4567"
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhone(value);
+              }}
+              placeholder="e.g. 0821234567"
               className="bg-background border-white/10 focus:border-primary/50"
               type="tel"
+              maxLength={10}
             />
             <p className="text-[10px] text-muted-foreground">Used for SMS updates and booking recovery.</p>
           </div>
