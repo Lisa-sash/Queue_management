@@ -126,7 +126,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
             <Button 
               type="submit" 
               data-testid="button-confirm-booking"
-              disabled={!name.trim() || !phone.trim() || isSubmitting}
+              disabled={!name.trim() || phone.length !== 10 || isSubmitting}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? (
