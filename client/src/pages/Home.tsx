@@ -36,7 +36,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
 
-        <div className="container mx-auto px-4 relative z-10 pt-20">
+        <div className="container mx-auto px-4 relative z-10 pt-20 pb-20">
           <div className="max-w-2xl space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/20 backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -55,18 +55,18 @@ export default function Home() {
               and walk in exactly when the chair is ready.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-20">
+            <div className="flex flex-wrap gap-4 pt-8 relative z-30">
               <Link href="/shops">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto w-full sm:w-auto">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto shadow-xl shadow-primary/20">
                   Find a Barber
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5 text-lg px-8 py-6 h-auto w-full sm:w-auto backdrop-blur-sm">
+              <Button size="lg" variant="outline" className="border-white/20 bg-background/40 hover:bg-background/60 backdrop-blur-md text-lg px-8 py-6 h-auto">
                 How it Works
               </Button>
               <Link href="/admin">
-                <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-primary text-lg px-8 py-6 h-auto w-full sm:w-auto">
+                <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-primary hover:bg-primary/5 text-lg px-8 py-6 h-auto">
                   Admin Portal
                 </Button>
               </Link>
