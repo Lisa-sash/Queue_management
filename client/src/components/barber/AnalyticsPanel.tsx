@@ -340,7 +340,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={peakHoursMonthly}>
+                <AreaChart data={realStats.peakHours?.length ? realStats.peakHours : peakHoursMonthly}>
                   <defs>
                     <linearGradient id="colorPeak" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>

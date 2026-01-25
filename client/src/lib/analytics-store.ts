@@ -92,7 +92,10 @@ export const analyticsStore = {
       color: ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#eab308'][i % 5]
     }));
 
-    const hours = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+    const hours = [
+      '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', 
+      '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
+    ];
     const realPeakHours = hours.map(h => ({
       hour: h,
       clients: hourDataMap[h] || 0
