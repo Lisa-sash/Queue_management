@@ -245,12 +245,6 @@ export default function BarberDashboard() {
     );
     
     if (isWalkIn) {
-      setWalkIns(prev =>
-        prev.map(item =>
-          item.id === id ? { ...item, status: 'completed' as const } : item
-        )
-      );
-      
       // Add completed walk-in to booking store so it shows up in analytics
       if (client) {
         bookingStore.addBooking({
@@ -269,8 +263,20 @@ export default function BarberDashboard() {
           shopLocation: "Main Street"
         });
       }
+      
+      // Remove from local walk-ins state since it's now in bookingStore
+      // This prevents duplicates in the queue list
+      setWalkIns(prev => prev.filter(item => item.id !== id));
+      setQueue(prev => prev.filter(item => item.id !== id));
+      
     } else {
       bookingStore.updateBooking(id, { userStatus: 'completed' as any });
+      
+      setQueue(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status: 'completed' as const } : item
+        )
+      );
     }
     addNotification('booking', `Finished cutting ${client?.clientName}`);
     

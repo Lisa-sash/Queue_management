@@ -23,9 +23,22 @@ export const analyticsStore = {
     const barberBookings = allBookings.filter(b => b.barberId === barberId);
     
     const today = new Date().toDateString();
-    const cutsToday = barberBookings.filter(b => 
-      b.bookingDate === 'today' && b.userStatus === 'completed'
-    ).length;
+    const cutsToday = barberBookings.filter(b => {
+      if (b.userStatus !== 'completed') return false;
+      if (b.bookingDate === 'today') return true;
+      
+      // Fallback: check ID timestamp for walk-ins/converted bookings
+      const parts = b.id.split('-');
+      // ID format: booking-TIMESTAMP-RANDOM
+      if (parts.length >= 2) {
+        const timestamp = parseInt(parts[1]);
+        if (!isNaN(timestamp)) {
+           const bDate = new Date(timestamp);
+           return bDate.toDateString() === today;
+        }
+      }
+      return false;
+    }).length;
 
     const cutsThisMonth = barberBookings.filter(b => {
       const bDate = new Date(parseInt(b.id.split('-')[1]));
