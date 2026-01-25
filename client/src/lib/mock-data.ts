@@ -64,7 +64,6 @@ export const MOCK_BARBERS: Barber[] = [
       { id: 's22', time: '19:00', status: 'available', type: 'app' },
       { id: 's23', time: '19:30', status: 'available', type: 'app' },
       { id: 's24', time: '20:00', status: 'available', type: 'app' },
-      { id: 's25', time: '20:30', status: 'available', type: 'app' },
     ]
   },
   {
@@ -99,7 +98,6 @@ export const MOCK_BARBERS: Barber[] = [
       { id: 'e22', time: '19:00', status: 'available', type: 'app' },
       { id: 'e23', time: '19:30', status: 'available', type: 'app' },
       { id: 'e24', time: '20:00', status: 'available', type: 'app' },
-      { id: 'e25', time: '20:30', status: 'available', type: 'app' },
     ]
   }
 ];
@@ -109,7 +107,7 @@ export function generateTomorrowSlots(prefix: string): Slot[] {
     "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
     "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
-    "19:00", "19:30", "20:00", "20:30"
+    "19:00", "19:30", "20:00"
   ];
   return times.map((time, i) => ({
     id: `${prefix}-tmrw-s${i + 1}`,
