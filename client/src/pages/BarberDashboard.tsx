@@ -250,6 +250,25 @@ export default function BarberDashboard() {
           item.id === id ? { ...item, status: 'completed' as const } : item
         )
       );
+      
+      // Add completed walk-in to booking store so it shows up in analytics
+      if (client) {
+        bookingStore.addBooking({
+          shopName: shopName || "Unknown Shop",
+          barberId: barberId,
+          clientName: client.clientName,
+          slotTime: client.time,
+          userStatus: 'completed',
+          haircutName: client.haircutName || "Walk-in Cut",
+          bookingDate: 'today',
+          clientPhone: "0000000000", // Placeholder for walk-ins
+          // Required fields for Booking interface
+          barberName: barberName,
+          barberAvatar: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60",
+          slotId: client.id,
+          shopLocation: "Main Street"
+        });
+      }
     } else {
       bookingStore.updateBooking(id, { userStatus: 'completed' as any });
     }

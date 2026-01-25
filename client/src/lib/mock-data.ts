@@ -28,6 +28,7 @@ export interface Booking {
   userStatus: 'pending' | 'on-the-way' | 'will-be-late' | 'cancelled' | 'arrived' | 'cutting' | 'completed';
   shopName: string;
   shopLocation: string;
+  haircutName?: string;
 }
 
 export const MOCK_BARBERS: Barber[] = [
