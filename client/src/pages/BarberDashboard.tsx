@@ -395,7 +395,7 @@ export default function BarberDashboard() {
 
   const completedCount = queue.filter(q => q.status === 'completed').length;
   const bookedCount = queue.filter(q => q.type === 'app').length;
-  const walkInsCount = queue.filter(q => q.type === 'walk-in').length;
+  const walkInsCount = queue.filter(q => q.type === 'walk-in' && q.status !== 'completed').length;
   const pendingCount = queue.filter(q => q.status !== 'completed' && q.status !== 'no-show').length;
   const currentWaitTime = pendingCount > 0 ? pendingCount * 30 : 0;
 
