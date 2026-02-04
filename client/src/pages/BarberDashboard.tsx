@@ -11,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Bell, Settings, Menu, X, UserPlus, Scissors, CalendarDays, BarChart3, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { bookingStore, BookingWithCode } from "@/lib/booking-store";
+import { bookingStore } from "@/lib/booking-store";
+import { barberStore } from "@/lib/barber-store";
+import { api, Booking } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -47,14 +49,14 @@ export default function BarberDashboard() {
 
   // Check if logged in
   useEffect(() => {
-    const auth = localStorage.getItem("barberAuth");
-    if (!auth) {
+    const currentBarber = barberStore.getCurrentBarber();
+    if (!currentBarber) {
       setLocation("/barber/login");
       return;
     }
-    const parsed = JSON.parse(auth);
-    setBarberName(parsed.name || "Barber");
-    setShopName(parsed.shop || "");
+    setBarberName(currentBarber.name || "Barber");
+    setShopName(currentBarber.shop || "");
+    setBarberId(currentBarber.id);
   }, [setLocation]);
 
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -97,12 +99,11 @@ export default function BarberDashboard() {
 
   // Load walk-ins and notifications from localStorage on mount
   useEffect(() => {
-    const auth = localStorage.getItem("barberAuth");
-    if (auth) {
-      const parsed = JSON.parse(auth);
-      const odayKey = new Date().toISOString().split('T')[0];
-      const savedWalkIns = localStorage.getItem(`walkIns_${parsed.barberId}_${odayKey}`);
-      const savedNotifications = localStorage.getItem(`notifications_${parsed.barberId}_${odayKey}`);
+    const currentBarber = barberStore.getCurrentBarber();
+    if (currentBarber) {
+      const todayKey = new Date().toISOString().split('T')[0];
+      const savedWalkIns = localStorage.getItem(`walkIns_${currentBarber.id}_${todayKey}`);
+      const savedNotifications = localStorage.getItem(`notifications_${currentBarber.id}_${todayKey}`);
       
       if (savedWalkIns) {
         try {
@@ -134,14 +135,9 @@ export default function BarberDashboard() {
     }
   }, [notifications, barberId]);
 
-  // Load real bookings from bookingStore
-  useEffect(() => {
-    const auth = localStorage.getItem("barberAuth");
-    if (auth) {
-      const parsed = JSON.parse(auth);
-      setBarberId(parsed.barberId || "");
-    }
-  }, []);
+
+  const today = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
   // Subscribe to booking store and sync real bookings
   useEffect(() => {
@@ -155,9 +151,9 @@ export default function BarberDashboard() {
         return timeA.localeCompare(timeB);
       };
 
-      // Separate today and tomorrow bookings with absolute strictness
-      const todayBookings = myBookings.filter(b => b.bookingDate === 'today').sort(sortTime);
-      const tomorrowBookings = myBookings.filter(b => b.bookingDate === 'tomorrow').sort(sortTime);
+      // Separate today and tomorrow bookings by date
+      const todayBookings = myBookings.filter(b => b.bookingDate === today).sort(sortTime);
+      const tomorrowBookings = myBookings.filter(b => b.bookingDate === tomorrow).sort(sortTime);
 
       // Convert today's bookings to queue items
       const queueItems: QueueItem[] = todayBookings.map(booking => {
@@ -245,24 +241,8 @@ export default function BarberDashboard() {
     );
     
     if (isWalkIn) {
-      // Add completed walk-in to booking store so it shows up in analytics
-      if (client) {
-        bookingStore.addBooking({
-          shopName: shopName || "Unknown Shop",
-          barberId: barberId,
-          clientName: client.clientName,
-          slotTime: client.time,
-          userStatus: 'completed',
-          haircutName: client.haircutName || "Walk-in Cut",
-          bookingDate: 'today',
-          clientPhone: "0000000000", // Placeholder for walk-ins
-          // Required fields for Booking interface
-          barberName: barberName,
-          barberAvatar: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=60",
-          slotId: client.id,
-          shopLocation: "Main Street"
-        });
-      }
+      // Walk-ins are completed immediately, no need to add to booking store
+      // Just remove from local state
       
       // Remove from local walk-ins state since it's now in bookingStore
       // This prevents duplicates in the queue list
@@ -385,7 +365,7 @@ export default function BarberDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("barberAuth");
+    barberStore.logout();
     toast({
       title: "Logged Out",
       description: "See you next time!",

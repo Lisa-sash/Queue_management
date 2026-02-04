@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBarberSchema, insertBookingSchema, insertShopSchema } from "@shared/schema";
 import { z } from "zod";
-import { sendBookingConfirmation } from "./twilio";
+import { sendBookingConfirmation, sendStatusUpdate } from "./twilio";
+import bcrypt from "bcryptjs";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -57,9 +58,15 @@ export async function registerRoutes(
   app.post("/api/barbers/login", async (req, res) => {
     const { email, password } = req.body;
     const barber = await storage.getBarberByEmail(email);
-    if (!barber || barber.password !== password) {
+    if (!barber) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
+    
+    const isValid = await bcrypt.compare(password, barber.password);
+    if (!isValid) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+    
     res.json({
       id: barber.id,
       name: barber.name,
@@ -78,10 +85,12 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Email already registered" });
       }
       
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
       const barber = await storage.createBarber({
         name,
         email,
-        password,
+        password: hashedPassword,
         shopName,
         shopId: null,
         avatar: null,
@@ -208,10 +217,31 @@ export async function registerRoutes(
   });
 
   app.patch("/api/bookings/:id", async (req, res) => {
+    const booking = await storage.getBooking(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    
     const updated = await storage.updateBooking(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ error: "Booking not found" });
     }
+    
+    const statusChanged = req.body.userStatus && req.body.userStatus !== booking.userStatus;
+    if (statusChanged && ['cutting', 'completed', 'cancelled'].includes(req.body.userStatus)) {
+      sendStatusUpdate(
+        updated.clientPhone,
+        updated.clientName,
+        updated.accessCode,
+        req.body.userStatus,
+        updated.shopName,
+        updated.barberName,
+        updated.slotTime,
+        updated.notifySms ?? true,
+        updated.notifyWhatsapp ?? false
+      ).catch(err => console.error("Status notification error:", err));
+    }
+    
     res.json(updated);
   });
 

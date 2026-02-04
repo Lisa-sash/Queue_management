@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, AlertCircle, CheckCircle, X, Star } from "lucide-react";
-import { Booking } from "@/lib/mock-data";
+import { Booking } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { RatingModal, RatingData } from "@/components/rating/RatingModal";
 
@@ -23,11 +23,12 @@ interface BookingStatusCardProps {
 export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }: BookingStatusCardProps) {
   const [showRatingModal, setShowRatingModal] = useState(false);
 
-  const isLate = booking.userStatus === 'will-be-late';
-  const isOnTheWay = booking.userStatus === 'on-the-way';
-  const isCancelled = booking.userStatus === 'cancelled';
-  const isArrived = booking.userStatus === 'arrived';
-  const isCompleted = (booking as ExtendedBooking).isCompleted || booking.userStatus === 'completed';
+  const userStatus = booking.userStatus || 'pending';
+  const isLate = userStatus === 'will-be-late';
+  const isOnTheWay = userStatus === 'on-the-way';
+  const isCancelled = userStatus === 'cancelled';
+  const isArrived = userStatus === 'arrived';
+  const isCompleted = (booking as ExtendedBooking).isCompleted || userStatus === 'completed';
   const hasRated = (booking as ExtendedBooking).hasRated;
   const showArrivedButton = isOnTheWay || isLate;
   const cancelledByBarber = (booking as ExtendedBooking).cancelledByBarber;
@@ -108,8 +109,8 @@ export function BookingStatusCard({ booking, onStatusChange, onCancel, onRate }:
               </p>
             </div>
           </div>
-          <div className={cn("text-xs font-bold uppercase tracking-wider", statusColor[booking.userStatus])}>
-            {statusLabel[booking.userStatus]}
+          <div className={cn("text-xs font-bold uppercase tracking-wider", statusColor[userStatus as keyof typeof statusColor] || statusColor.pending)}>
+            {statusLabel[userStatus as keyof typeof statusLabel] || statusLabel.pending}
           </div>
         </div>
 

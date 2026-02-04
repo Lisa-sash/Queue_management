@@ -101,8 +101,45 @@ export async function sendBookingConfirmation(
   notifySms: boolean,
   notifyWhatsapp: boolean
 ): Promise<void> {
-  const dateLabel = bookingDate === 'today' ? 'today' : 'tomorrow';
+  const today = new Date().toISOString().split('T')[0];
+  const dateLabel = bookingDate === today ? 'today' : 'tomorrow';
   const message = `Hi ${clientName}! Your QueueCut booking is confirmed.\n\nAccess Code: ${accessCode}\nBarber: ${barberName}\nShop: ${shopName}\nTime: ${slotTime} ${dateLabel}\n\nSave this code to manage your booking!`;
+  
+  if (notifySms) {
+    await sendSMS(clientPhone, message);
+  }
+  
+  if (notifyWhatsapp) {
+    await sendWhatsApp(clientPhone, message);
+  }
+}
+
+export async function sendStatusUpdate(
+  clientPhone: string,
+  clientName: string,
+  accessCode: string,
+  status: string,
+  shopName: string,
+  barberName: string,
+  slotTime: string,
+  notifySms: boolean,
+  notifyWhatsapp: boolean
+): Promise<void> {
+  let message = '';
+  
+  switch (status) {
+    case 'cutting':
+      message = `Hi ${clientName}! Your barber ${barberName} at ${shopName} has started your cut.\n\nAccess Code: ${accessCode}\nTime: ${slotTime}`;
+      break;
+    case 'completed':
+      message = `Hi ${clientName}! Your cut with ${barberName} at ${shopName} is complete. Thanks for visiting!\n\nAccess Code: ${accessCode}\n\nWe'd love your feedback!`;
+      break;
+    case 'cancelled':
+      message = `Hi ${clientName}, your booking at ${shopName} with ${barberName} at ${slotTime} has been cancelled.\n\nAccess Code: ${accessCode}\n\nPlease rebook at your convenience.`;
+      break;
+    default:
+      return;
+  }
   
   if (notifySms) {
     await sendSMS(clientPhone, message);

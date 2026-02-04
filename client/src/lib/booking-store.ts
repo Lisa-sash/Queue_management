@@ -1,79 +1,96 @@
-import { Booking } from "./mock-data";
-
-function generateAccessCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 4; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-}
+import { api, Booking } from "./api";
 
 export interface BookingWithCode extends Booking {
-  accessCode: string;
-  bookingDate: 'today' | 'tomorrow';
-  clientPhone?: string;
-  notificationPrefs?: {
-    sms: boolean;
-    whatsapp: boolean;
-  };
+  bookingDate: string;
 }
 
-const STORAGE_KEY = 'booking_store_data';
+let bookings: BookingWithCode[] = [];
+let listeners: (() => void)[] = [];
+let initialized = false;
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
-// Load initial data from localStorage
-const savedBookings = localStorage.getItem(STORAGE_KEY);
-let bookings: BookingWithCode[] = savedBookings ? JSON.parse(savedBookings) : [];
-
-const persist = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+const notifyListeners = () => {
+  listeners.forEach(fn => fn());
 };
 
-let listeners: (() => void)[] = [];
+const loadBookings = async () => {
+  try {
+    const data = await api.bookings.list();
+    bookings = data as BookingWithCode[];
+    notifyListeners();
+    initialized = true;
+  } catch (e) {
+    console.error("Failed to load bookings:", e);
+  }
+};
+
+const startAutoRefresh = () => {
+  if (refreshInterval) return;
+  refreshInterval = setInterval(() => {
+    loadBookings();
+  }, 5000);
+};
+
+const stopAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+};
+
+loadBookings();
+startAutoRefresh();
 
 export const bookingStore = {
   getBookings: () => bookings,
   
-  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string, notificationPrefs?: { sms: boolean, whatsapp: boolean } }): BookingWithCode => {
-    const accessCode = generateAccessCode();
-    const bookingDate = booking.bookingDate || 'today';
-    const newBooking: BookingWithCode = {
-      ...booking,
-      id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      accessCode,
-      bookingDate,
-      clientPhone: booking.clientPhone,
-      notificationPrefs: booking.notificationPrefs,
-    };
-    bookings = [...bookings, newBooking];
-    persist();
-    
-    // Simulate notifications
-    if (booking.notificationPrefs?.sms) {
-      console.log(`[SMS Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
+  addBooking: async (booking: {
+    barberId: string;
+    barberName: string;
+    barberAvatar?: string;
+    clientName: string;
+    clientPhone: string;
+    slotTime: string;
+    bookingDate: string;
+    shopName: string;
+    shopLocation?: string;
+    notifySms?: boolean;
+    notifyWhatsapp?: boolean;
+    haircutName?: string;
+  }): Promise<BookingWithCode> => {
+    const newBooking = await api.bookings.create(booking);
+    bookings = [...bookings, newBooking as BookingWithCode];
+    notifyListeners();
+    return newBooking as BookingWithCode;
+  },
+  
+  updateBooking: async (id: string, updates: Partial<BookingWithCode>) => {
+    const updated = await api.bookings.update(id, updates);
+    bookings = bookings.map(b => b.id === id ? (updated as BookingWithCode) : b);
+    notifyListeners();
+    return updated;
+  },
+  
+  findByCode: async (code: string): Promise<BookingWithCode | undefined> => {
+    try {
+      const booking = await api.bookings.getByCode(code);
+      return booking as BookingWithCode;
+    } catch {
+      return undefined;
     }
-    if (booking.notificationPrefs?.whatsapp) {
-      console.log(`[WhatsApp Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
+  },
+  
+  findByPhone: async (phone: string): Promise<BookingWithCode[]> => {
+    try {
+      const results = await api.bookings.listByPhone(phone);
+      return results as BookingWithCode[];
+    } catch {
+      return [];
     }
-    
-    listeners.forEach(fn => fn());
-    return newBooking;
   },
   
-  updateBooking: (id: string, updates: Partial<BookingWithCode>) => {
-    bookings = bookings.map(b => 
-      b.id === id ? { ...b, ...updates } : b
-    );
-    persist();
-    listeners.forEach(fn => fn());
-  },
-  
-  findByCode: (code: string): BookingWithCode | undefined => {
-    return bookings.find(b => b.accessCode.toUpperCase() === code.toUpperCase());
-  },
-  
-  findByPhone: (phone: string): BookingWithCode[] => {
-    return bookings.filter(b => b.clientPhone === phone);
+  refresh: async () => {
+    await loadBookings();
   },
   
   subscribe: (fn: () => void) => {
@@ -81,5 +98,8 @@ export const bookingStore = {
     return () => {
       listeners = listeners.filter(l => l !== fn);
     };
-  }
+  },
+  
+  stopAutoRefresh,
+  startAutoRefresh,
 };
