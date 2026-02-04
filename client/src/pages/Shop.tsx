@@ -44,7 +44,7 @@ export default function Shop() {
     setIsModalOpen(true);
   };
 
-  const handleBookingConfirm = (name: string, phone: string) => {
+  const handleBookingConfirm = (name: string, phone: string, notificationPrefs: { sms: boolean; whatsapp: boolean }) => {
     if (!selectedSlotId) return;
 
     if (bookingForLoggedBarber) {
@@ -64,6 +64,7 @@ export default function Shop() {
         shopName: shopName,
         shopLocation: location,
         bookingDate: day,
+        notificationPrefs,
       });
 
       setLastAccessCode(newBooking.accessCode);
@@ -73,9 +74,13 @@ export default function Shop() {
         clientName: name,
       });
 
+      const channelText = notificationPrefs.sms && notificationPrefs.whatsapp 
+        ? "SMS and WhatsApp" 
+        : notificationPrefs.sms ? "SMS" : "WhatsApp";
+
       toast({
         title: "Booking Confirmed!",
-        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked. An SMS with your access code ${newBooking.accessCode} has been sent to ${phone}.`,
+        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked. A confirmation via ${channelText} with your access code ${newBooking.accessCode} has been sent.`,
       });
     } else {
       const slot = barber.slots.find(s => s.id === selectedSlotId);
@@ -92,13 +97,18 @@ export default function Shop() {
         userStatus: 'pending',
         shopName: shopName,
         shopLocation: location,
+        notificationPrefs,
       });
 
       setLastAccessCode(newBooking.accessCode);
 
+      const channelText = notificationPrefs.sms && notificationPrefs.whatsapp 
+        ? "SMS and WhatsApp" 
+        : notificationPrefs.sms ? "SMS" : "WhatsApp";
+
       toast({
         title: "Booking Confirmed!",
-        description: `Your slot at ${slot.time} with ${barber.name} is booked. An SMS with your access code ${newBooking.accessCode} has been sent to ${phone}.`,
+        description: `Your slot at ${slot.time} with ${barber.name} is booked. A confirmation via ${channelText} with your access code ${newBooking.accessCode} has been sent.`,
       });
 
       setBarber(prev => {
