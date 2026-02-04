@@ -115,14 +115,10 @@ export const analyticsStore = {
   getManagerStats: (shopName?: string) => {
     const allBookings = bookingStore.getBookings();
     
-    // Get the list of barber IDs that belong to this shop
-    const shopBarbers = shopName && shopName !== 'both' 
-      ? barberStore.getBarbersByShop(shopName)
-      : barberStore.getBarbers();
-    
-    const shopBarberIds = new Set(shopBarbers.map(b => b.id));
-    
-    const filteredBookings = allBookings.filter(b => shopBarberIds.has(b.barberId));
+    // Filter bookings by shop name directly from booking data
+    const filteredBookings = shopName 
+      ? allBookings.filter(b => b.shopName?.toLowerCase().includes(shopName.toLowerCase()))
+      : allBookings;
     
     // Only count COMPLETED bookings for the stats
     const completedBookings = filteredBookings.filter(b => b.userStatus === 'completed');
