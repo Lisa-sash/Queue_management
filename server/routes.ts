@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBarberSchema, insertBookingSchema, insertShopSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendBookingConfirmation } from "./twilio";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -187,12 +188,17 @@ export async function registerRoutes(
         notifyWhatsapp: notifyWhatsapp ?? false,
       });
       
-      if (notifySms) {
-        console.log(`[SMS] Sending to ${clientPhone}: Your QueueCut access code is ${booking.accessCode}. Booking at ${shopName} with ${barberName} at ${slotTime}.`);
-      }
-      if (notifyWhatsapp) {
-        console.log(`[WhatsApp] Sending to ${clientPhone}: Your QueueCut access code is ${booking.accessCode}. Booking at ${shopName} with ${barberName} at ${slotTime}.`);
-      }
+      sendBookingConfirmation(
+        clientPhone,
+        clientName,
+        booking.accessCode,
+        shopName,
+        barberName,
+        slotTime,
+        bookingDate,
+        notifySms ?? true,
+        notifyWhatsapp ?? false
+      ).catch(err => console.error("Notification error:", err));
       
       res.status(201).json(booking);
     } catch (e) {
