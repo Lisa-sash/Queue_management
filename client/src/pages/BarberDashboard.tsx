@@ -241,14 +241,10 @@ export default function BarberDashboard() {
     );
     
     if (isWalkIn) {
-      // Walk-ins are completed immediately, no need to add to booking store
-      // Just remove from local state
-      
-      // Remove from local walk-ins state since it's now in bookingStore
-      // This prevents duplicates in the queue list
-      setWalkIns(prev => prev.filter(item => item.id !== id));
-      setQueue(prev => prev.filter(item => item.id !== id));
-      
+      // Update walk-in status to completed (keep in state for stats)
+      setWalkIns(prev => prev.map(item =>
+        item.id === id ? { ...item, status: 'completed' as const } : item
+      ));
     } else {
       bookingStore.updateBooking(id, { userStatus: 'completed' as any });
       
@@ -375,7 +371,7 @@ export default function BarberDashboard() {
 
   const completedCount = queue.filter(q => q.status === 'completed').length;
   const bookedCount = queue.filter(q => q.type === 'app').length;
-  const walkInsCount = queue.filter(q => q.type === 'walk-in' && q.status !== 'completed').length;
+  const walkInsCount = queue.filter(q => q.type === 'walk-in').length;
   const pendingCount = queue.filter(q => q.status !== 'completed' && q.status !== 'no-show').length;
   const currentWaitTime = pendingCount > 0 ? pendingCount * 30 : 0;
 
