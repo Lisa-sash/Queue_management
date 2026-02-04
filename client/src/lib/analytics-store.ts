@@ -70,8 +70,7 @@ export const analyticsStore = {
 
     const getDayStats = (dayOffset: number) => {
       const now = new Date();
-      // Calculate current week's Monday
-      const currentDay = now.getDay(); // 0 is Sunday, 1 is Monday
+      const currentDay = now.getDay();
       const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
       
       const monday = new Date(now);
@@ -80,12 +79,20 @@ export const analyticsStore = {
 
       const targetDate = new Date(monday);
       targetDate.setDate(monday.getDate() + dayOffset);
+      const targetDateStr = targetDate.toISOString().split('T')[0];
       
       const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'short' });
-      const count = barberBookings.filter(b => {
-        const bDate = new Date(parseInt(b.id.split('-')[1]));
-        return b.userStatus === 'completed' && bDate.toDateString() === targetDate.toDateString();
+      
+      // Count bookings for this day
+      let count = barberBookings.filter(b => {
+        return b.userStatus === 'completed' && b.bookingDate === targetDateStr;
       }).length;
+      
+      // Add walk-ins for today only
+      if (targetDateStr === todayStr) {
+        count += completedWalkIns;
+      }
+      
       return { day: dayName, current: count };
     };
 
@@ -94,13 +101,21 @@ export const analyticsStore = {
     const serviceDataMap: Record<string, number> = {};
     const hourDataMap: Record<string, number> = {};
     
+    // Process completed bookings
     barberBookings.filter(b => b.userStatus === 'completed').forEach(b => {
-      // Service distribution
       const service = (b as any).haircutName || 'Standard Cut';
       serviceDataMap[service] = (serviceDataMap[service] || 0) + 1;
       
-      // Peak hours
-      const hour = b.slotTime.split(':')[0] + ':00';
+      const hour = b.slotTime.split(':')[0].padStart(2, '0') + ':00';
+      hourDataMap[hour] = (hourDataMap[hour] || 0) + 1;
+    });
+    
+    // Process walk-ins
+    walkIns.filter(w => w.status === 'completed').forEach(w => {
+      const service = w.haircutName || 'Standard Cut';
+      serviceDataMap[service] = (serviceDataMap[service] || 0) + 1;
+      
+      const hour = w.time.split(':')[0].padStart(2, '0') + ':00';
       hourDataMap[hour] = (hourDataMap[hour] || 0) + 1;
     });
 
