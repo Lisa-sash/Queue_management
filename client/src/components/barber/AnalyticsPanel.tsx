@@ -160,7 +160,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           <TooltipTrigger asChild>
             <div className="cursor-help inline-block">
               <p className="text-2xl font-heading font-bold flex items-center gap-2 group">
-                {label.toLowerCase().includes('revenue') ? `R ${value.replace('$', '')}` : value}
+                {value}
                 <Info className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
               </p>
             </div>
@@ -623,7 +623,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={managerStats.totalRevenue.toLocaleString()} 
+          value={`R ${managerStats.totalRevenue.toLocaleString()}`} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."

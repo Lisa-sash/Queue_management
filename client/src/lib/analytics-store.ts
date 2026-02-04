@@ -119,11 +119,15 @@ export const analyticsStore = {
       clients: hourDataMap[h] || 0
     }));
 
+    // Revenue includes completed bookings + completed walk-ins
+    const bookingRevenue = barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0);
+    const walkInRevenue = completedWalkIns * 250;
+    
     return {
       cutsToday,
       cutsThisMonth,
       completionRate,
-      totalRevenue: barberBookings.reduce((acc, b) => acc + (b.userStatus === 'completed' ? 250 : 0), 0),
+      totalRevenue: bookingRevenue + walkInRevenue,
       weeklyData: realWeeklyData,
       serviceData: realServiceData,
       peakHours: realPeakHours
@@ -141,7 +145,21 @@ export const analyticsStore = {
     // Only count COMPLETED bookings for the stats
     const completedBookings = filteredBookings.filter(b => b.userStatus === 'completed');
     
-    const totalClients = completedBookings.length;
+    // Get all walk-ins from localStorage (check all barber IDs from bookings)
+    const todayKey = new Date().toISOString().split('T')[0];
+    const barberIds = new Set(allBookings.map(b => b.barberId));
+    let totalWalkIns = 0;
+    barberIds.forEach(barberId => {
+      const saved = localStorage.getItem(`walkIns_${barberId}_${todayKey}`);
+      if (saved) {
+        try {
+          const walkIns = JSON.parse(saved);
+          totalWalkIns += walkIns.filter((w: any) => w.status === 'completed').length;
+        } catch {}
+      }
+    });
+    
+    const totalClients = completedBookings.length + totalWalkIns;
 
     const getDayStats = (dayOffset: number) => {
       const now = new Date();
