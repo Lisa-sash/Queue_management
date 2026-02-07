@@ -80,16 +80,22 @@ export async function registerRoutes(
     try {
       const { name, email, password, shopName } = req.body;
       
-      const existing = await storage.getBarberByEmail(email);
+      if (!name || !email || !password || !shopName) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+      
+      const normalizedEmail = email.toLowerCase().trim();
+      
+      const existing = await storage.getBarberByEmail(normalizedEmail);
       if (existing) {
-        return res.status(400).json({ error: "Email already registered" });
+        return res.status(400).json({ error: "This email is already registered. Try logging in instead." });
       }
       
       const hashedPassword = await bcrypt.hash(password, 10);
       
       const barber = await storage.createBarber({
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         shopName,
         shopId: null,
@@ -104,9 +110,12 @@ export async function registerRoutes(
         shopName: barber.shopName,
         avatar: barber.avatar,
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Register error:", e);
-      res.status(500).json({ error: "Registration failed" });
+      if (e.code === '23505') {
+        return res.status(400).json({ error: "This email is already registered. Try logging in instead." });
+      }
+      res.status(500).json({ error: "Registration failed. Please try again." });
     }
   });
 
