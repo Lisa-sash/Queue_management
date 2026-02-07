@@ -1,9 +1,19 @@
-// Twilio integration for SMS and WhatsApp notifications
 import twilio from 'twilio';
 
-let connectionSettings: any;
+type TwilioCredentials = {
+  mode: 'env' | 'replit';
+  accountSid: string;
+  authToken?: string;
+  apiKey?: string;
+  apiKeySecret?: string;
+  phoneNumber: string;
+};
 
-async function getCredentials() {
+let cachedCredentials: TwilioCredentials | null = null;
+
+async function getCredentials(): Promise<TwilioCredentials> {
+  if (cachedCredentials) return cachedCredentials;
+
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -11,35 +21,49 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
-
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=twilio',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
+  if (hostname && xReplitToken) {
+    const connectionSettings = await fetch(
+      'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=twilio',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'X_REPLIT_TOKEN': xReplitToken
+        }
       }
-    }
-  ).then(res => res.json()).then(data => data.items?.[0]);
+    ).then(res => res.json()).then(data => data.items?.[0]);
 
-  if (!connectionSettings || (!connectionSettings.settings.account_sid || !connectionSettings.settings.api_key || !connectionSettings.settings.api_key_secret)) {
-    throw new Error('Twilio not connected');
+    if (connectionSettings?.settings?.account_sid && connectionSettings?.settings?.api_key && connectionSettings?.settings?.api_key_secret) {
+      cachedCredentials = {
+        mode: 'replit',
+        accountSid: connectionSettings.settings.account_sid,
+        apiKey: connectionSettings.settings.api_key,
+        apiKeySecret: connectionSettings.settings.api_key_secret,
+        phoneNumber: connectionSettings.settings.phone_number,
+      };
+      return cachedCredentials;
+    }
   }
-  return {
-    accountSid: connectionSettings.settings.account_sid,
-    apiKey: connectionSettings.settings.api_key,
-    apiKeySecret: connectionSettings.settings.api_key_secret,
-    phoneNumber: connectionSettings.settings.phone_number
-  };
+
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+    cachedCredentials = {
+      mode: 'env',
+      accountSid: process.env.TWILIO_ACCOUNT_SID,
+      authToken: process.env.TWILIO_AUTH_TOKEN,
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER,
+    };
+    return cachedCredentials;
+  }
+
+  throw new Error('Twilio credentials not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER environment variables, or configure the Replit Twilio connector.');
 }
 
 export async function getTwilioClient() {
-  const { accountSid, apiKey, apiKeySecret } = await getCredentials();
-  return twilio(apiKey, apiKeySecret, {
-    accountSid: accountSid
+  const creds = await getCredentials();
+  if (creds.mode === 'env') {
+    return twilio(creds.accountSid, creds.authToken!);
+  }
+  return twilio(creds.apiKey!, creds.apiKeySecret!, {
+    accountSid: creds.accountSid
   });
 }
 
