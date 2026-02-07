@@ -84,9 +84,11 @@ export default function BarberLogin() {
 
       setLocation("/barber/dashboard");
     } catch (e: any) {
+      const errorMsg = e.message || "Unable to create account. Please try again.";
+      setLoginError(errorMsg);
       toast({
         title: "Registration Failed",
-        description: e.message || "Unable to create account. Please try again.",
+        description: errorMsg,
         variant: "destructive",
       });
     }
