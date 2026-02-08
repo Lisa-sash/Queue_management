@@ -54,8 +54,6 @@ export const bookingStore = {
     bookingDate: string;
     shopName: string;
     shopLocation?: string;
-    notifySms?: boolean;
-    notifyWhatsapp?: boolean;
     haircutName?: string;
   }): Promise<BookingWithCode> => {
     const newBooking = await api.bookings.create(booking);

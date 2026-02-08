@@ -60,8 +60,6 @@ export interface Booking {
   accessCode: string;
   userStatus: string | null;
   haircutName: string | null;
-  notifySms: boolean | null;
-  notifyWhatsapp: boolean | null;
 }
 
 export const api = {
@@ -106,8 +104,6 @@ export const api = {
       bookingDate: string;
       shopName: string;
       shopLocation?: string;
-      notifySms?: boolean;
-      notifyWhatsapp?: boolean;
       haircutName?: string;
     }) => request<Booking>('/bookings', {
       method: 'POST',

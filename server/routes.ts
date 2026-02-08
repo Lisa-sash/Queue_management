@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBarberSchema, insertBookingSchema, insertShopSchema } from "@shared/schema";
 import { z } from "zod";
-import { sendBookingConfirmation, sendStatusUpdate } from "./twilio";
 import bcrypt from "bcryptjs";
 
 export async function registerRoutes(
@@ -185,8 +184,6 @@ export async function registerRoutes(
         bookingDate,
         shopName,
         shopLocation,
-        notifySms,
-        notifyWhatsapp,
         haircutName,
       } = req.body;
       
@@ -202,21 +199,7 @@ export async function registerRoutes(
         shopLocation,
         userStatus: "pending",
         haircutName,
-        notifySms: notifySms ?? true,
-        notifyWhatsapp: notifyWhatsapp ?? false,
       });
-      
-      sendBookingConfirmation(
-        clientPhone,
-        clientName,
-        booking.accessCode,
-        shopName,
-        barberName,
-        slotTime,
-        bookingDate,
-        notifySms ?? true,
-        notifyWhatsapp ?? false
-      ).catch(err => console.error("Notification error:", err));
       
       res.status(201).json(booking);
     } catch (e) {
@@ -234,21 +217,6 @@ export async function registerRoutes(
     const updated = await storage.updateBooking(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ error: "Booking not found" });
-    }
-    
-    const statusChanged = req.body.userStatus && req.body.userStatus !== booking.userStatus;
-    if (statusChanged && ['cutting', 'completed', 'cancelled'].includes(req.body.userStatus)) {
-      sendStatusUpdate(
-        updated.clientPhone,
-        updated.clientName,
-        updated.accessCode,
-        req.body.userStatus,
-        updated.shopName,
-        updated.barberName,
-        updated.slotTime,
-        updated.notifySms ?? true,
-        updated.notifyWhatsapp ?? false
-      ).catch(err => console.error("Status notification error:", err));
     }
     
     res.json(updated);

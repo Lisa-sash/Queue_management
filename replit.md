@@ -2,7 +2,7 @@
 
 ## Overview
 
-QueueCut is a full-stack web application for managing barbershop appointments and queues. It provides a customer-facing booking interface, a barber dashboard for queue management, and multi-tenant support for shop organizations. The system handles real-time slot management, booking confirmations via SMS/WhatsApp (Twilio), and analytics for barbers and shop managers.
+QueueCut is a full-stack web application for managing barbershop appointments and queues. It provides a customer-facing booking interface, a barber dashboard for queue management, and multi-tenant support for shop organizations. The system handles real-time slot management, booking confirmations with access codes, and analytics for barbers and shop managers.
 
 ## User Preferences
 
@@ -50,11 +50,6 @@ Preferred communication style: Simple, everyday language.
 ### Database
 - **PostgreSQL**: Primary data store, connection via `DATABASE_URL` environment variable
 - **Drizzle ORM**: Database operations and schema management
-
-### Third-Party Services
-- **Twilio**: SMS and WhatsApp notifications for booking confirmations and status updates
-  - Connected via Replit Connectors API
-  - Credentials fetched dynamically from connector settings
 
 ### UI Libraries
 - **Radix UI**: Accessible component primitives (dialog, dropdown, tabs, etc.)

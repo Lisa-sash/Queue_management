@@ -83,7 +83,7 @@ export default function Shop() {
     setIsModalOpen(true);
   };
 
-  const handleBookingConfirm = async (name: string, phone: string, notificationPrefs: { sms: boolean; whatsapp: boolean }) => {
+  const handleBookingConfirm = async (name: string, phone: string) => {
     if (!selectedSlotId || !selectedBarber) return;
 
     setIsSubmitting(true);
@@ -102,19 +102,13 @@ export default function Shop() {
         bookingDate: selectedDay === 'today' ? today : tomorrow,
         shopName: shopName,
         shopLocation: location,
-        notifySms: notificationPrefs.sms,
-        notifyWhatsapp: notificationPrefs.whatsapp,
       });
 
       setLastAccessCode(newBooking.accessCode);
 
-      const channelText = notificationPrefs.sms && notificationPrefs.whatsapp 
-        ? "SMS and WhatsApp" 
-        : notificationPrefs.sms ? "SMS" : "WhatsApp";
-
       toast({
         title: "Booking Confirmed!",
-        description: `Your slot at ${slot.time} with ${selectedBarber.name} is booked. A confirmation via ${channelText} with your access code ${newBooking.accessCode} has been sent.`,
+        description: `Your slot at ${slot.time} with ${selectedBarber.name} is booked. Your access code is ${newBooking.accessCode}.`,
       });
 
       if (selectedDay === 'today') {
