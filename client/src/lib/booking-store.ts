@@ -13,10 +13,6 @@ export interface BookingWithCode extends Booking {
   accessCode: string;
   bookingDate: 'today' | 'tomorrow';
   clientPhone?: string;
-  notificationPrefs?: {
-    sms: boolean;
-    whatsapp: boolean;
-  };
 }
 
 const STORAGE_KEY = 'booking_store_data';
@@ -34,7 +30,7 @@ let listeners: (() => void)[] = [];
 export const bookingStore = {
   getBookings: () => bookings,
   
-  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string, notificationPrefs?: { sms: boolean, whatsapp: boolean } }): BookingWithCode => {
+  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string }): BookingWithCode => {
     const accessCode = generateAccessCode();
     const bookingDate = booking.bookingDate || 'today';
     const newBooking: BookingWithCode = {
@@ -43,18 +39,12 @@ export const bookingStore = {
       accessCode,
       bookingDate,
       clientPhone: booking.clientPhone,
-      notificationPrefs: booking.notificationPrefs,
     };
     bookings = [...bookings, newBooking];
     persist();
     
-    // Simulate notifications
-    if (booking.notificationPrefs?.sms) {
-      console.log(`[SMS Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
-    }
-    if (booking.notificationPrefs?.whatsapp) {
-      console.log(`[WhatsApp Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
-    }
+    // Simulate SMS notification
+    console.log(`[SMS Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
     
     listeners.forEach(fn => fn());
     return newBooking;

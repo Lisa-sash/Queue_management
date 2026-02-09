@@ -9,14 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (name: string, phone: string, prefs: { sms: boolean; whatsapp: boolean }) => void;
+  onConfirm: (name: string, phone: string) => void;
   timeSlot: string;
   accessCode?: string;
 }
@@ -24,7 +23,6 @@ interface BookingModalProps {
 export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode }: BookingModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [prefs, setPrefs] = useState({ sms: true, whatsapp: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -34,7 +32,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
 
     setIsSubmitting(true);
     setTimeout(() => {
-      onConfirm(name, phone, prefs);
+      onConfirm(name, phone);
       setIsSubmitting(false);
       setShowConfirmation(true);
     }, 1000);
@@ -121,31 +119,6 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
             />
             <p className="text-[10px] text-muted-foreground">Used for SMS updates and booking recovery.</p>
           </div>
-
-          <div className="space-y-3 pt-2">
-            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notification Preferences</Label>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="sms" 
-                  checked={prefs.sms} 
-                  onCheckedChange={(checked) => setPrefs(p => ({ ...p, sms: !!checked }))}
-                  className="border-white/20 data-[state=checked]:bg-primary"
-                />
-                <Label htmlFor="sms" className="text-sm font-normal cursor-pointer">Receive SMS Notification</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="whatsapp" 
-                  checked={prefs.whatsapp} 
-                  onCheckedChange={(checked) => setPrefs(p => ({ ...p, whatsapp: !!checked }))}
-                  className="border-white/20 data-[state=checked]:bg-primary"
-                />
-                <Label htmlFor="whatsapp" className="text-sm font-normal cursor-pointer">Receive WhatsApp Notification</Label>
-              </div>
-            </div>
-          </div>
-
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={handleClose}>
               Cancel
