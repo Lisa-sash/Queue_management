@@ -62,7 +62,12 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white/20 bg-background/40 hover:bg-background/60 backdrop-blur-md text-lg px-8 py-6 h-auto">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/20 bg-background/40 hover:bg-background/60 backdrop-blur-md text-lg px-8 py-6 h-auto"
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 How it Works
               </Button>
             </div>
@@ -197,7 +202,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-card/50 border-t border-white/5">
+      <section id="how-it-works" className="py-20 bg-card/50 border-t border-white/5">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex items-start justify-between mb-12">
             <div>
