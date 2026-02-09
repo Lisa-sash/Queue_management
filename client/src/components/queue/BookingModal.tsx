@@ -9,13 +9,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (name: string, phone: string) => void;
+  onConfirm: (name: string, phone: string, prefs: { sms: boolean; whatsapp: boolean }) => void;
   timeSlot: string;
   accessCode?: string;
 }
@@ -23,6 +24,7 @@ interface BookingModalProps {
 export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode }: BookingModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [prefs, setPrefs] = useState({ sms: true, whatsapp: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -32,7 +34,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
 
     setIsSubmitting(true);
     setTimeout(() => {
-      onConfirm(name, phone);
+      onConfirm(name, phone, prefs);
       setIsSubmitting(false);
       setShowConfirmation(true);
     }, 1000);
@@ -108,11 +110,40 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
               id="phone"
               data-testid="input-phone"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. +27821234567"
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhone(value);
+              }}
+              placeholder="e.g. 0821234567"
               className="bg-background border-white/10 focus:border-primary/50"
               type="tel"
+              maxLength={10}
             />
+            <p className="text-[10px] text-muted-foreground">Used for SMS updates and booking recovery.</p>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notification Preferences</Label>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="sms" 
+                  checked={prefs.sms} 
+                  onCheckedChange={(checked) => setPrefs(p => ({ ...p, sms: !!checked }))}
+                  className="border-white/20 data-[state=checked]:bg-primary"
+                />
+                <Label htmlFor="sms" className="text-sm font-normal cursor-pointer">Receive SMS Notification</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="whatsapp" 
+                  checked={prefs.whatsapp} 
+                  onCheckedChange={(checked) => setPrefs(p => ({ ...p, whatsapp: !!checked }))}
+                  className="border-white/20 data-[state=checked]:bg-primary"
+                />
+                <Label htmlFor="whatsapp" className="text-sm font-normal cursor-pointer">Receive WhatsApp Notification</Label>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
@@ -122,7 +153,7 @@ export function BookingModal({ isOpen, onClose, onConfirm, timeSlot, accessCode 
             <Button 
               type="submit" 
               data-testid="button-confirm-booking"
-              disabled={!name.trim() || !phone.trim() || isSubmitting}
+              disabled={!name.trim() || phone.length !== 10 || isSubmitting}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? (

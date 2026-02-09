@@ -52,12 +52,64 @@ const serviceBreakdownWeekly = [
   { name: 'The Den Special', value: 7, color: '#eab308' },
 ];
 
-// Helper to generate live comparison data from manager stats
-const generateShopComparisonData = (denStats: any, urbanStats: any) => [
-  { metric: 'Revenue', den: denStats.totalRevenue, urban: urbanStats.totalRevenue },
-  { metric: 'Clients', den: denStats.totalClients, urban: urbanStats.totalClients },
-  { metric: 'Wait Time', den: denStats.avgWaitTime, urban: urbanStats.avgWaitTime },
-  { metric: 'Rating', den: denStats.rating, urban: urbanStats.rating },
+const serviceBreakdownMonthly = [
+  { name: 'Skin Fade', value: 145, color: '#f97316' },
+  { name: 'Classic Scissors', value: 112, color: '#3b82f6' },
+  { name: 'Beard Sculpt', value: 78, color: '#22c55e' },
+  { name: 'Buzz Cut', value: 45, color: '#a855f7' },
+  { name: 'The Den Special', value: 32, color: '#eab308' },
+];
+
+const shopComparisonData = [
+  { metric: 'Revenue', den: 4200, urban: 3800 },
+  { metric: 'Clients', den: 120, urban: 110 },
+  { metric: 'Wait Time', den: 12, urban: 15 },
+  { metric: 'Rating', den: 4.8, urban: 4.6 },
+];
+
+const peakHoursWeekly = [
+  { hour: '08:00', clients: 2 },
+  { hour: '10:00', clients: 5 },
+  { hour: '12:00', clients: 4 },
+  { hour: '14:00', clients: 8 },
+  { hour: '16:00', clients: 9 },
+  { hour: '18:00', clients: 6 },
+  { hour: '20:00', clients: 3 },
+];
+
+const peakHoursMonthly = [
+  { hour: '08:00', clients: 12 },
+  { hour: '10:00', clients: 25 },
+  { hour: '12:00', clients: 22 },
+  { hour: '14:00', clients: 45 },
+  { hour: '16:00', clients: 48 },
+  { hour: '18:00', clients: 32 },
+  { hour: '20:00', clients: 15 },
+];
+
+const monthlyComparisonData = [
+  { month: 'Jan', den: 4200, urban: 3800 },
+  { month: 'Feb', den: 4500, urban: 4100 },
+  { month: 'Mar', den: 4800, urban: 4400 },
+  { month: 'Apr', den: 5100, urban: 4700 },
+  { month: 'May', den: 5400, urban: 5000 },
+  { month: 'Jun', den: 5800, urban: 5400 },
+];
+
+const monthlyCutsData = [
+  { month: 'Jan', den: 120, urban: 110 },
+  { month: 'Feb', den: 145, urban: 125 },
+  { month: 'Mar', den: 160, urban: 140 },
+  { month: 'Apr', den: 175, urban: 165 },
+  { month: 'May', den: 190, urban: 180 },
+  { month: 'Jun', den: 210, urban: 195 },
+];
+
+const yearToDateComparisonData = [
+  { metric: 'Revenue', den: 28800, urban: 25200 },
+  { metric: 'Clients', den: 840, urban: 780 },
+  { metric: 'Wait Time', den: 14, urban: 16 },
+  { metric: 'Rating', den: 4.8, urban: 4.6 },
 ];
 
 export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: string; mode?: 'professional' | 'enterprise' }) {
@@ -65,16 +117,12 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
   const [activeShop, setActiveShop] = useState<'both' | 'den' | 'urban'>('both');
   const [realStats, setRealStats] = useState(analyticsStore.getRealTimeStats(barberId));
   const [managerStats, setManagerStats] = useState(analyticsStore.getManagerStats(activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts")));
-  const [denStats, setDenStats] = useState(analyticsStore.getManagerStats("Gentleman's Den"));
-  const [urbanStats, setUrbanStats] = useState(analyticsStore.getManagerStats("Urban Cuts"));
 
   useEffect(() => {
     const updateStats = () => {
       setRealStats(analyticsStore.getRealTimeStats(barberId));
       const targetShop = activeShop === 'both' ? undefined : (activeShop === 'den' ? "Gentleman's Den" : "Urban Cuts");
       setManagerStats(analyticsStore.getManagerStats(targetShop));
-      setDenStats(analyticsStore.getManagerStats("Gentleman's Den"));
-      setUrbanStats(analyticsStore.getManagerStats("Urban Cuts"));
     };
     
     // Initial update when activeShop changes
@@ -83,10 +131,6 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
     // Subscribe to future changes
     return bookingStore.subscribe(updateStats);
   }, [barberId, activeShop]);
-  
-  // Generate live comparison data
-  const shopComparisonData = generateShopComparisonData(denStats, urbanStats);
-  const yearToDateComparisonData = generateShopComparisonData(denStats, urbanStats);
 
   const StatCard = ({ icon: Icon, label, value, change, positive, description, period }: any) => (
     <motion.div 
@@ -116,7 +160,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           <TooltipTrigger asChild>
             <div className="cursor-help inline-block">
               <p className="text-2xl font-heading font-bold flex items-center gap-2 group">
-                {value}
+                {label.toLowerCase().includes('revenue') ? `R ${value.replace('$', '')}` : value}
                 <Info className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
               </p>
             </div>
@@ -254,8 +298,8 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPie>
-                <Pie data={realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownWeekly} innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value">
-                  {(realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownWeekly).map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                <Pie data={realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownMonthly} innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value">
+                  {(realStats.serviceData?.length ? realStats.serviceData : serviceBreakdownMonthly).map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                 </Pie>
                 <RechartsTooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }} />
                 <Legend />
@@ -275,7 +319,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={realStats.peakHours || []}>
+                <BarChart data={realStats.peakHours?.length ? realStats.peakHours : peakHoursWeekly}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                   <XAxis dataKey="hour" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
@@ -296,7 +340,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={realStats.peakHours || []}>
+                <AreaChart data={realStats.peakHours?.length ? realStats.peakHours : peakHoursMonthly}>
                   <defs>
                     <linearGradient id="colorPeak" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
@@ -579,7 +623,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         <StatCard 
           icon={DollarSign} 
           label="Total Revenue" 
-          value={`R ${managerStats.totalRevenue.toLocaleString()}`} 
+          value={managerStats.totalRevenue.toLocaleString()} 
           change="+15%" positive 
           period="vs last month"
           description="Consolidated revenue from all services across selected locations, compared to the previous month's total."
@@ -1107,9 +1151,9 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={denStats.weeklyData?.map((d: any, i: number) => ({ day: d.day, den: d.count, urban: urbanStats.weeklyData?.[i]?.count || 0 })) || []}>
+              <BarChart data={monthlyCutsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
@@ -1152,7 +1196,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={denStats.weeklyData?.map((d: any, i: number) => ({ day: d.day, den: d.count * 250, urban: (urbanStats.weeklyData?.[i]?.count || 0) * 250 })) || []}>
+            <AreaChart data={monthlyComparisonData}>
               <defs>
                 <linearGradient id="colorMonthlyDen" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
@@ -1164,7 +1208,7 @@ export function AnalyticsPanel({ barberId, mode = 'professional' }: { barberId: 
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-              <XAxis dataKey="day" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+              <XAxis dataKey="month" stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}

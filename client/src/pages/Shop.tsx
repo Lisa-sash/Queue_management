@@ -1,141 +1,178 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
+import { QueueStatus } from "@/components/queue/QueueStatus";
+import { SlotList } from "@/components/queue/SlotList";
 import { BookingModal } from "@/components/queue/BookingModal";
+import { MOCK_BARBERS, Barber, Slot } from "@/lib/mock-data";
 import { bookingStore } from "@/lib/booking-store";
-import { barberStore } from "@/lib/barber-store";
-import { Barber, Slot, api } from "@/lib/api";
+import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Phone, Instagram, ArrowLeft, Calendar, User, Loader2 } from "lucide-react";
+import { MapPin, Phone, Instagram, ArrowLeft, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface UnifiedBarber {
-  id: string;
-  name: string;
-  avatar: string;
-  shopName: string;
-}
 
 export default function Shop() {
   const { id } = useParams();
   const { toast } = useToast();
   
+  // Initialize based on ID, fallback to first
+  const initialBarber = MOCK_BARBERS.find(b => b.id === id) || MOCK_BARBERS[0];
+  const [barber, setBarber] = useState<Barber>(initialBarber);
+  
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  const [selectedSlotTime, setSelectedSlotTime] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lastAccessCode, setLastAccessCode] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [allBarbers, setAllBarbers] = useState<UnifiedBarber[]>([]);
-  const [selectedBarber, setSelectedBarber] = useState<UnifiedBarber | null>(null);
-  const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('today');
-  const [todaySlots, setTodaySlots] = useState<Slot[]>([]);
-  const [tomorrowSlots, setTomorrowSlots] = useState<Slot[]>([]);
-
-  const shopName = id === '2' ? "Urban Cuts" : "The Gentleman's Den";
-  const location = id === '2' ? "45 West End Ave" : "128 High Street, Downtown";
-
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-
+  // Reset barber if ID changes
   useEffect(() => {
-    const loadBarbers = async () => {
-      setIsLoading(true);
-      try {
-        const barbers = await barberStore.getBarbersByShop(shopName);
-        setAllBarbers(barbers.map(b => ({
-          id: b.id,
-          name: b.name,
-          avatar: b.avatar || "",
-          shopName: b.shopName,
-        })));
-      } catch (e) {
-        console.error("Failed to load barbers:", e);
-      }
-      setIsLoading(false);
-    };
-    loadBarbers();
-  }, [shopName]);
+    const current = MOCK_BARBERS.find(b => b.id === id) || MOCK_BARBERS[0];
+    setBarber(current);
+  }, [id]);
 
-  useEffect(() => {
-    if (!selectedBarber) return;
-    
-    const loadSlots = async () => {
-      try {
-        const [tSlots, tmSlots] = await Promise.all([
-          barberStore.getSlots(selectedBarber.id, today),
-          barberStore.getSlots(selectedBarber.id, tomorrow),
-        ]);
-        setTodaySlots(tSlots);
-        setTomorrowSlots(tmSlots);
-      } catch (e) {
-        console.error("Failed to load slots:", e);
-      }
-    };
-    loadSlots();
-  }, [selectedBarber, today, tomorrow]);
+  const [bookingForLoggedBarber, setBookingForLoggedBarber] = useState<{ barber: LoggedInBarber; day: 'today' | 'tomorrow' } | null>(null);
 
-  const handleBookClick = (slot: Slot) => {
-    setSelectedSlotId(slot.id);
-    setSelectedSlotTime(slot.time);
+  const handleBookClick = (slotId: string) => {
+    setSelectedSlotId(slotId);
+    setBookingForLoggedBarber(null);
     setIsModalOpen(true);
   };
 
-  const handleBookingConfirm = async (name: string, phone: string) => {
-    if (!selectedSlotId || !selectedBarber) return;
+  const handleLoggedBarberBookClick = (unifiedBarber: UnifiedBarber, day: 'today' | 'tomorrow', slotId: string) => {
+    setSelectedSlotId(slotId);
+    setBookingForLoggedBarber({ barber: unifiedBarber as any, day });
+    setIsModalOpen(true);
+  };
 
-    setIsSubmitting(true);
-    try {
-      const slots = selectedDay === 'today' ? todaySlots : tomorrowSlots;
-      const slot = slots.find(s => s.id === selectedSlotId);
+  const handleBookingConfirm = (name: string, phone: string, notificationPrefs: { sms: boolean; whatsapp: boolean }) => {
+    if (!selectedSlotId) return;
+
+    if (bookingForLoggedBarber) {
+      const { barber: loggedBarber, day } = bookingForLoggedBarber;
+      const slot = loggedBarber.slots[day].find(s => s.id === selectedSlotId);
       if (!slot) return;
 
-      const newBooking = await bookingStore.addBooking({
-        barberId: selectedBarber.id,
-        barberName: selectedBarber.name,
-        barberAvatar: selectedBarber.avatar,
+      const newBooking = bookingStore.addBooking({
+        barberId: loggedBarber.id,
+        barberName: loggedBarber.name,
+        barberAvatar: loggedBarber.avatar,
+        slotId: selectedSlotId,
+        slotTime: slot.time,
         clientName: name,
         clientPhone: phone,
-        slotTime: slot.time,
-        bookingDate: selectedDay === 'today' ? today : tomorrow,
+        userStatus: 'pending',
         shopName: shopName,
         shopLocation: location,
+        bookingDate: day,
+        notificationPrefs,
       });
 
       setLastAccessCode(newBooking.accessCode);
 
+      barberStore.updateSlot(loggedBarber.id, day, selectedSlotId, {
+        status: 'booked',
+        clientName: name,
+      });
+
+      const channelText = notificationPrefs.sms && notificationPrefs.whatsapp 
+        ? "SMS and WhatsApp" 
+        : notificationPrefs.sms ? "SMS" : "WhatsApp";
+
       toast({
         title: "Booking Confirmed!",
-        description: `Your slot at ${slot.time} with ${selectedBarber.name} is booked. Your access code is ${newBooking.accessCode}.`,
+        description: `Your slot at ${slot.time} with ${loggedBarber.name} is booked. A confirmation via ${channelText} with your access code ${newBooking.accessCode} has been sent.`,
+      });
+    } else {
+      const slot = barber.slots.find(s => s.id === selectedSlotId);
+      if (!slot) return;
+
+      const newBooking = bookingStore.addBooking({
+        barberId: barber.id,
+        barberName: barber.name,
+        barberAvatar: barber.avatar,
+        slotId: selectedSlotId,
+        slotTime: slot.time,
+        clientName: name,
+        clientPhone: phone,
+        userStatus: 'pending',
+        shopName: shopName,
+        shopLocation: location,
+        notificationPrefs,
       });
 
-      if (selectedDay === 'today') {
-        setTodaySlots(prev => prev.map(s => s.id === selectedSlotId ? { ...s, status: 'booked', clientName: name } : s));
-      } else {
-        setTomorrowSlots(prev => prev.map(s => s.id === selectedSlotId ? { ...s, status: 'booked', clientName: name } : s));
-      }
-    } catch (e) {
-      console.error("Booking failed:", e);
+      setLastAccessCode(newBooking.accessCode);
+
+      const channelText = notificationPrefs.sms && notificationPrefs.whatsapp 
+        ? "SMS and WhatsApp" 
+        : notificationPrefs.sms ? "SMS" : "WhatsApp";
+
       toast({
-        title: "Booking Failed",
-        description: "There was an error processing your booking. Please try again.",
-        variant: "destructive",
+        title: "Booking Confirmed!",
+        description: `Your slot at ${slot.time} with ${barber.name} is booked. A confirmation via ${channelText} with your access code ${newBooking.accessCode} has been sent.`,
+      });
+
+      setBarber(prev => {
+        const newSlots = prev.slots.map(s => {
+          if (s.id === selectedSlotId) {
+            return { ...s, status: 'booked' as const, clientName: name, type: 'app' as const };
+          }
+          return s;
+        });
+        return { ...prev, slots: newSlots, currentWaitTime: prev.currentWaitTime + 30 };
       });
     }
-    setIsSubmitting(false);
   };
 
-  const availableTodayCount = (barberId: string) => {
-    if (selectedBarber?.id !== barberId) return "View slots";
-    return `${todaySlots.filter(s => s.status === 'available').length} slots today`;
+  const getSelectedSlotTime = () => {
+    if (bookingForLoggedBarber) {
+      const { barber: loggedBarber, day } = bookingForLoggedBarber;
+      return loggedBarber.slots[day].find(s => s.id === selectedSlotId)?.time || "";
+    }
+    return barber.slots.find(s => s.id === selectedSlotId)?.time || "";
   };
+
+  // Mock Shop Details based on ID (usually would come from backend)
+  const shopName = id === '2' ? "Urban Cuts" : "The Gentleman's Den";
+  const location = id === '2' ? "45 West End Ave" : "128 High Street, Downtown";
+
+  interface UnifiedBarber {
+    id: string;
+    name: string;
+    avatar: string;
+    slots: { today: Slot[]; tomorrow: Slot[] };
+  }
+
+  const [allBarbers, setAllBarbers] = useState<UnifiedBarber[]>([]);
+  const [selectedLoggedBarber, setSelectedLoggedBarber] = useState<UnifiedBarber | null>(null);
+  const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('today');
+
+  useEffect(() => {
+    const updateBarbers = () => {
+      const registeredBarbers = barberStore.getBarbersByShop(shopName).map(b => ({
+        id: b.id,
+        name: b.name,
+        avatar: b.avatar,
+        slots: b.slots,
+      }));
+
+      setAllBarbers(registeredBarbers);
+      
+      if (selectedLoggedBarber) {
+        const updatedBarber = registeredBarbers.find(b => b.id === selectedLoggedBarber.id);
+        if (updatedBarber) {
+          setSelectedLoggedBarber(updatedBarber);
+        }
+      }
+    };
+    updateBarbers();
+    return barberStore.subscribe(updateBarbers);
+  }, [shopName, selectedLoggedBarber?.id]);
 
   return (
     <div className="min-h-screen bg-background font-sans pb-20">
       <Navbar />
       
+      {/* Shop Header */}
       <div className="pt-24 pb-8 px-4 bg-card border-b border-white/5">
         <div className="container mx-auto">
           <div className="mb-6">
@@ -166,26 +203,22 @@ export default function Shop() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-8">
-          {isLoading ? (
-            <div className="bg-card border border-white/5 rounded-lg p-8 flex items-center justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : allBarbers.length > 0 ? (
+          {allBarbers.length > 0 && (
             <div className="bg-card border border-white/5 rounded-lg p-6">
               <h2 className="text-2xl font-heading font-bold mb-4 flex items-center gap-2">
                 <User className="w-5 h-5 text-primary" />
                 Find Barbers
               </h2>
               <p className="text-muted-foreground text-sm mb-4">
-                Select a barber to view their available slots for today and tomorrow (8:30am - 8:00pm)
+                Select a barber to view their available slots for today and tomorrow (8:30am - 8:30pm)
               </p>
               <div className="flex flex-wrap gap-3 mb-6">
                 {allBarbers.map((b) => (
                   <button
                     key={b.id}
-                    onClick={() => setSelectedBarber(selectedBarber?.id === b.id ? null : b)}
+                    onClick={() => setSelectedLoggedBarber(selectedLoggedBarber?.id === b.id ? null : b)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${
-                      selectedBarber?.id === b.id
+                      selectedLoggedBarber?.id === b.id
                         ? 'border-primary bg-primary/10'
                         : 'border-white/10 hover:border-primary/50 bg-background'
                     }`}
@@ -196,18 +229,18 @@ export default function Shop() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-sm" data-testid={`barber-name-${b.id}`}>{b.name}</div>
-                      <div className="text-xs text-muted-foreground">{availableTodayCount(b.id)}</div>
+                      <div className="text-xs text-muted-foreground">{b.slots.today.filter(s => s.status === 'available').length} slots today</div>
                     </div>
                   </button>
                 ))}
               </div>
 
-              {selectedBarber && (
+              {selectedLoggedBarber && (
                 <div className="border-t border-white/5 pt-6">
                   <Tabs value={selectedDay} onValueChange={(v) => setSelectedDay(v as 'today' | 'tomorrow')}>
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="font-heading font-bold">{selectedBarber.name}</h3>
+                        <h3 className="font-heading font-bold">{selectedLoggedBarber.name}</h3>
                       </div>
                       <TabsList>
                         <TabsTrigger value="today" className="flex items-center gap-1">
@@ -222,11 +255,11 @@ export default function Shop() {
                     </div>
                     <TabsContent value="today">
                       <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                        {todaySlots.map((slot) => (
+                        {selectedLoggedBarber.slots.today.map((slot) => (
                           <button
                             key={slot.id}
                             disabled={slot.status !== 'available'}
-                            onClick={() => handleBookClick(slot)}
+                            onClick={() => handleLoggedBarberBookClick(selectedLoggedBarber, 'today', slot.id)}
                             className={`p-2 rounded text-xs font-medium transition-all ${
                               slot.status === 'available'
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
@@ -241,11 +274,11 @@ export default function Shop() {
                     </TabsContent>
                     <TabsContent value="tomorrow">
                       <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                        {tomorrowSlots.map((slot) => (
+                        {selectedLoggedBarber.slots.tomorrow.map((slot) => (
                           <button
                             key={slot.id}
                             disabled={slot.status !== 'available'}
-                            onClick={() => handleBookClick(slot)}
+                            onClick={() => handleLoggedBarberBookClick(selectedLoggedBarber, 'tomorrow', slot.id)}
                             className={`p-2 rounded text-xs font-medium transition-all ${
                               slot.status === 'available'
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
@@ -262,7 +295,9 @@ export default function Shop() {
                 </div>
               )}
             </div>
-          ) : (
+          )}
+
+          {allBarbers.length === 0 && (
             <div className="bg-card border border-white/5 rounded-lg p-8 text-center">
               <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-heading font-bold mb-2">No Barbers Available Yet</h3>
@@ -278,7 +313,7 @@ export default function Shop() {
         isOpen={isModalOpen} 
         onClose={() => { setIsModalOpen(false); setLastAccessCode(undefined); }}
         onConfirm={handleBookingConfirm}
-        timeSlot={selectedSlotTime}
+        timeSlot={getSelectedSlotTime()}
         accessCode={lastAccessCode}
       />
     </div>

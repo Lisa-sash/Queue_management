@@ -1,4 +1,5 @@
-import { api, Barber, Slot } from "./api";
+import { Slot } from "./mock-data";
+import { bookingStore } from "./booking-store";
 
 export interface LoggedInBarber {
   id: string;
@@ -6,83 +7,207 @@ export interface LoggedInBarber {
   email: string;
   shop: string;
   avatar: string;
+  slots: { today: Slot[]; tomorrow: Slot[] };
   isLoggedIn: boolean;
 }
 
-const LOGGED_IN_KEY = 'logged_in_barber';
-
-let currentBarber: LoggedInBarber | null = null;
-
-const savedBarber = localStorage.getItem(LOGGED_IN_KEY);
-if (savedBarber) {
-  try {
-    currentBarber = JSON.parse(savedBarber);
-  } catch {
-    localStorage.removeItem(LOGGED_IN_KEY);
-  }
+function generateSlots(prefix: string, bookedTimes: string[] = []): Slot[] {
+  const times = [
+    "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
+    "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+    "19:00", "19:30", "20:00"
+  ];
+  return times.map((time, i) => ({
+    id: `${prefix}-s${i + 1}`,
+    time,
+    status: bookedTimes.includes(time) ? 'booked' as const : 'available' as const,
+    type: 'app' as const,
+  }));
 }
+
+function getRandomAvatar(): string {
+  const avatars = [
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=400&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format&fit=crop&q=60",
+  ];
+  return avatars[Math.floor(Math.random() * avatars.length)];
+}
+
+const STORAGE_KEY = 'barber_store_data';
+const LAST_DATE_KEY = 'barber_store_last_date';
+
+// Load initial data from localStorage
+const savedBarbers = localStorage.getItem(STORAGE_KEY);
+let barbers: LoggedInBarber[] = savedBarbers ? JSON.parse(savedBarbers) : [];
+
+const checkAndRotateSlots = () => {
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem(LAST_DATE_KEY);
+
+  if (lastDate && lastDate !== today) {
+    // It's a new day! Rotate slots.
+    barbers = barbers.map(b => ({
+      ...b,
+      slots: {
+        // Yesterday's tomorrow becomes today
+        today: b.slots.tomorrow.map(s => ({
+          ...s,
+          id: s.id.replace('-tomorrow', '-today').replace('-tmrw', '-today')
+        })),
+        // Generate a fresh tomorrow
+        tomorrow: generateSlots(`${b.id}-tomorrow`)
+      }
+    }));
+
+    // Also rotate bookings in bookingStore
+    const allBookings = bookingStore.getBookings();
+    
+    // Reset all bookings to ensure no overlaps
+    allBookings.forEach(b => {
+      if (b.bookingDate === 'tomorrow') {
+        bookingStore.updateBooking(b.id, { bookingDate: 'today' });
+      } else if (b.bookingDate === 'today') {
+        bookingStore.updateBooking(b.id, { bookingDate: 'archive' as any });
+      }
+    });
+
+    // Get fresh snapshot after rotation
+    const updatedBookings = bookingStore.getBookings();
+
+    // CRITICAL: Update the slots in the barbers themselves to match the rotation
+    barbers = barbers.map(b => {
+      // Regenerate today's slots from scratch to clear any previous state
+      const freshTodaySlots = generateSlots(`${b.id}-today`).map(slot => {
+        // Find bookings specifically for TODAY for this barber
+        const matchingBooking = updatedBookings.find(bk => 
+          bk.barberId === b.id && 
+          bk.slotTime === slot.time && 
+          bk.bookingDate === 'today'
+        );
+        if (matchingBooking) {
+          return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
+        }
+        return { ...slot, status: 'available' as const, clientName: undefined };
+      });
+
+      const freshTomorrowSlots = generateSlots(`${b.id}-tomorrow`).map(slot => {
+        const matchingBooking = updatedBookings.find(bk => 
+          bk.barberId === b.id && 
+          bk.slotTime === slot.time && 
+          bk.bookingDate === 'tomorrow'
+        );
+        if (matchingBooking) {
+          return { ...slot, status: 'booked' as const, clientName: matchingBooking.clientName };
+        }
+        return { ...slot, status: 'available' as const, clientName: undefined };
+      });
+
+      return {
+        ...b,
+        slots: {
+          today: freshTodaySlots,
+          tomorrow: freshTomorrowSlots
+        }
+      };
+    });
+
+    // Final pass: ensure NO yesterday/old bookings are lingering as 'today'
+    updatedBookings.forEach(bk => {
+      if (bk.bookingDate === 'today') {
+        // Double check this booking actually belongs to today's cycle
+      }
+    });
+
+    // Also clear tomorrow slots from the store that might have had bookings
+    // tomorrow slots are regenerated in the map above, but we need to persist it
+    persist();
+    localStorage.setItem(LAST_DATE_KEY, today);
+    listeners.forEach(fn => fn());
+  } else if (!lastDate) {
+    localStorage.setItem(LAST_DATE_KEY, today);
+  }
+};
+
+const persist = () => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(barbers));
+};
 
 let listeners: (() => void)[] = [];
 
-const notifyListeners = () => {
-  listeners.forEach(fn => fn());
-};
-
 export const barberStore = {
-  getBarbers: async (): Promise<Barber[]> => {
-    return api.barbers.list();
+  getBarbers: () => {
+    checkAndRotateSlots();
+    return barbers;
   },
   
-  getBarbersByShop: async (shopName: string): Promise<Barber[]> => {
-    return api.barbers.listByShop(shopName);
+  getBarbersByShop: (shopName: string): LoggedInBarber[] => {
+    checkAndRotateSlots();
+    const target = shopName.toLowerCase().trim();
+    return barbers.filter(b => {
+      const barberShop = b.shop.toLowerCase().trim();
+      return barberShop === target || 
+             (target.includes("urban") && barberShop.includes("urban")) ||
+             ((target.includes("gentleman") || target === "den") && (barberShop.includes("gentleman") || barberShop === "den"));
+    });
   },
 
-  getSlots: async (barberId: string, date: string): Promise<Slot[]> => {
-    return api.slots.list(barberId, date);
+  findByEmail: (email: string): LoggedInBarber | undefined => {
+    return barbers.find(b => b.email.toLowerCase() === email.toLowerCase());
   },
 
-  updateSlot: async (slotId: string, updates: Partial<Slot>) => {
-    return api.slots.update(slotId, updates);
-  },
+  addBarber: (name: string, email: string, shop: string): LoggedInBarber => {
+    const existing = barbers.find(b => b.email === email);
+    if (existing) {
+      barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: true } : b);
+      persist();
+      listeners.forEach(fn => fn());
+      return { ...existing, isLoggedIn: true };
+    }
 
-  login: async (email: string, password: string): Promise<LoggedInBarber> => {
-    const barber = await api.barbers.login(email, password);
-    currentBarber = {
-      id: barber.id,
-      name: barber.name,
-      email: barber.email,
-      shop: barber.shopName,
-      avatar: barber.avatar || "",
+    const id = `barber-${Date.now()}`;
+    const newBarber: LoggedInBarber = {
+      id,
+      name,
+      email,
+      shop,
+      avatar: getRandomAvatar(),
+      slots: {
+        today: generateSlots(`${id}-today`),
+        tomorrow: generateSlots(`${id}-tomorrow`),
+      },
       isLoggedIn: true,
     };
-    localStorage.setItem(LOGGED_IN_KEY, JSON.stringify(currentBarber));
-    notifyListeners();
-    return currentBarber;
+    barbers = [...barbers, newBarber];
+    persist();
+    listeners.forEach(fn => fn());
+    return newBarber;
   },
 
-  register: async (name: string, email: string, password: string, shopName: string): Promise<LoggedInBarber> => {
-    const barber = await api.barbers.register(name, email, password, shopName);
-    currentBarber = {
-      id: barber.id,
-      name: barber.name,
-      email: barber.email,
-      shop: barber.shopName,
-      avatar: barber.avatar || "",
-      isLoggedIn: true,
-    };
-    localStorage.setItem(LOGGED_IN_KEY, JSON.stringify(currentBarber));
-    notifyListeners();
-    return currentBarber;
+  logoutBarber: (email: string) => {
+    barbers = barbers.map(b => b.email === email ? { ...b, isLoggedIn: false } : b);
+    persist();
+    listeners.forEach(fn => fn());
   },
 
-  logout: () => {
-    currentBarber = null;
-    localStorage.removeItem(LOGGED_IN_KEY);
-    notifyListeners();
-  },
-
-  getCurrentBarber: (): LoggedInBarber | null => {
-    return currentBarber;
+  updateSlot: (barberId: string, day: 'today' | 'tomorrow', slotId: string, updates: Partial<Slot>) => {
+    barbers = barbers.map(b => {
+      if (b.id === barberId) {
+        return {
+          ...b,
+          slots: {
+            ...b.slots,
+            [day]: b.slots[day].map(s => s.id === slotId ? { ...s, ...updates } : s),
+          },
+        };
+      }
+      return b;
+    });
+    persist();
+    listeners.forEach(fn => fn());
   },
 
   subscribe: (fn: () => void) => {

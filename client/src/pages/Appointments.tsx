@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { bookingStore, BookingWithCode } from "@/lib/booking-store";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { 
+  Search, Calendar, Clock, MapPin, Scissors, 
+  ArrowRight, Ticket, User, Phone, AlertCircle,
+  History, LogIn
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,57 +18,50 @@ export default function Appointments() {
   const [activeTab, setActiveTab] = useState<'code' | 'phone'>('code');
   const [foundBookings, setFoundBookings] = useState<BookingWithCode[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const { toast } = useToast();
 
-  const handleSearch = async (e: React.FormEvent) => {
+  useEffect(() => {
+    return bookingStore.subscribe(() => {
+      if (foundBookings.length > 0) {
+        const updated = foundBookings.map(fb => 
+          bookingStore.getBookings().find(b => b.id === fb.id)
+        ).filter(Boolean) as BookingWithCode[];
+        setFoundBookings(updated);
+      }
+    });
+  }, [foundBookings]);
+
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    setIsSearching(true);
-    try {
-      let results: BookingWithCode[] = [];
-      if (activeTab === 'code') {
-        const booking = await bookingStore.findByCode(searchQuery.trim());
-        if (booking) results = [booking];
-      } else {
-        results = await bookingStore.findByPhone(searchQuery.trim());
-      }
+    let results: BookingWithCode[] = [];
+    if (activeTab === 'code') {
+      const booking = bookingStore.findByCode(searchQuery.trim());
+      if (booking) results = [booking];
+    } else {
+      results = bookingStore.findByPhone(searchQuery.trim());
+    }
 
-      setFoundBookings(results);
-      setHasSearched(true);
+    setFoundBookings(results);
+    setHasSearched(true);
 
-      if (results.length === 0) {
-        toast({
-          title: "No appointments found",
-          description: `We couldn't find any bookings matching that ${activeTab === 'code' ? 'access code' : 'phone number'}.`,
-          variant: "destructive"
-        });
-      }
-    } catch (e) {
-      console.error("Search error:", e);
+    if (results.length === 0) {
       toast({
-        title: "Search failed",
-        description: "Unable to search for appointments. Please try again.",
+        title: "No appointments found",
+        description: `We couldn't find any bookings matching that ${activeTab === 'code' ? 'access code' : 'phone number'}.`,
         variant: "destructive"
       });
     }
-    setIsSearching(false);
   };
 
-  const handleStatusChange = async (bookingId: string, status: any) => {
-    try {
-      await bookingStore.updateBooking(bookingId, { userStatus: status });
-      
-      setFoundBookings(prev => prev.map(b => 
-        b.id === bookingId ? { ...b, userStatus: status } : b
-      ));
-      
-      toast({ title: "Status Updated", description: "Your barber has been notified." });
-    } catch (e) {
-      console.error("Status update error:", e);
-      toast({ title: "Update failed", description: "Please try again.", variant: "destructive" });
+  const handleStatusChange = (bookingId: string, status: any) => {
+    if (status === 'completed') {
+      bookingStore.updateBooking(bookingId, { userStatus: 'arrived', isCompleted: true } as any);
+    } else {
+      bookingStore.updateBooking(bookingId, { userStatus: status });
     }
+    toast({ title: "Status Updated", description: "Your barber has been notified." });
   };
 
   return (
@@ -91,15 +88,8 @@ export default function Appointments() {
             </div>
 
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
-              <Input 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                placeholder={activeTab === 'code' ? "Enter 4-digit code" : "Enter phone number"} 
-                className="flex-1 h-14 bg-background border-white/10 text-lg" 
-              />
-              <Button type="submit" size="lg" className="h-14 px-8 font-bold" disabled={isSearching}>
-                {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Search'}
-              </Button>
+              <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={activeTab === 'code' ? "Enter 4-digit code" : "Enter phone number"} className="flex-1 h-14 bg-background border-white/10 text-lg" />
+              <Button type="submit" size="lg" className="h-14 px-8 font-bold">Search</Button>
             </form>
           </motion.div>
 

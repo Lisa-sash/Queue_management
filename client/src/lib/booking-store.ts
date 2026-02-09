@@ -1,94 +1,79 @@
-import { api, Booking } from "./api";
+import { Booking } from "./mock-data";
 
-export interface BookingWithCode extends Booking {
-  bookingDate: string;
+function generateAccessCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
-let bookings: BookingWithCode[] = [];
+export interface BookingWithCode extends Booking {
+  accessCode: string;
+  bookingDate: 'today' | 'tomorrow';
+  clientPhone?: string;
+  notificationPrefs?: {
+    sms: boolean;
+    whatsapp: boolean;
+  };
+}
+
+const STORAGE_KEY = 'booking_store_data';
+
+// Load initial data from localStorage
+const savedBookings = localStorage.getItem(STORAGE_KEY);
+let bookings: BookingWithCode[] = savedBookings ? JSON.parse(savedBookings) : [];
+
+const persist = () => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+};
+
 let listeners: (() => void)[] = [];
-let initialized = false;
-let refreshInterval: ReturnType<typeof setInterval> | null = null;
-
-const notifyListeners = () => {
-  listeners.forEach(fn => fn());
-};
-
-const loadBookings = async () => {
-  try {
-    const data = await api.bookings.list();
-    bookings = data as BookingWithCode[];
-    notifyListeners();
-    initialized = true;
-  } catch (e) {
-    console.error("Failed to load bookings:", e);
-  }
-};
-
-const startAutoRefresh = () => {
-  if (refreshInterval) return;
-  refreshInterval = setInterval(() => {
-    loadBookings();
-  }, 5000);
-};
-
-const stopAutoRefresh = () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
-};
-
-loadBookings();
-startAutoRefresh();
 
 export const bookingStore = {
   getBookings: () => bookings,
   
-  addBooking: async (booking: {
-    barberId: string;
-    barberName: string;
-    barberAvatar?: string;
-    clientName: string;
-    clientPhone: string;
-    slotTime: string;
-    bookingDate: string;
-    shopName: string;
-    shopLocation?: string;
-    haircutName?: string;
-  }): Promise<BookingWithCode> => {
-    const newBooking = await api.bookings.create(booking);
-    bookings = [...bookings, newBooking as BookingWithCode];
-    notifyListeners();
-    return newBooking as BookingWithCode;
-  },
-  
-  updateBooking: async (id: string, updates: Partial<BookingWithCode>) => {
-    const updated = await api.bookings.update(id, updates);
-    bookings = bookings.map(b => b.id === id ? (updated as BookingWithCode) : b);
-    notifyListeners();
-    return updated;
-  },
-  
-  findByCode: async (code: string): Promise<BookingWithCode | undefined> => {
-    try {
-      const booking = await api.bookings.getByCode(code);
-      return booking as BookingWithCode;
-    } catch {
-      return undefined;
+  addBooking: (booking: Omit<Booking, 'id'> & { bookingDate?: 'today' | 'tomorrow', clientPhone?: string, notificationPrefs?: { sms: boolean, whatsapp: boolean } }): BookingWithCode => {
+    const accessCode = generateAccessCode();
+    const bookingDate = booking.bookingDate || 'today';
+    const newBooking: BookingWithCode = {
+      ...booking,
+      id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      accessCode,
+      bookingDate,
+      clientPhone: booking.clientPhone,
+      notificationPrefs: booking.notificationPrefs,
+    };
+    bookings = [...bookings, newBooking];
+    persist();
+    
+    // Simulate notifications
+    if (booking.notificationPrefs?.sms) {
+      console.log(`[SMS Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
     }
-  },
-  
-  findByPhone: async (phone: string): Promise<BookingWithCode[]> => {
-    try {
-      const results = await api.bookings.listByPhone(phone);
-      return results as BookingWithCode[];
-    } catch {
-      return [];
+    if (booking.notificationPrefs?.whatsapp) {
+      console.log(`[WhatsApp Simulation] Sending to ${booking.clientPhone}: Your QueueCut access code is ${accessCode}. Shop: ${booking.shopName}`);
     }
+    
+    listeners.forEach(fn => fn());
+    return newBooking;
   },
   
-  refresh: async () => {
-    await loadBookings();
+  updateBooking: (id: string, updates: Partial<BookingWithCode>) => {
+    bookings = bookings.map(b => 
+      b.id === id ? { ...b, ...updates } : b
+    );
+    persist();
+    listeners.forEach(fn => fn());
+  },
+  
+  findByCode: (code: string): BookingWithCode | undefined => {
+    return bookings.find(b => b.accessCode.toUpperCase() === code.toUpperCase());
+  },
+  
+  findByPhone: (phone: string): BookingWithCode[] => {
+    return bookings.filter(b => b.clientPhone === phone);
   },
   
   subscribe: (fn: () => void) => {
@@ -96,8 +81,5 @@ export const bookingStore = {
     return () => {
       listeners = listeners.filter(l => l !== fn);
     };
-  },
-  
-  stopAutoRefresh,
-  startAutoRefresh,
+  }
 };

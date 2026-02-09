@@ -3,29 +3,22 @@ import { Link } from "wouter";
 import { ArrowRight, MapPin, Star, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
-import { barberStore } from "@/lib/barber-store";
-import { Barber } from "@/lib/api";
+import { MOCK_BARBERS } from "@/lib/mock-data";
+import { barberStore, LoggedInBarber } from "@/lib/barber-store";
 import generatedImage from '@assets/generated_images/modern_dark_industrial_barbershop_interior.png';
 import urbanCutsImage from '@assets/image_1767897075901.png';
 
 export default function Home() {
-  const [gentlemansBarbers, setGentlemansBarbers] = useState<Barber[]>([]);
-  const [urbanBarbers, setUrbanBarbers] = useState<Barber[]>([]);
+  const [gentlemansBarbers, setGentlemansBarbers] = useState<LoggedInBarber[]>([]);
+  const [urbanBarbers, setUrbanBarbers] = useState<LoggedInBarber[]>([]);
 
   useEffect(() => {
-    const loadBarbers = async () => {
-      try {
-        const [gentlemans, urban] = await Promise.all([
-          barberStore.getBarbersByShop("The Gentleman's Den"),
-          barberStore.getBarbersByShop("Urban Cuts"),
-        ]);
-        setGentlemansBarbers(gentlemans);
-        setUrbanBarbers(urban);
-      } catch (e) {
-        console.error("Failed to load barbers:", e);
-      }
+    const updateBarbers = () => {
+      setGentlemansBarbers(barberStore.getBarbersByShop("The Gentleman's Den"));
+      setUrbanBarbers(barberStore.getBarbersByShop("Urban Cuts"));
     };
-    loadBarbers();
+    updateBarbers();
+    return barberStore.subscribe(updateBarbers);
   }, []);
 
   return (
